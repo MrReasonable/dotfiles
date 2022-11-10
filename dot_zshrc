@@ -1,0 +1,95 @@
+# The following lines were added by compinstall
+zstyle :compinstall filename '/Users/iandominey/.zshrc'
+
+autoload -Uz compinit
+compinit
+# End of lines added by compinstall
+if [[ ! -f $HOME/.zi/bin/zi.zsh ]]; then
+  print -P "%F{33}▓▒░ %F{160}Installing (%F{33}z-shell/zi%F{160})…%f"
+  command mkdir -p "$HOME/.zi" && command chmod go-rwX "$HOME/.zi"
+  command git clone -q --depth=1 --branch "main" https://github.com/z-shell/zi "$HOME/.zi/bin" && \
+    print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
+    print -P "%F{160}▓▒░ The clone has failed.%f%b"
+fi
+source "$HOME/.zi/bin/zi.zsh"
+autoload -Uz _zi
+(( ${+_comps} )) && _comps[zi]=_zi
+# examples here -> https://wiki.zshell.dev/ecosystem/category/-annexes
+zicompinit # <- https://wiki.zshell.dev/docs/guides/commands
+
+zi lucid light-mode for OMZP::ssh-agent
+
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+
+zi wait lucid light-mode for \
+    OMZP::colored-man-pages \
+    OMZP::common-aliases \
+    OMZP::direnv \
+    OMZP::rbenv \
+    OMZP::iterm2 \
+    OMZP::jenv \
+    OMZP::composer \
+    z-shell/zzcomplete \
+    z-shell/ZUI \
+    TwoPizza9621536/zsh-plenv \
+    OMZP::docker \
+    OMZP::nvm \
+    OMZP::golang \
+    z-shell/z-a-rust \
+    z-shell/z-a-man \
+    zpm-zsh/tmux \
+    xlshiz/pyenv-zsh-plugin \
+  atpull'zinit creinstall -q' \
+    is-snippet /opt/homebrew/Cellar/zsh/5.9/share/zsh/functions/_git \
+  pick'init.zsh' compile'*.zsh' \
+    laggardkernel/zsh-iterm2
+
+# Utilize Turbo and initialize the completion system
+zi wait pack atload=+"zicompinit_fast; zicdreplay" for brew-completions
+# Utilize Turbo and initialize the completion with fast compinit
+zi wait pack atload=+"zicompinit_fast; zicdreplay" for system-completions
+
+export NVM_AUTOLOAD=1
+export NVM_LAZY=1
+
+zi light-mode for z-shell/z-a-meta-plugins \
+  @annexes \
+  @zsh-users \
+  skip'F-Sy-H' @z-shell \
+  @romkatv
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+alias vi="nvim"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+
+export CLICOLOR=1
+
+alias ls="exa --icons"
+alias update-all="brew update && brew update --cask && brew upgrade && brew cleanup && zi cclear && zi update -p -a && zi cclear && zi compinit"
+
+zstyle ':completion:complete:*:options' sort false
+zstyle ':fzf-tab:complete:_zlua:*' query-string input
+
+export GPG_TTY=$TTY
+export EDITOR=nvim
+export TMUX_AUTOSTART=false
+export TMUX_MOTD=false
+
+# pnpm
+export PNPM_HOME="/Users/iandominey/Library/pnpm"
+export PATH="$PNPM_HOME:$PATH"
+# pnpm end
+
+export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+PATH=/opt/homebrew/opt/make/libexec/gnubin:/Users/iandominey/.plenv/shims:/Users/iandominey/.jenv/shims:/Users/iandominey/.rbenv/shims:/opt/homebrew/opt/openjdk/bin:/Users/iandominey/Library/pnpm:/Users/iandominey/.nvm/versions/node/v19.0.1/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/iandominey/.plenv/shims:/Users/iandominey/.rbenv/shims:/Users/iandominey/Library/pnpm:/Users/iandominey/.nvm/versions/node/v19.0.1/bin:/Users/iandominey/.zi/polaris/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/iandominey/.cargo/bin:/Users/iandominey/.zi/plugins/zpm-zsh---tmux/bin:/Users/iandominey/.zi/plugins/laggardkernel---zsh-iterm2/bin:/Users/iandominey/.zi/plugins/zpm-zsh---tmux/bin:/Users/iandominey/.zi/plugins/laggardkernel---zsh-iterm2/bin:/Users/iandominey/.plenv/shims:/Users/iandominey/.jenv/shims:/Users/iandominey/.rbenv/shims:/opt/homebrew/opt/openjdk/bin:/Users/iandominey/Library/pnpm:/Users/iandominey/.nvm/versions/node/v19.0.1/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/iandominey/.plenv/shims:/Users/iandominey/.rbenv/shims:/Users/iandominey/Library/pnpm:/Users/iandominey/.nvm/versions/node/v19.0.1/bin:/Users/iandominey/.zi/polaris/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/iandominey/.cargo/bin:/Users/iandominey/.zi/plugins/zpm-zsh---tmux/bin:/Users/iandominey/.zi/plugins/laggardkernel---zsh-iterm2/bin:/Users/iandominey/.zi/plugins/zpm-zsh---tmux/bin
+export PATH="/opt/homebrew/opt/unzip/bin:$PATH"
