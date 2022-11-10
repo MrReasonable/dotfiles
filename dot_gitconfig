@@ -1,0 +1,14 @@
+[filter "lfs"]
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+[user]
+	name = Ian Dominey
+	email = 4990954+MrReasonable@users.noreply.github.com
+[pull]
+	ff = only
+[init]
+	defaultBranch = main
+[core]
+	excludesfile = /Users/iandominey/.gitignore
