@@ -4,11 +4,11 @@
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 [user]
-	name = Ian Dominey
-	email = 4990954+MrReasonable@users.noreply.github.com
+	name = {{ .name | quote }}
+	email = {{ .email | quote }}
 [pull]
 	ff = only
 [init]
 	defaultBranch = main
 [core]
-	excludesfile = /Users/iandominey/.gitignore
+	excludesfile = {{ .chezmoi.homeDir }}/.gitignore
