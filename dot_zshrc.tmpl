@@ -53,8 +53,11 @@ zi wait lucid light-mode for \
 {{- end }}
 
 # Utilize Turbo and initialize the completion system
+{{- if eq .chezmoi.os "darwin" }}
 zi wait pack atload=+"zicompinit_fast; zicdreplay" for brew-completions
-# Utilize Turbo and initialize the completion with fast compinit
+{{- end }}
+
+#Utilize Turbo and initialize the completion with fast compinit
 zi wait pack atload=+"zicompinit_fast; zicdreplay" for system-completions
 
 export NVM_AUTOLOAD=1
@@ -77,7 +80,12 @@ export NVM_DIR="$HOME/.nvm"
 export CLICOLOR=1
 
 alias ls="exa --icons"
+{{- if eq .chezmoi.os "darwin" }}
 alias update-all="brew update && brew update --cask && brew upgrade && brew cleanup && zi cclear && zi update -p -a && zi cclear && zi compinit"
+{{- else }}
+alias update-all="sudo apt-get update && sudo apt-get dist-upgrade && sudo
+apt-get --purge autoremove && zi cclear && zi update -p -a && zi cclear && zi compinit"
+{{- end }}
 
 zstyle ':completion:complete:*:options' sort false
 zstyle ':fzf-tab:complete:_zlua:*' query-string input
@@ -91,6 +99,7 @@ export TMUX_MOTD=false
 export PNPM_HOME="{{ .chezmoi.homeDir }}/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 # pnpm end
-
+{{- if eq .chezmoi.os "darwing" }}
 export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
 export PATH="/opt/homebrew/opt/unzip/bin:$PATH"
+{{- end }}
