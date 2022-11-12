@@ -1,2 +1,5 @@
 .config/nvim/plugin
 .tmux/plugins
+{{ if ne .chezmoi.os "darwin" }}
+Brewfile
+{{ end }}
