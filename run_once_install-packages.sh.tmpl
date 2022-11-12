@@ -1,4 +1,5 @@
-{{ if eq .chezmoi.os "darwin" -}}
-#!bin/sh
+#!/bin/sh
+
+{{ if eq .chezmoi.os "darwin" }}
 brew bundle install
-{{end -}}
+{{ end }}

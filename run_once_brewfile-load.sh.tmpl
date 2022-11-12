@@ -1,0 +1,6 @@
+#!/bin/bash
+
+{{ if eq .chezmoi.os "darwing" }}
+# Brewfile hash: {{ include "Brewfile" | sha256sum }}
+brew bundle install
+{{ end }}
