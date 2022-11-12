@@ -48,6 +48,8 @@ zi wait lucid light-mode for \
     z-shell/z-a-rust \
     zpm-zsh/tmux \
     xlshiz/pyenv-zsh-plugin \
+  as"completion" \
+    OMZP::docker-compose/_docker-compose \
 {{- if eq .chezmoi.os "darwin"}}
   pick'init.zsh' compile'*.zsh' \
     laggardkernel/zsh-iterm2
