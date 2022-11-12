@@ -1,5 +1,8 @@
 # The following lines were added by compinstall
 zstyle :compinstall filename '{{ .chezmoi.homeDir }}/.zshrc'
+{{ if eq .chezmoi.os "darwin" }}
+local brew_dir="$(brew --prefix)"
+{{ end }}
 
 autoload -Uz compinit
 compinit
@@ -39,15 +42,13 @@ zi wait lucid light-mode for \
     z-shell/ZUI \
     TwoPizza9621536/zsh-plenv \
     OMZP::docker \
+    OMZP::docker-compose \
     OMZP::nvm \
     OMZP::golang \
     z-shell/z-a-rust \
-    z-shell/z-a-man \
     zpm-zsh/tmux \
     xlshiz/pyenv-zsh-plugin \
 {{- if eq .chezmoi.os "darwin"}}
-  atpull'zinit creinstall -q' \
-    is-snippet /opt/homebrew/Cellar/zsh/5.9/share/zsh/functions/_git \
   pick'init.zsh' compile'*.zsh' \
     laggardkernel/zsh-iterm2
 {{- end }}
@@ -100,6 +101,6 @@ export PNPM_HOME="{{ .chezmoi.homeDir }}/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 # pnpm end
 {{- if eq .chezmoi.os "darwing" }}
-export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
-export PATH="/opt/homebrew/opt/unzip/bin:$PATH"
+export PATH="${brew_dir}/opt/openjdk/bin:$PATH"
+export PATH="${brew_id}/opt/unzip/bin:$PATH"
 {{- end }}

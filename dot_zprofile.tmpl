@@ -1,3 +1,4 @@
-{{- if eq .chezmoi.os "darwin"}}
-eval "$(/opt/homebrew/bin/brew shellenv)"
-{{- end }}
+{{- if eq .chezmoi.os "darwin" -}}
+local brew_dir=$(brew --prefix)
+eval "$(${brew_dir}/bin/brew shellenv)"
+{{- end -}}
