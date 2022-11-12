@@ -62,7 +62,6 @@
     haskell_stack           # haskell version from stack (https://haskellstack.org/)
     kubecontext             # current kubernetes context (https://kubernetes.io/)
     terraform               # terraform workspace (https://www.terraform.io)
-    terraform_version     # terraform version (https://www.terraform.io)
      # =========================[ Line #2 ]=========================
     newline                 # \n
     # prompt_char           # prompt symbol
