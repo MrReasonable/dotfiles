@@ -48,6 +48,9 @@ zi wait lucid light-mode for \
     z-shell/z-a-rust \
     zpm-zsh/tmux \
     xlshiz/pyenv-zsh-plugin \
+    akccakcctw/zsh-better-pnpm-completion \
+    lukechilds/zsh-better-npm-completion \
+    ryutok/rust-zsh-completions \
   as"completion" \
     OMZP::docker-compose/_docker-compose \
 {{- if eq .chezmoi.os "darwin"}}
@@ -102,7 +105,10 @@ export TMUX_MOTD=false
 export PNPM_HOME="{{ .chezmoi.homeDir }}/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 # pnpm end
-{{- if eq .chezmoi.os "darwing" }}
+{{- if eq .chezmoi.os "darwin" }}
 export PATH="${brew_dir}/opt/openjdk/bin:$PATH"
-export PATH="${brew_id}/opt/unzip/bin:$PATH"
+export PATH="${brew_dir}/opt/unzip/bin:$PATH"
+brew ls --versions llvm > /dev/null && \
+  export PATH="$(brew --prefix llvm)/bin:$PATH"
 {{- end }}
+

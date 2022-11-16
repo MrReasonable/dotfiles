@@ -8,7 +8,8 @@ local servers = {
 	"jsonls",
 	"yamlls",
   "phpactor",
-  "gopls"
+  "gopls",
+  "rust_analyzer",
 }
 
 local settings = {
