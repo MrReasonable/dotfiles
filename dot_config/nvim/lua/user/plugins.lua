@@ -82,6 +82,11 @@ return packer.startup(function(use)
   use { "folke/neodev.nvim" }
   use { "folke/trouble.nvim" }
 
+  -- DAP
+  use { 'mfussenegger/nvim-dap' }
+  use { "leoluz/nvim-dap-go" }
+  
+
 	-- Telescope
 	use { "nvim-telescope/telescope.nvim" }
 
