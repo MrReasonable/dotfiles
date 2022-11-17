@@ -12,6 +12,7 @@ require("luasnip/loaders/from_vscode").lazy_load()
 
 local check_backspace = function()
   local col = vim.fn.col "." - 1
+---@diagnostic disable-next-line: param-type-mismatch, undefined-field
   return col == 0 or vim.fn.getline("."):sub(col, col):match "%s"
 end
 
@@ -114,6 +115,8 @@ cmp.setup {
     { name = "luasnip" },
     { name = "buffer" },
     { name = "path" },
+    { name = "nvim_lsp_signature_help" },
+    { name = "zsh"}
   },
   confirm_opts = {
     behavior = cmp.ConfirmBehavior.Replace,
@@ -125,7 +128,7 @@ cmp.setup {
     },
   },
   experimental = {
-    ghost_text = false,
+    ghost_text = true,
     native_menu = false,
   },
 }
