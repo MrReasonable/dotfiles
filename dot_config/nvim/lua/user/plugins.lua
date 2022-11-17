@@ -68,6 +68,9 @@ return packer.startup(function(use)
 	use { "saadparwaiz1/cmp_luasnip" } -- snippet completions
 	use { "hrsh7th/cmp-nvim-lsp" }
 	use { "hrsh7th/cmp-nvim-lua" }
+  use { "hrsh7th/cmp-nvim-lsp-document-symbol" }
+  use { "hrsh7th/cmp-nvim-lsp-signature-help" }
+  use { "tamago324/cmp-zsh" }
 
 	-- Snippets
   use { "L3MON4D3/LuaSnip" } --snippet engine
@@ -85,7 +88,6 @@ return packer.startup(function(use)
   -- DAP
   use { 'mfussenegger/nvim-dap' }
   use { "leoluz/nvim-dap-go" }
-  
 
 	-- Telescope
 	use { "nvim-telescope/telescope.nvim" }
@@ -107,6 +109,11 @@ return packer.startup(function(use)
   -- autoremove whitespace
   use { 'johnfrankmorgan/whitespace.nvim' }
 
+  -- golang
+  use { "crispgm/nvim-go" }
+
+  -- notification
+  use { 'rcarriga/nvim-notify' }
 	-- Automatically set up your configuration after cloning packer.nvim
 	-- Put this at the end after all plugins
 	if PACKER_BOOTSTRAP then
