@@ -5,16 +5,16 @@
         "revision": "5216bbdd9d47b1cb01c0d2cb656de32540ada95d"
       },
       "homebrew/cask": {
-        "revision": "94fa14b0a30f9ce7f1b81f3907da8486c3b4d543"
+        "revision": "eabcc71aeaf1cd8259a814345507581054d78567"
       },
       "homebrew/cask-fonts": {
-        "revision": "236df138e31fb8a8c9e8baadbb00ca90aacc58f8"
+        "revision": "26db6293929f510b49a5de970b47972f7d8e0311"
       },
       "homebrew/command-not-found": {
         "revision": "7e72564ec21b1f7b004a96b0594672188e742a9c"
       },
       "homebrew/core": {
-        "revision": "a71856ff33f957284e115d1e54308934df42e827"
+        "revision": "bbf3cc85e2de26a465eda6ee40b3681535903b5d"
       },
       "homebrew/services": {
         "revision": "88788e6314506b662f971f43af119c641190a4c8"
@@ -3271,6 +3271,20 @@
             }
           }
         }
+      },
+      "nvm": {
+        "version": "0.39.2",
+        "bottle": {
+          "rebuild": 0,
+          "root_url": "https://ghcr.io/v2/homebrew/core",
+          "files": {
+            "all": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/nvm/blobs/sha256:d76a0d093ab555e00c7453ac06cb69d9eadce49588d5e5830a332d18e09b1ce2",
+              "sha256": "d76a0d093ab555e00c7453ac06cb69d9eadce49588d5e5830a332d18e09b1ce2"
+            }
+          }
+        }
       }
     },
     "cask": {
@@ -3377,7 +3391,7 @@
         }
       },
       "spotify": {
-        "version": "1.1.98.691,f759311c,1417",
+        "version": "1.1.98.691,f759311c,1412",
         "options": {
           "full_name": "spotify"
         }
@@ -3418,8 +3432,8 @@
     "macos": {
       "ventura": {
         "HOMEBREW_VERSION": "3.6.11",
-        "HOMEBREW_PREFIX": "/usr/local",
-        "Homebrew/homebrew-core": "a71856ff33f957284e115d1e54308934df42e827",
+        "HOMEBREW_PREFIX": "/opt/homebrew",
+        "Homebrew/homebrew-core": "bbf3cc85e2de26a465eda6ee40b3681535903b5d",
         "CLT": "14.1.0.0.1.1666437224",
         "Xcode": "14.1",
         "macOS": "13.0.1"
