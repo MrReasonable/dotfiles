@@ -90,8 +90,7 @@ alias ls="exa --icons"
 {{- if eq .chezmoi.os "darwin" }}
 alias update-all="brew update && brew update --cask && brew upgrade && brew cleanup && zi cclear && zi update -p -a && zi cclear && zi compinit"
 {{- else }}
-alias update-all="sudo apt-get update && sudo apt-get dist-upgrade && sudo
-apt-get --purge autoremove && zi cclear && zi update -p -a && zi cclear && zi compinit"
+alias update-all="sudo apt-get update && sudo apt-get dist-upgrade && sudo apt-get --purge autoremove && zi cclear && zi update -p -a && zi cclear && zi compinit"
 {{- end }}
 
 zstyle ':completion:complete:*:options' sort false
