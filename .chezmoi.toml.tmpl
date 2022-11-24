@@ -1,4 +1,3 @@
-{{- $email := promptStringOnce . "email" "Email address" -}}
 {{- $name := promptStringOnce . "name" "Name" -}}
 {{- $githubUsername := promptStringOnce . "github_username" "Github Username" -}}
 
@@ -9,5 +8,4 @@
     args = ["-d", {{ `"{{ .Destination }}", "{{ .Source  }}", "{{ .Target }}"` }}]
 [data]
     name = {{ $name | quote }}
-    email = {{ $email | quote  }}
     github_username = {{ $githubUsername | quote  }}
