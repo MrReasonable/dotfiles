@@ -20,6 +20,7 @@ autoload -Uz _zi
 # examples here -> https://wiki.zshell.dev/ecosystem/category/-annexes
 zicompinit # <- https://wiki.zshell.dev/docs/guides/commands
 
+zstyle :omz:plugins:ssh-agent identities $(find ~/.ssh -regex '.+/id_[^.]+$' -printf '%f ')
 zi lucid light-mode for OMZP::ssh-agent
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
@@ -100,6 +101,7 @@ export GPG_TTY=$TTY
 export EDITOR=nvim
 export TMUX_AUTOSTART=false
 export TMUX_MOTD=false
+alias ll="ll -a"
 
 # pnpm
 export PNPM_HOME="{{ .chezmoi.homeDir }}/Library/pnpm"
