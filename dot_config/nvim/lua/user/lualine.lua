@@ -3,6 +3,8 @@ if not status_ok then
 	return
 end
 
+local lsp_status_ok, lsp_status = pcall(require, "lsp-status")
+
 local hide_in_width = function()
 	return vim.fn.winwidth(0) > 80
 end
@@ -48,22 +50,6 @@ local location = {
 	padding = 0,
 }
 
-local lsp_progress = {
-	"lsp_progress",
-	separators = {
-		component = " ",
-		progress = " | ",
-		message = { pre = "(", commenced = "In Progress", completed = "Completed", post = ")" },
-		percentage = { pre = "", post = "%% " },
-		title = { pre = "", post = ": " },
-		lsp_client_name = { pre = "[", post = "]" },
-		spinner = { pre = "", post = "" },
-	},
-	display_components = { "lsp_client_name", "spinner", { "title", "percentage", "message" } },
-	timer = { progress_enddelay = 500, spinner = 1000, lsp_client_name_enddelay = 1000 },
-	spinner_symbols = { '🌑 ', '🌒 ', '🌓 ', '🌔 ', '🌕 ', '🌖 ', '🌗 ', '🌘 ' },
-}
-
 -- cool function for progress
 local progress = function()
 	local current_line = vim.fn.line(".")
@@ -90,8 +76,6 @@ lualine.setup({
 	sections = {
 		lualine_a = { branch, diagnostics },
 		lualine_b = { mode },
-		lualine_c = { lsp_progress },
-		-- lualine_x = { "encoding", "fileformat", "filetype" },
 		lualine_x = { diff, spaces, "encoding", filetype },
 		lualine_y = { location },
 		lualine_z = { progress },

@@ -35,6 +35,7 @@ local options = {
   cc = "80",
   textwidth = 80,
   signcolumn = "yes",                      -- always show the sign column, otherwise it would shift the text each time
+  colorcolumn = "80",
   wrap = true,                            -- display lines as one long line
   linebreak = true,                        -- companion to wrap, don't split words
   scrolloff = 4,                           -- minimal number of screen lines to keep above and below the cursor
