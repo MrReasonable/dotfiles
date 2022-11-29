@@ -100,9 +100,6 @@ return packer.startup(function(use)
 	-- Git
 	use { "lewis6991/gitsigns.nvim" }
 
-  -- lualine plugins
-  use "arkav/lualine-lsp-progress"
-
   -- beacon
   use { 'danilamihailov/beacon.nvim' }
 
