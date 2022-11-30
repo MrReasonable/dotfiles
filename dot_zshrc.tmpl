@@ -20,6 +20,10 @@ autoload -Uz _zi
 # examples here -> https://wiki.zshell.dev/ecosystem/category/-annexes
 zicompinit # <- https://wiki.zshell.dev/docs/guides/commands
 
+{{ if eq .chezmoi.os "darwin" }}
+export PATH="$(brew --prefix)/opt/findutils/libexec/gnubin:$PATH"
+{{ end }}
+
 zstyle :omz:plugins:ssh-agent identities $(find ~/.ssh -regex '.+/id_[^.]+$' -printf '%f ')
 zi lucid light-mode for OMZP::ssh-agent
 
