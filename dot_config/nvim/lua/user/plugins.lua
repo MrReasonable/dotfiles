@@ -111,6 +111,9 @@ return packer.startup(function(use)
 
   -- notification
   use { 'rcarriga/nvim-notify' }
+
+  -- wakatime
+  use { 'wakatime/vim-wakatime' }
 	-- Automatically set up your configuration after cloning packer.nvim
 	-- Put this at the end after all plugins
 	if PACKER_BOOTSTRAP then
