@@ -45,6 +45,7 @@ zi wait lucid light-mode for \
     OMZP::composer \
     z-shell/zzcomplete \
     z-shell/ZUI \
+    zsh-users/zsh-syntax-highlighting \
     TwoPizza9621536/zsh-plenv \
     OMZP::docker \
     OMZP::docker-compose \
@@ -76,8 +77,11 @@ export NVM_LAZY=1
 
 zi light-mode for z-shell/z-a-meta-plugins \
   @annexes \
-  @zsh-users \
-  skip'F-Sy-H' @z-shell \
+  skip'F-Sy-H' @zsh-users+fast \
+  @fuzzy \
+  skip'dircolors-material' @console-tools \
+  @ext-git \
+  @z-shell \
   @romkatv
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
@@ -111,12 +115,16 @@ export TMUX_AUTOSTART=false
 export TMUX_MOTD=false
 alias ll="ll -a"
 
+{{- if eq .chezmoi.hostname "2GDS3M3" }}
+alias restart-sync="systemctl --user restart unrealsync.service"
+{{- end }}
+
 # pnpm
 export PNPM_HOME="{{ .chezmoi.homeDir }}/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 # pnpm end
 {{- if eq .chezmoi.os "darwin" }}
-export PATH="${brew_dir}/opt/openjdk/bin:$PATH"
+export PATH="${brew_dir}/opt/openjdkk/bin:$PATH"
 export PATH="${brew_dir}/opt/unzip/bin:$PATH"
 brew ls --versions llvm > /dev/null && \
   export PATH="$(brew --prefix llvm)/bin:$PATH"
