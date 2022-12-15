@@ -69,9 +69,6 @@ zi wait lucid light-mode for \
 zi wait pack atload=+"zicompinit_fast; zicdreplay" for brew-completions
 {{- end }}
 
-#Utilize Turbo and initialize the completion with fast compinit
-zi wait pack atload=+"zicompinit_fast; zicdreplay" for system-completions
-
 export NVM_AUTOLOAD=1
 export NVM_LAZY=1
 
@@ -98,9 +95,9 @@ alias ls="exa --icons"
 {{- if eq .chezmoi.os "darwin" }}
 alias update-all="brew update && brew update --cask && brew upgrade && brew cleanup && zi cclear && zi update -p -a && zi cclear && zi compinit"
 {{- else }}
-alias update-all="which apt-get > /dev/null && sudo apt-get update && sudo \
-apt-get dist-upgrade && sudo apt-get --purge autoremove; which flatpak > \
-/dev/null && sudo flatpak update;  which snap > /dev/null && sudo snap refresh;\
+alias update-all="which apt-get > /dev/null && sudo apt-get update && sudo apt-get dist-upgrade && sudo apt-get --purge autoremove; \
+which flatpak > /dev/null && flatpak update -y && sudo flatpak update -y;  \
+which snap > /dev/null && sudo snap refresh;\
 zi cclear && zi update -p -a && zi cclear && zi compinit"
 {{- end }}
 
