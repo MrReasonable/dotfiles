@@ -5,9 +5,11 @@
 	smudge = git-lfs smudge -- %f
 [user]
 	name = {{ .name | quote }}
-	useconfigonly = true
+	useConfigOnly = true
 [pull]
 	ff = only
+[branch]
+  autoSetupRebase = always
 [init]
 	defaultBranch = main
 [core]

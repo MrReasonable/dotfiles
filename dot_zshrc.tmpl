@@ -127,6 +127,8 @@ brew ls --versions llvm > /dev/null && \
   export PATH="$(brew --prefix llvm)/bin:$PATH"
 {{- end }}
 
+[ -d $HOME/.local/bin ] && export PATH="$HOME/.local/bin:$PATH"
+
 export HISTFILE=~/.zsh_history
 export HISTSIZE=100000
 export SAVEHIST=100000
