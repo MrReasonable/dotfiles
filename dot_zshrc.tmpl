@@ -49,7 +49,6 @@ zi wait lucid light-mode for \
     TwoPizza9621536/zsh-plenv \
     OMZP::docker \
     OMZP::docker-compose \
-    OMZP::nvm \
     OMZP::golang \
     z-shell/z-a-rust \
     zpm-zsh/tmux \
@@ -69,8 +68,6 @@ zi wait lucid light-mode for \
 zi wait pack atload=+"zicompinit_fast; zicdreplay" for brew-completions
 {{- end }}
 
-export NVM_AUTOLOAD=1
-export NVM_LAZY=1
 
 zi light-mode for z-shell/z-a-meta-plugins \
   @annexes \
@@ -88,6 +85,8 @@ alias vi="nvim"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+
+type nodenv >/dev/null 2>&1 && eval "$(nodenv init -)"
 
 export CLICOLOR=1
 
@@ -112,8 +111,10 @@ export TMUX_AUTOSTART=false
 export TMUX_MOTD=false
 alias ll="ll -a"
 
-{{- if eq .chezmoi.hostname "2GDS3M3" }}
-alias restart-sync="systemctl --user restart unrealsync.service"
+{{- if eq .chezmoi.hostname "G6PYKYXP07"}}
+alias start-sync="launchctl load -w ~/Library/LaunchAgents/dev.unrealsync.plist"
+alias stop-sync="launchctl unload ~/Library/LaunchAgents/dev.unrealsync.plist"
+alias restart-sync="launchctl kickstart -k gui/$(id -u)/dev.unrealsync"
 {{- end }}
 
 # pnpm
