@@ -114,6 +114,9 @@ return packer.startup(function(use)
 
   -- wakatime
   use { 'wakatime/vim-wakatime' }
+
+  -- Zinit plugin syntax highlighting
+  use { 'zdharma-continuum/zinit-vim-syntax' }
 	-- Automatically set up your configuration after cloning packer.nvim
 	-- Put this at the end after all plugins
 	if PACKER_BOOTSTRAP then
