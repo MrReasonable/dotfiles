@@ -1,5 +1,5 @@
 local servers = {
-	"sumneko_lua",
+	"lua_ls",
 	"cssls",
 	"html",
 	"tsserver",
@@ -28,7 +28,7 @@ local settings = {
 require("mason").setup(settings)
 require("mason-lspconfig").setup({
 	ensure_installed = servers,
-	automatic_installation = false,
+	automatic_installation = true,
 })
 
 local neodev_setup_ok, neodev = pcall(require, "neodev")
