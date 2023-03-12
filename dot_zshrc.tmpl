@@ -1,3 +1,10 @@
+{{- if eq .chezmoi.os "darwin" -}}
+if [[ -d /opt/homebrew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+else
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+{{- end}}
 # The following lines were added by compinstall
 zstyle :compinstall filename '{{ .chezmoi.homeDir }}/.zshrc'
 {{ if eq .chezmoi.os "darwin" }}
@@ -22,6 +29,7 @@ zicompinit # <- https://wiki.zshell.dev/docs/guides/commands
 
 {{ if eq .chezmoi.os "darwin" }}
 export PATH="$(brew --prefix)/opt/findutils/libexec/gnubin:$PATH"
+export PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"
 {{ end }}
 
 zstyle :omz:plugins:ssh-agent identities $(find ~/.ssh -regex '.+/id_[^.]+$' -printf '%f ')
