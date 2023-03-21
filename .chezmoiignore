@@ -4,3 +4,6 @@
 Brewfile
 Brewfile.lock.json
 {{ end }}
+{{- if eq .chezmoi.hostname "G6PYKYXP07"}}
+bin/git-latest-build
+{{- end }}

@@ -7,9 +7,9 @@ fi
 {{- end}}
 # The following lines were added by compinstall
 zstyle :compinstall filename '{{ .chezmoi.homeDir }}/.zshrc'
-{{ if eq .chezmoi.os "darwin" }}
+{{- if eq .chezmoi.os "darwin" }}
 local brew_dir="$(brew --prefix)"
-{{ end }}
+{{- end }}
 
 autoload -Uz compinit
 compinit
@@ -27,10 +27,10 @@ autoload -Uz _zi
 # examples here -> https://wiki.zshell.dev/ecosystem/category/-annexes
 zicompinit # <- https://wiki.zshell.dev/docs/guides/commands
 
-{{ if eq .chezmoi.os "darwin" }}
+{{- if eq .chezmoi.os "darwin" }}
 export PATH="$(brew --prefix)/opt/findutils/libexec/gnubin:$PATH"
 export PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"
-{{ end }}
+{{- end }}
 
 zstyle :omz:plugins:ssh-agent identities $(find ~/.ssh -regex '.+/id_[^.]+$' -printf '%f ')
 zi lucid light-mode for OMZP::ssh-agent
@@ -125,6 +125,7 @@ alias stop-sync="launchctl unload ~/Library/LaunchAgents/dev.unrealsync.plist"
 alias restart-sync="launchctl kickstart -k gui/$(id -u)/dev.unrealsync"
 alias log-sync="tail -F /opt/homebrew/var/log/unrealsync-errors.log"
 alias avd="~/Library/Android/sdk/emulator/emulator -avd Pixel_6_Pro_API_33 -dns-server 10.10.123.5,8.8.8.8"
+alias mobile_tests="env BMA_SERVER=idominey.badoo.d4 bundle exec calabash-android run artifacts/BadooApp-internal-badoo-QA.apk -p android_badoo OBFUSCATED=1 MAPPING_PATH=artifacts/BadooApp-internal-badoo-QA.mapping.txt -x"
 {{- end }}
 
 # pnpm
@@ -135,10 +136,13 @@ export PATH="$PNPM_HOME:$PATH"
 export PATH="${brew_dir}/opt/openjdk/bin:$PATH"
 export PATH="${brew_dir}/opt/unzip/bin:$PATH"
 brew ls --versions llvm > /dev/null && \
-  export PATH="$(brew --prefix llvm)/bin:$PATH"
+export PATH="$(brew --prefix llvm)/bin:$PATH"
+export LDFLAGS="-L$(brew --prefix)/opt/bzip2/lib -L$(brew --prefix)/opt/zlib/lib"
+export CPPFLAGS="-I$(brew --prefix)/opt/bzip2/include -I$(brew --prefix)/opt/zlib/lib"
 {{- end }}
 
 [ -d $HOME/.local/bin ] && export PATH="$HOME/.local/bin:$PATH"
+[ -d $HOME/bin ] && export PATH="$HOME/bin:$PATH"
 
 export HISTFILE=~/.zsh_history
 export HISTSIZE=100000
