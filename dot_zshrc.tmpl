@@ -100,9 +100,9 @@ export CLICOLOR=1
 
 alias ls="exa --icons"
 {{- if eq .chezmoi.os "darwin" }}
-alias update-all="brew update && brew update --cask && brew upgrade && brew cleanup && zi cclear && zi update -p -a && zi cclear && zi compinit"
+alias update-all="chezmoi update && chezmoi apply && brew update && brew update --cask && brew upgrade && brew cleanup && zi cclear && zi update -p -a && zi cclear && zi compinit"
 {{- else }}
-alias update-all="which apt-get > /dev/null && sudo apt-get update && sudo apt-get dist-upgrade && sudo apt-get --purge autoremove; \
+alias update-all="chezmoi update && chezmoi apply && which apt-get > /dev/null && sudo apt-get update && sudo apt-get dist-upgrade && sudo apt-get --purge autoremove; \
 which flatpak > /dev/null && flatpak update -y && sudo flatpak update -y;  \
 which snap > /dev/null && sudo snap refresh;\
 zi cclear && zi update -p -a && zi cclear && zi compinit"
@@ -126,6 +126,7 @@ alias restart-sync="launchctl kickstart -k gui/$(id -u)/dev.unrealsync"
 alias log-sync="tail -F /opt/homebrew/var/log/unrealsync-errors.log"
 alias avd="~/Library/Android/sdk/emulator/emulator -avd Pixel_6_Pro_API_33 -dns-server 10.10.123.5,8.8.8.8"
 alias mobile_tests="env BMA_SERVER=idominey.badoo.d4 bundle exec calabash-android run artifacts/BadooApp-internal-badoo-QA.apk -p android_badoo OBFUSCATED=1 MAPPING_PATH=artifacts/BadooApp-internal-badoo-QA.mapping.txt -x"
+alias clean-code="_scripts/formatCode.sh -r riskyEnabled $@"
 {{- end }}
 
 # pnpm
