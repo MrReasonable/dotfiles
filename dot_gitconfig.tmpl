@@ -6,6 +6,9 @@
 [user]
 	name = {{ .name | quote }}
 	useConfigOnly = true
+{{- if eq .chezmoi.hostname "G6PYKYXP07" }}
+  signingkey = {{ .gpg_signing_key | quote }}
+{{- end }}
 [pull]
 	ff = only
 [branch]
@@ -22,7 +25,17 @@
   autoSetupRemote = true
 [blame]
 	ignoreRevsFile = .git-blame-ignore-revs
-{{- if eq .chezmoi.hostname "G6PYKYXP07"}}
+{{- if eq .chezmoi.hostname "G6PYKYXP07" }}
 [alias]
 	lb = latest-build
+[commit]
+  gpgSign = true
+[tag]
+  gpgSign = true
+{{- end }}
+{{- if eq .chezmoi.os "darwin" -}}
+[credential "https://github.com"]
+	helper = !$(brew --prefix gh)/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = !$(brew --prefix gh)/bin/gh auth git-credential
 {{- end }}

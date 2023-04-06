@@ -1,6 +1,6 @@
 {{- $name := promptStringOnce . "name" "Name" -}}
 {{- $githubUsername := promptStringOnce . "github_username" "Github Username" -}}
-
+{{- $gpgSigningKey := promptStringOnce . "gpg_signing_key" "GPG Signing Key" -}}
 [diff]
     pager = "diff-so-fancy"
 [merge]
@@ -9,3 +9,4 @@
 [data]
     name = {{ $name | quote }}
     github_username = {{ $githubUsername | quote  }}
+    gpg_signing_key = {{ $gpgSigningKey | quote }}
