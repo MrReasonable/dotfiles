@@ -1,4 +1,5 @@
 [".config/nvim"]
-  type = "git-repo"
-  url = "https://github.com/NvChad/NvChad.git"
+  type = "archive"
+  url = "https://codeload.github.com/NvChad/NvChad/zip/refs/heads/main"
   refreshPeriod = "24h"
+  stripComponents=1
