@@ -33,7 +33,7 @@
 [tag]
   gpgSign = true
 {{- end }}
-{{- if eq .chezmoi.os "darwin" -}}
+{{- if eq .chezmoi.os "darwin" }}
 [credential "https://github.com"]
 	helper = !$(brew --prefix gh)/bin/gh auth git-credential
 [credential "https://gist.github.com"]

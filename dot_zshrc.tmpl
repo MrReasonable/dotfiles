@@ -32,8 +32,6 @@ export PATH="$(brew --prefix)/opt/findutils/libexec/gnubin:$PATH"
 export PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"
 {{- end }}
 
-zstyle :omz:plugins:ssh-agent identities $(find ~/.ssh -regex '.+/id_[^.]+$' -printf '%f ')
-zi lucid light-mode for OMZP::ssh-agent
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
