@@ -1,5 +1,6 @@
 [".config/nvim"]
   type = "archive"
-  url = "https://codeload.github.com/NvChad/NvChad/zip/refs/heads/main"
+  url = "https://codeload.github.com/NvChad/NvChad/zip/refs/heads/v2.0"
   refreshPeriod = "24h"
   stripComponents=1
+  exact=false

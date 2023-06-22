@@ -17,6 +17,8 @@
 	defaultBranch = main
 [core]
 	excludesfile = {{ .chezmoi.homeDir }}/.gitignore
+  untrackedCache = true
+  fsmonitor = true
 [apply]
 	whitespaces = nowarn
 [color]
