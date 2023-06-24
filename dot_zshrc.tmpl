@@ -60,8 +60,6 @@ zi wait lucid light-mode for \
     z-shell/ZUI \
     zsh-users/zsh-syntax-highlighting \
     TwoPizza9621536/zsh-plenv \
-    OMZP::docker \
-    OMZP::docker-compose \
     OMZP::golang \
     z-shell/z-a-rust \
     zpm-zsh/tmux \
@@ -71,8 +69,7 @@ zi wait lucid light-mode for \
     ryutok/rust-zsh-completions \
     zdharma-continuum/zinit-console \
     laggardkernel/zsh-gpg-agent \
-  as"completion" \
-    OMZP::docker-compose/_docker-compose \
+    greymd/docker-zsh-completion \
 {{- if eq .chezmoi.os "darwin"}}
   pick'init.zsh' compile'*.zsh' \
     laggardkernel/zsh-iterm2
@@ -134,17 +131,6 @@ alias log-sync="tail -F /opt/homebrew/var/log/unrealsync-errors.log"
 alias avd="~/Library/Android/sdk/emulator/emulator -avd Pixel_6_Pro_API_33 -dns-server 10.10.123.5,8.8.8.8"
 alias mobile_tests="env BMA_SERVER=idominey.badoo.d4 bundle exec calabash-android run artifacts/BadooApp-internal-badoo-QA.apk -p android_badoo OBFUSCATED=1 MAPPING_PATH=artifacts/BadooApp-internal-badoo-QA.mapping.txt -x"
 alias clean-code="_scripts/formatCode.sh -r riskyEnabled $@"
-
-if [[ $OSTYPE == darwin* ]]; then
-  _GPG_AGENT_SOCK="${HOME}/.gnupg/S.gpg-agent"
-  _GPG_AGENT_SSH_SOCK="${HOME}/.gnupg/S.gpg-agent.ssh"
-elif [[ $OSTYPE == linux* ]]; then
-  _GPG_AGENT_SOCK="${XDG_RUNTIME_DIR}/.gnupg/S.gpg-agent"
-  _GPG_AGENT_SSH_SOCK="${XDG_RUNTIME_DIR}/.gnupg/S.gpg-agent.ssh"
-fi
-
-zinit ice wait'1' lucid
-zinit light laggardkernel/zsh-gpg-agent
 {{- end }}
 
 # pnpm
