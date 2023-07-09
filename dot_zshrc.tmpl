@@ -42,11 +42,11 @@ fi
 
 if [[ $OSTYPE == darwin* ]]; then
   _GPG_AGENT_SOCK="${HOME}/.gnupg/S.gpg-agent"
-  _GPG_AGENT_SSH_SOCK="${HOME}/.gnupg/S.gpg-agent.ssh"
 elif [[ $OSTYPE == linux* ]]; then
   _GPG_AGENT_SOCK="${XDG_RUNTIME_DIR}/.gnupg/S.gpg-agent"
-  _GPG_AGENT_SSH_SOCK="${XDG_RUNTIME_DIR}/.gnupg/S.gpg-agent.ssh"
 fi
+zstyle ':prezto:module:gpg-agent:auto-start' local
+zstyle :omz:plugins:ssh-agent identities $(find ~/.ssh -regex '.+/id_[^.]+$' -printf '%f ')
 
 zi wait lucid light-mode for \
     OMZP::colored-man-pages \
@@ -56,6 +56,7 @@ zi wait lucid light-mode for \
     OMZP::iterm2 \
     OMZP::jenv \
     OMZP::composer \
+    OMZP::ssh-agent \
     z-shell/zzcomplete \
     z-shell/ZUI \
     zsh-users/zsh-syntax-highlighting \

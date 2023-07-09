@@ -1,0 +1,11 @@
+pinentry-program {{ if eq .chezmoi.os "darwin" }}{{ if eq .chezmoi.arch "arm64" }}/opt/homebrew/bin/pinentry-mac{{ else }}/usr/local/bin/pinentry-mac{{ end }}{{ end }}
+
+extra-socket {{ .chezmoi.homeDir }}/.gnupg/S.gpg-agent.extra
+
+default-cache-ttl 86400
+default-cache-ttl-ssh 86400
+
+max-cache-ttl 2592000
+max-cache-ttl-ssh 2592000
+
+

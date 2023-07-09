@@ -6,9 +6,7 @@
 [user]
 	name = {{ .name | quote }}
 	useConfigOnly = true
-{{- if eq .chezmoi.hostname "G6PYKYXP07" }}
   signingkey = {{ .gpg_signing_key | quote }}
-{{- end }}
 [pull]
 	ff = only
 [branch]
