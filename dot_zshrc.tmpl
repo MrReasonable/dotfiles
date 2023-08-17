@@ -100,6 +100,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 
 type nodenv >/dev/null 2>&1 && eval "$(nodenv init -)"
+type goenv > /dev/null 2>&1 && eval "$(goenv init -)"
 
 export CLICOLOR=1
 
@@ -132,6 +133,7 @@ alias log-sync="tail -F /opt/homebrew/var/log/unrealsync-errors.log"
 alias avd="~/Library/Android/sdk/emulator/emulator -avd Pixel_6_Pro_API_33 -dns-server 10.10.123.5,8.8.8.8"
 alias mobile_tests="env BMA_SERVER=idominey.badoo.d4 bundle exec calabash-android run artifacts/BadooApp-internal-badoo-QA.apk -p android_badoo OBFUSCATED=1 MAPPING_PATH=artifacts/BadooApp-internal-badoo-QA.mapping.txt -x"
 alias clean-code="_scripts/formatCode.sh -r riskyEnabled $@"
+alias docker-kill="sudo ps aux | grep docker | grep -v grep | awk '{print \$2}' | xargs sudo kill -9"
 {{- end }}
 
 # pnpm
