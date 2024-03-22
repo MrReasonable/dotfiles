@@ -51,7 +51,6 @@ zstyle :omz:plugins:ssh-agent identities $(find ~/.ssh -regex '.+/id_[^.]+$' -pr
 zi wait lucid light-mode for \
     OMZP::colored-man-pages \
     OMZP::common-aliases \
-    OMZP::direnv \
     OMZP::rbenv \
     OMZP::iterm2 \
     OMZP::jenv \
@@ -73,7 +72,7 @@ zi wait lucid light-mode for \
     greymd/docker-zsh-completion \
 {{- if eq .chezmoi.os "darwin"}}
   pick'init.zsh' compile'*.zsh' \
-    laggardkernel/zsh-iterm2
+    laggardkernel/zsh-iterm2 \
 {{- end }}
 
 # Utilize Turbo and initialize the completion system
@@ -102,6 +101,7 @@ export NVM_DIR="$HOME/.nvm"
 type nodenv >/dev/null 2>&1 && eval "$(nodenv init -)"
 type goenv > /dev/null 2>&1 && eval "$(goenv init -)"
 type soroban > /dev/null 2>&1 && eval "$(soroban completion --shell zsh)"
+type asdf > /dev/null 2>&1 && eval ". $(brew --prefix asdf)/libexec/asdf.sh"
 
 export CLICOLOR=1
 
@@ -135,6 +135,7 @@ alias avd="~/Library/Android/sdk/emulator/emulator -avd Pixel_6_Pro_API_33 -dns-
 alias mobile_tests="env BMA_SERVER=idominey.badoo.d4 bundle exec calabash-android run artifacts/BadooApp-internal-badoo-QA.apk -p android_badoo OBFUSCATED=1 MAPPING_PATH=artifacts/BadooApp-internal-badoo-QA.mapping.txt -x"
 alias clean-code="_scripts/formatCode.sh -r riskyEnabled $@"
 alias docker-kill="sudo ps aux | grep docker | grep -v grep | awk '{print \$2}' | xargs sudo kill -9"
+source "$HOME/badoo/_scripts/deploy/patch.sh.zsh" # <-- Update the path!
 {{- end }}
 
 # pnpm
