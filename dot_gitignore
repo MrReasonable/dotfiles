@@ -228,4 +228,5 @@ Sessionx.vim
 .ionide
 
 .tool-versions
+.go-version
 # End of https://www.toptal.com/developers/gitignore/api/intellij,visualstudiocode,phpstorm,vim

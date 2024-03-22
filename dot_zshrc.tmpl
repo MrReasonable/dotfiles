@@ -154,6 +154,8 @@ export CPPFLAGS="-I$(brew --prefix)/opt/bzip2/include -I$(brew --prefix)/opt/zli
 [ -d $HOME/.local/bin ] && export PATH="$HOME/.local/bin:$PATH"
 [ -d $HOME/bin ] && export PATH="$HOME/bin:$PATH"
 
+[ -r $HOME/.kube/user-config ] && export KUBECONFIG="$HOME/.kube/user-config"
+
 export HISTFILE=~/.zsh_history
 export HISTSIZE=100000
 export SAVEHIST=100000
