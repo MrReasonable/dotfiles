@@ -1,6 +1,4 @@
 [".config/nvim"]
-  type = "archive"
-  url = "https://github.com/AstroNvim/AstroNvim/archive/refs/tags/v3.38.2.zip"
+  type = "git-repo"
+  url = "https://github.com/AstroNvim/template"
   refreshPeriod = "24h"
-  stripComponents=1
-  exact=false
