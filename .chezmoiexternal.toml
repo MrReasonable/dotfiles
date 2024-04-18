@@ -1,6 +1,6 @@
 [".config/nvim"]
   type = "archive"
-  url = "https://codeload.github.com/NvChad/NvChad/zip/refs/heads/v2.0"
+  url = "https://github.com/AstroNvim/AstroNvim/archive/refs/tags/v3.38.2.zip"
   refreshPeriod = "24h"
   stripComponents=1
   exact=false
