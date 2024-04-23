@@ -70,6 +70,7 @@ zi wait lucid light-mode for \
     zdharma-continuum/zinit-console \
     laggardkernel/zsh-gpg-agent \
     greymd/docker-zsh-completion \
+    z-shell/zsh-eza \
 {{- if eq .chezmoi.os "darwin"}}
   pick'init.zsh' compile'*.zsh' \
     laggardkernel/zsh-iterm2 \
@@ -85,7 +86,7 @@ zi light-mode for z-shell/z-a-meta-plugins \
   @annexes \
   skip'F-Sy-H' @zsh-users+fast \
   @fuzzy \
-  skip'dircolors-material' @console-tools \
+  skip'dircolors-material exa' @console-tools \
   skip'F-Sy-H' @z-shell \
   @ext-git \
   @romkatv
@@ -105,7 +106,6 @@ type asdf > /dev/null 2>&1 && eval ". $(brew --prefix asdf)/libexec/asdf.sh"
 
 export CLICOLOR=1
 
-alias ls="exa --icons"
 {{- if eq .chezmoi.os "darwin" }}
 alias update-all="chezmoi update && chezmoi apply && brew update && brew update --cask && brew upgrade && brew cleanup && zi cclear && zi update -p -a && zi cclear && zi compinit"
 {{- else }}
