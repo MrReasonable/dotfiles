@@ -70,7 +70,6 @@ zi wait lucid light-mode for \
     zdharma-continuum/zinit-console \
     laggardkernel/zsh-gpg-agent \
     greymd/docker-zsh-completion \
-    z-shell/zsh-eza \
 {{- if eq .chezmoi.os "darwin"}}
   pick'init.zsh' compile'*.zsh' \
     laggardkernel/zsh-iterm2 \
@@ -81,7 +80,8 @@ zi wait lucid light-mode for \
 {{- /* zi wait pack atload=+"zicompinit_fast; zicdreplay" for brew-completions */ -}}
 {{- end }}
 
-
+type eza > /dev/null 2>&1 && zi wait lucid light-mode for z-shell/zsh-eza
+ 
 zi light-mode for z-shell/z-a-meta-plugins \
   @annexes \
   skip'F-Sy-H' @zsh-users+fast \
@@ -99,7 +99,7 @@ alias vi="nvim"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 
-type nodenv >/dev/null 2>&1 && eval "$(nodenv init -)"
+type nodenv > /dev/null 2>&1 && eval "$(nodenv init -)"
 type goenv > /dev/null 2>&1 && eval "$(goenv init -)"
 type soroban > /dev/null 2>&1 && eval "$(soroban completion --shell zsh)"
 type asdf > /dev/null 2>&1 && eval ". $(brew --prefix asdf)/libexec/asdf.sh"
@@ -125,18 +125,6 @@ export EDITOR=nvim
 export TMUX_AUTOSTART=false
 export TMUX_MOTD=false
 alias ll="ll -a"
-
-{{- if eq .chezmoi.hostname "G6PYKYXP07"}}
-alias start-sync="launchctl load -w ~/Library/LaunchAgents/dev.unrealsync.plist"
-alias stop-sync="launchctl unload ~/Library/LaunchAgents/dev.unrealsync.plist"
-alias restart-sync="launchctl kickstart -k gui/$(id -u)/dev.unrealsync"
-alias log-sync="tail -F /opt/homebrew/var/log/unrealsync-errors.log"
-alias avd="~/Library/Android/sdk/emulator/emulator -avd Pixel_6_Pro_API_33 -dns-server 10.10.123.5,8.8.8.8"
-alias mobile_tests="env BMA_SERVER=idominey.badoo.d4 bundle exec calabash-android run artifacts/BadooApp-internal-badoo-QA.apk -p android_badoo OBFUSCATED=1 MAPPING_PATH=artifacts/BadooApp-internal-badoo-QA.mapping.txt -x"
-alias clean-code="_scripts/formatCode.sh -r riskyEnabled $@"
-alias docker-kill="sudo ps aux | grep docker | grep -v grep | awk '{print \$2}' | xargs sudo kill -9"
-source "$HOME/badoo/_scripts/deploy/patch.sh.zsh" # <-- Update the path!
-{{- end }}
 
 # pnpm
 export PNPM_HOME="{{ .chezmoi.homeDir }}/Library/pnpm"
