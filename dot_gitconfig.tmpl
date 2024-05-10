@@ -4,9 +4,10 @@
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 [user]
-	name = {{ .name | quote }}
+	name = {{ .github_username | quote }}
 	useConfigOnly = true
   signingkey = {{ .gpg_signing_key | quote }}
+	email = {{ .github_email | quote }}
 [pull]
 	ff = only
 [branch]
