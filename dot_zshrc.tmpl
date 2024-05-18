@@ -40,11 +40,12 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-if [[ $OSTYPE == darwin* ]]; then
-  _GPG_AGENT_SOCK="${HOME}/.gnupg/S.gpg-agent"
-elif [[ $OSTYPE == linux* ]]; then
-  _GPG_AGENT_SOCK="${XDG_RUNTIME_DIR}/.gnupg/S.gpg-agent"
-fi
+{{- if eq .chezmoi.os "darwin" }}
+_GPG_AGENT_SOCK="${HOME}/.gnupg/S.gpg-agent"
+{{- else if eq .chezmoi.os "linux" }}
+_GPG_AGENT_SOCK="${XDG_RUNTIME_DIR}/.gnupg/S.gpg-agent"
+{{- end }}
+
 zstyle ':prezto:module:gpg-agent:auto-start' local
 zstyle :omz:plugins:ssh-agent identities $(find ~/.ssh -regex '.+/id_[^.]+$' -printf '%f ')
 
@@ -97,12 +98,16 @@ zi light-mode for z-shell/z-a-meta-plugins \
 alias vi="nvim"
 
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 
 type nodenv > /dev/null 2>&1 && eval "$(nodenv init -)"
 type goenv > /dev/null 2>&1 && eval "$(goenv init -)"
 type soroban > /dev/null 2>&1 && eval "$(soroban completion --shell zsh)"
+
+{{- if eq .chezmoi.os "darwin" }}
 type asdf > /dev/null 2>&1 && eval ". $(brew --prefix asdf)/libexec/asdf.sh"
+{{- else if eq .chezmoi.os "linux" }}
+[[ -f "$HOME/.asdf/asdf.sh" ]] && eval ". $HOME/.asdf/asdf.sh"
+{{- end }}
 
 export CLICOLOR=1
 
