@@ -11,8 +11,6 @@ zstyle :compinstall filename '{{ .chezmoi.homeDir }}/.zshrc'
 local brew_dir="$(brew --prefix)"
 {{- end }}
 
-autoload -Uz compinit
-compinit
 # End of lines added by compinstall
 if [[ ! -f $HOME/.zi/bin/zi.zsh ]]; then
   print -P "%F{33}▓▒░ %F{160}Installing (%F{33}z-shell/zi%F{160})…%f"
@@ -36,6 +34,10 @@ export PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc" ]]; then
+  source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
+fi
+
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
@@ -57,6 +59,7 @@ zi wait lucid light-mode for \
     OMZP::jenv \
     OMZP::composer \
     OMZP::ssh-agent \
+    OMZP::direnv \
     z-shell/zzcomplete \
     z-shell/ZUI \
     zsh-users/zsh-syntax-highlighting \
@@ -71,6 +74,7 @@ zi wait lucid light-mode for \
     zdharma-continuum/zinit-console \
     laggardkernel/zsh-gpg-agent \
     greymd/docker-zsh-completion \
+    OMZP::asdf \
 {{- if eq .chezmoi.os "darwin"}}
   pick'init.zsh' compile'*.zsh' \
     laggardkernel/zsh-iterm2 \
@@ -112,7 +116,7 @@ type asdf > /dev/null 2>&1 && eval ". $(brew --prefix asdf)/libexec/asdf.sh"
 export CLICOLOR=1
 
 {{- if eq .chezmoi.os "darwin" }}
-alias update-all="chezmoi update && chezmoi apply && brew update && brew update --cask && brew upgrade && brew cleanup && zi cclear && zi update -p -a && zi cclear && zi compinit"
+alias update-all="chezmoi update && chezmoi apply && brew update && brew upgrade && brew cleanup && zi cclear && zi update -p -a && zi cclear && zi compinit"
 {{- else }}
 alias update-all="chezmoi update && chezmoi apply && which apt-get > /dev/null && sudo apt-get update && sudo apt-get dist-upgrade && sudo apt-get --purge autoremove; \
 which flatpak > /dev/null && flatpak update -y && sudo flatpak update -y;  \
@@ -175,3 +179,5 @@ setopt PROMPT_SUBST
 setopt PUSHD_IGNORE_DUPS
 setopt PUSHD_MINUS
 
+autoload -Uz compinit
+compinit
