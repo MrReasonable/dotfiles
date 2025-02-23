@@ -30,14 +30,14 @@ export PATH="$(brew --prefix)/opt/findutils/libexec/gnubin:$PATH"
 export PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"
 {{- end }}
 
+if [[ ! -f $HOME/.local/bin/mise ]]; then
+ curl https://mise.run | sh
+fi
+eval "$(~/.local/bin/mise activate zsh)"
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc" ]]; then
-  source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
-fi
-
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
@@ -59,7 +59,6 @@ zi wait lucid light-mode for \
     OMZP::jenv \
     OMZP::composer \
     OMZP::ssh-agent \
-    OMZP::direnv \
     z-shell/zzcomplete \
     z-shell/ZUI \
     zsh-users/zsh-syntax-highlighting \
@@ -74,7 +73,6 @@ zi wait lucid light-mode for \
     zdharma-continuum/zinit-console \
     laggardkernel/zsh-gpg-agent \
     greymd/docker-zsh-completion \
-    OMZP::asdf \
 {{- if eq .chezmoi.os "darwin"}}
   pick'init.zsh' compile'*.zsh' \
     laggardkernel/zsh-iterm2 \
@@ -106,10 +104,6 @@ export NVM_DIR="$HOME/.nvm"
 type nodenv > /dev/null 2>&1 && eval "$(nodenv init -)"
 type goenv > /dev/null 2>&1 && eval "$(goenv init -)"
 type soroban > /dev/null 2>&1 && eval "$(soroban completion --shell zsh)"
-
-{{- if eq .chezmoi.os "linux" }}
-[[ -f "$HOME/.asdf/asdf.sh" ]] && eval ". $HOME/.asdf/asdf.sh"
-{{- end }}
 
 export CLICOLOR=1
 
