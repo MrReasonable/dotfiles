@@ -229,5 +229,4 @@ Sessionx.vim
 
 .tool-versions
 .go-version
-mise.toml
 # End of https://www.toptal.com/developers/gitignore/api/intellij,visualstudiocode,phpstorm,vim
