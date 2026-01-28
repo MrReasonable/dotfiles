@@ -482,16 +482,16 @@ set -g @plugin 'tmux-plugins/tmux-sessionist'
 # # /!\ do not "uncomment" the functions: the leading "# " characters are needed
 #
 # usage: #{weather}
-weather() {                                         # see https://github.com/chubin/wttr.in#one-line-output
-  curl -f -s -m 2 'wttr.in/croydon?format=%l: %c %t (%f), Wind: %w' || printf '\n' # /!\ make sure curl is installed
-  sleep 900                                         # sleep for 15 minutes, throttle network requests whatever the value of status-interval
-}
-
- # usage: #{online}
- # online() {
- #   ping -c 1 1.1.1.1 >/dev/null 2>&1 && printf '✔' || printf '✘'
- # }
-
+# weather() {                                         # see https://github.com/chubin/wttr.in#one-line-output
+#   curl -f -s -m 2 'wttr.in/croydon?format=%l: %c %t (%f), Wind: %w' || printf '\n' # /!\ make sure curl is installed
+#   sleep 900                                         # sleep for 15 minutes, throttle network requests whatever the value of status-interval
+# }
+#
+# usage: #{online}
+# online() {
+#   ping -c 1 1.1.1.1 >/dev/null 2>&1 && printf '✔' || printf '✘'
+# }
+#
 # usage: #{wan_ip_v4}
 # wan_ip_v4() {
 #   curl -f -s -m 2 -4 ifconfig.me
