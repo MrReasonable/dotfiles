@@ -154,7 +154,7 @@ export CPPFLAGS="-I$(brew --prefix)/opt/bzip2/include -I$(brew --prefix)/opt/zli
 [ -r $HOME/.kube/user-config ] && export KUBECONFIG="$HOME/.kube/user-config"
 
 if [[ -z "$TMUX" ]]; then
-  tmux new -A -s main
+  alias tmux=tmux new -A -s main
 fi   
 
 export HISTFILE=~/.zsh_history
