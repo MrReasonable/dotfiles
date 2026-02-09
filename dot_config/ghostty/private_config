@@ -1,0 +1,52 @@
+# Ghostty Configuration
+# Replicates iTerm2 settings
+
+# Font Configuration
+font-family = FiraCode Nerd Font Mono
+font-size = 13
+
+# Enable font ligatures
+font-feature = +calt
+font-feature = +liga
+font-feature = +dlig
+
+# Hotkey Window Configuration
+# Use backtick (`) with Command key to toggle window visibility
+# Note: 'global:' makes this work even when Ghostty is hidden
+keybind = global:super+backquote=toggle_visibility
+
+# macOS: Hide from Dock and show in menu bar only
+macos-hidden = always
+macos-titlebar-style = tabs
+macos-option-as-alt = true
+
+# Window behavior
+window-decoration = true
+
+# Theme (optional - you can customize this)
+# Run "ghostty +list-themes" to see available themes
+# theme = your-theme-name
+
+# Additional recommended settings
+cursor-style = block
+cursor-style-blink = false
+
+# Shell integration
+shell-integration = detect
+shell-integration-features = cursor,sudo,title
+
+# Mouse
+mouse-hide-while-typing = true
+
+# Copy/Paste
+clipboard-read = allow
+clipboard-write = allow
+
+# Performance
+unfocused-split-opacity = 0.8
+
+# tmux compatibility
+# These settings ensure tmux works smoothly with Ghostty
+# The shell integration features work even inside tmux sessions
+# Note: No static 'title' set - allows dynamic titles from shell/tmux
+term = xterm-256color
