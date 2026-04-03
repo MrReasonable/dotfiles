@@ -9,6 +9,9 @@ fi
 zstyle :compinstall filename '{{ .chezmoi.homeDir }}/.zshrc'
 {{- if eq .chezmoi.os "darwin" }}
 local brew_dir="$(brew --prefix)"
+{{- else if eq .chezmoi.os "linux" }}
+test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
+test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 {{- end }}
 
 # End of lines added by compinstall
