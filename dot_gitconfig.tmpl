@@ -30,6 +30,8 @@
 {{- if eq .chezmoi.os "darwin" }}
 [alias]
 	lb = latest-build
+[gpg]
+  format = openpgp
 [commit]
   gpgSign = true
 [tag]

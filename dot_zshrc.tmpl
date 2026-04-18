@@ -81,6 +81,8 @@ zi wait lucid light-mode for \
     laggardkernel/zsh-gpg-agent \
     greymd/docker-zsh-completion \
     bostonaholic/ngrok.plugin.zsh \
+    has'eza' atinit'AUTOCD=1' \
+        z-shell/zsh-eza \
 {{- if eq .chezmoi.os "darwin"}}
   pick'init.zsh' compile'*.zsh' \
     laggardkernel/zsh-iterm2 \
@@ -91,8 +93,6 @@ zi wait lucid light-mode for \
 {{- /* zi wait pack atload=+"zicompinit_fast; zicdreplay" for brew-completions */ -}}
 {{- end }}
 
-type eza > /dev/null 2>&1 && zi wait lucid light-mode for z-shell/zsh-eza
- 
 zi light-mode for z-shell/z-a-meta-plugins \
   @annexes \
   skip'F-Sy-H' @zsh-users+fast \
@@ -134,10 +134,33 @@ zstyle ':completion:complete:*:options' sort false
 zstyle ':fzf-tab:complete:_zlua:*' query-string input
 
 export GPG_TTY=$TTY
+
+{{- if eq .chezmoi.os "darwin" }}
+if [[ -n "$SSH_CONNECTION" || -n "$SSH_TTY" ]]; then
+  # Tell pinentry-auto.sh to use pinentry-curses over SSH.
+  export PINENTRY_USER_DATA="USE_TTY=1"
+  # SSH doesn't auto-unlock the login keychain like GUI login does, so
+  # gpg-load-passphrase.sh can't read the stored GPG passphrase until we
+  # unlock it. Prompts for the macOS login password once per SSH session.
+  if [[ -o interactive ]]; then
+    security unlock-keychain "$HOME/Library/Keychains/login.keychain-db"
+  fi
+fi
+{{- end }}
+
+if [[ -o interactive ]] && command -v gpg >/dev/null 2>&1; then
+  gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
+{{- if eq .chezmoi.os "darwin" }}
+  # Preload GPG passphrases from the macOS Keychain into gpg-agent so we
+  # never see a pinentry prompt. See ~/.gnupg/gpg-load-passphrase.sh for
+  # the one-time `security add-generic-password` setup per key.
+  [[ -x "$HOME/.gnupg/gpg-load-passphrase.sh" ]] && "$HOME/.gnupg/gpg-load-passphrase.sh"
+{{- end }}
+fi
+
 export EDITOR=nvim
 export TMUX_AUTOSTART=false
 export TMUX_MOTD=false
-alias ll="ll -a"
 
 # pnpm
 export PNPM_HOME="{{ .chezmoi.homeDir }}/Library/pnpm"
