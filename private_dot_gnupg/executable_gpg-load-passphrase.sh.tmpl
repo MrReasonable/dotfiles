@@ -1,0 +1,22 @@
+#!/bin/sh
+# Preload passphrases for all secret GPG keys into gpg-agent so signing
+# never prompts. Reads each key's passphrase from the macOS Keychain.
+#
+# One-time setup per key (run once, then never again):
+#   security add-generic-password -a "<keygrip>" -s gpg-passphrase -w
+# Find your signing key's keygrip with:
+#   gpg --list-secret-keys --with-keygrip
+#
+# Requires `allow-preset-passphrase` in ~/.gnupg/gpg-agent.conf.
+
+PRESET="$(gpgconf --list-dirs libexecdir)/gpg-preset-passphrase"
+[ -x "$PRESET" ] || exit 0
+
+gpg --list-secret-keys --with-keygrip --with-colons 2>/dev/null \
+  | awk -F: '/^grp:/ { print $10 }' \
+  | sort -u \
+  | while IFS= read -r grip; do
+      [ -n "$grip" ] || continue
+      pw=$(security find-generic-password -a "$grip" -s gpg-passphrase -w 2>/dev/null) || continue
+      printf '%s' "$pw" | "$PRESET" --preset "$grip" 2>/dev/null
+    done

@@ -3,6 +3,8 @@
 {{ if ne .chezmoi.os "darwin" }}
 Brewfile
 Brewfile.lock.json
+.gnupg/pinentry-auto.sh
+.gnupg/gpg-load-passphrase.sh
 {{ end }}
 {{- if ne .chezmoi.hostname "G6PYKYXP07"}}
 bin/git-latest-build

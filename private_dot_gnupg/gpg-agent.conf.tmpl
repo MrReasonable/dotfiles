@@ -1,8 +1,14 @@
-pinentry-program {{ if eq .chezmoi.os "darwin" }}{{ if eq .chezmoi.arch "arm64" }}/opt/homebrew/bin/pinentry-mac{{ else }}/usr/local/bin/pinentry-mac{{ end }}{{ end }}
+pinentry-program {{ if eq .chezmoi.os "darwin" }}{{ .chezmoi.homeDir }}/.gnupg/pinentry-auto.sh{{ end }}
 
 extra-socket {{ .chezmoi.homeDir }}/.gnupg/S.gpg-agent.extra
 
 enable-ssh-support
+
+{{- if eq .chezmoi.os "darwin" }}
+# Required so gpg-load-passphrase.sh (called from .zshrc) can preload
+# passphrases from the macOS Keychain at shell login.
+allow-preset-passphrase
+{{- end }}
 
 default-cache-ttl 86400
 default-cache-ttl-ssh 86400
