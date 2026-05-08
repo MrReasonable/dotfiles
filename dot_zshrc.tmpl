@@ -209,7 +209,8 @@ setopt NO_BEEP
 setopt PROMPT_SUBST
 setopt PUSHD_IGNORE_DUPS
 setopt PUSHD_MINUS
-export LC_ALL=en_GB.UTF-8
+export LANG=en_GB.UTF-8
+unset LC_ALL
 
 autoload -Uz compinit
 compinit
