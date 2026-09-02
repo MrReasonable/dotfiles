@@ -71,7 +71,6 @@ zi wait lucid light-mode for \
     z-shell/zzcomplete \
     z-shell/ZUI \
     zsh-users/zsh-syntax-highlighting \
-    TwoPizza9621536/zsh-plenv \
     OMZP::golang \
     z-shell/z-a-rust \
     zpm-zsh/tmux \
@@ -138,7 +137,13 @@ zstyle ':fzf-tab:complete:_zlua:*' query-string input
 export GPG_TTY=$TTY
 
 {{- if eq .chezmoi.os "darwin" }}
-if [[ -n "$SSH_CONNECTION" || -n "$SSH_TTY" ]]; then
+# Tmux child-pane guard: tmux preserves env (and gpg-agent socket) from the
+# session-root shell, so child panes inherit the unlocked keychain + loaded
+# GPG passphrases without re-prompting. Without this guard, every new tmux
+# pane (e.g. one per Claude Code reviewer agent) re-runs `security
+# unlock-keychain` and `security find-generic-password`, prompting for the
+# macOS login password per pane.
+if [[ -n "$SSH_CONNECTION" || -n "$SSH_TTY" ]] && [[ -z "$TMUX" ]]; then
   # Tell pinentry-auto.sh to use pinentry-curses over SSH.
   export PINENTRY_USER_DATA="USE_TTY=1"
   # SSH doesn't auto-unlock the login keychain like GUI login does, so
@@ -150,15 +155,19 @@ if [[ -n "$SSH_CONNECTION" || -n "$SSH_TTY" ]]; then
 fi
 {{- end }}
 
-if [[ -o interactive ]] && command -v gpg >/dev/null 2>&1; then
+if [[ -o interactive ]] && [[ -z "$TMUX" ]] && command -v gpg >/dev/null 2>&1; then
   gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
-{{- if eq .chezmoi.os "darwin" }}
-  # Preload GPG passphrases from the macOS Keychain into gpg-agent so we
-  # never see a pinentry prompt. See ~/.gnupg/gpg-load-passphrase.sh for
-  # the one-time `security add-generic-password` setup per key.
-  [[ -x "$HOME/.gnupg/gpg-load-passphrase.sh" ]] && "$HOME/.gnupg/gpg-load-passphrase.sh"
-{{- end }}
 fi
+
+# Note: ~/.gnupg/gpg-load-passphrase.sh used to be invoked here to preload
+# passphrases from the macOS Keychain into gpg-agent at shell startup. Dropped
+# because gpg-agent's own caching (default-cache-ttl 86400, max-cache-ttl
+# 2592000 in ~/.gnupg/gpg-agent.conf) already covers this — first sign/decrypt
+# after a reboot prompts via pinentry once, then silent for up to 30 days.
+# The preload script also depended on per-keychain-item ACLs that drifted under
+# macOS Sequoia, causing a `security find-generic-password` permission prompt
+# per shell (per tmux pane!) instead of the intended silent read. The script
+# itself is still on disk for manual runs after a reboot if desired.
 
 export EDITOR=nvim
 export TMUX_AUTOSTART=false
