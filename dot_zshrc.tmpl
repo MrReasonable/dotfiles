@@ -110,7 +110,8 @@ else
   PROMPT='%n@%m:%~%# '
 fi
 
-alias vi="nvim"
+
+type nvim > /dev/null 2>&1 && alias vi="nvim"
 
 export NVM_DIR="$HOME/.nvm"
 
