@@ -1,0 +1,21 @@
+# proto TOML plugin: tummychow/git-absorb GitHub release binaries.
+# Registered in ~/.proto/.prototools [plugins]; managed by chezmoi.
+# No published checksums (pin exactly). Releases are x86_64-only, so this is
+# Linux x86_64 only; macOS gets git-absorb from Homebrew.
+name = "git-absorb"
+type = "cli"
+
+[platform.linux]
+archive-prefix = "git-absorb-{version}-{arch}-unknown-linux-musl"
+download-file = "git-absorb-{version}-{arch}-unknown-linux-musl.tar.gz"
+exe-path = "git-absorb"
+
+[install]
+download-url = "https://github.com/tummychow/git-absorb/releases/download/{version}/{download_file}"
+
+[install.arch]
+x86_64 = "x86_64"
+
+[resolve]
+git-url = "https://github.com/tummychow/git-absorb"
+version-pattern = '^((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'

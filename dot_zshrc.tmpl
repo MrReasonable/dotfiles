@@ -151,6 +151,17 @@ _cached_init() {
   source $cache
 }
 
+# carapace completes ~1000 CLIs, but its init claims every command it knows,
+# including ones zsh already completes well (git, ssh, ...). Keep those and
+# let carapace fill in only commands that had no completion. Runs in turbo
+# after zsh-completions' compinit, and before fzf-tab, which then shows it.
+_carapace_init() {
+  local -A native=("${(@kv)_comps}")
+  _cached_init carapace _carapace zsh
+  local cmd
+  for cmd in ${(k)native}; do _comps[$cmd]=$native[$cmd]; done
+}
+
 # @console-tools: zi installs fd/bat/eza/rg only when they're missing. A tool
 # already on PATH from outside zi (e.g. Homebrew) is skipped; otherwise the
 # annex prints its "Loading … consisting of" notice on every login, because it
@@ -187,6 +198,8 @@ zi wait lucid light-mode for \
   skip"${_ct_skip[*]}" @console-tools \
   @ext-git \
   skip'zsh-autosuggestions F-Sy-H' @zsh-users+fast \
+  has'carapace' id-as'carapace-init' atload'_carapace_init' \
+    z-shell/null \
   Aloxaf/fzf-tab \
   hlissner/zsh-autopair \
   has'atuin' id-as'atuin-init' atload'_cached_init atuin init zsh --disable-up-arrow' \

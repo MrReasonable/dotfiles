@@ -15,25 +15,37 @@ uv = "~0.12"
 # atuin publishes checksums (verified by its plugin), so it gets a range; the
 # rest publish none and stay exact. `update-all` warns when they're behind.
 atuin = "~18"
+# carapace and just publish combined checksum files (verified), so ranges.
+carapace = "~1"
+just = "~1"
 delta = "0.19.2"
+difftastic = "0.71.0"
 dust = "1.2.6"
 hyperfine = "1.20.0"
 sd = "1.1.0"
 tlrc = "1.13.1"
+xh = "0.26.2"
 yazi = "26.9.1"
 {{- if ne .chezmoi.os "darwin" }}
-# btop ships no macOS binaries; macOS gets it from Homebrew.
+# btop ships no macOS binaries, git-absorb only x86_64 ones; macOS gets both
+# from Homebrew.
 btop = "1.4.7"
+git-absorb = "0.9.0"
 {{- end }}
 
 [plugins]
 atuin = "file://./tool-plugins/atuin.toml"
+carapace = "file://./tool-plugins/carapace.toml"
 delta = "file://./tool-plugins/delta.toml"
+difftastic = "file://./tool-plugins/difftastic.toml"
 dust = "file://./tool-plugins/dust.toml"
 hyperfine = "file://./tool-plugins/hyperfine.toml"
+just = "file://./tool-plugins/just.toml"
 sd = "file://./tool-plugins/sd.toml"
 tlrc = "file://./tool-plugins/tlrc.toml"
 yazi = "file://./tool-plugins/yazi.toml"
+xh = "file://./tool-plugins/xh.toml"
 {{- if ne .chezmoi.os "darwin" }}
 btop = "file://./tool-plugins/btop.toml"
+git-absorb = "file://./tool-plugins/git-absorb.toml"
 {{- end }}

@@ -1,0 +1,26 @@
+# proto TOML plugin: ducaale/xh GitHub release binaries.
+# Registered in ~/.proto/.prototools [plugins]; managed by chezmoi.
+# No published checksums (pin exactly).
+name = "xh"
+type = "cli"
+
+[platform.macos]
+archive-prefix = "xh-v{version}-{arch}-apple-darwin"
+download-file = "xh-v{version}-{arch}-apple-darwin.tar.gz"
+exe-path = "xh"
+
+[platform.linux]
+archive-prefix = "xh-v{version}-{arch}-unknown-linux-musl"
+download-file = "xh-v{version}-{arch}-unknown-linux-musl.tar.gz"
+exe-path = "xh"
+
+[install]
+download-url = "https://github.com/ducaale/xh/releases/download/v{version}/{download_file}"
+
+[install.arch]
+aarch64 = "aarch64"
+x86_64 = "x86_64"
+
+[resolve]
+git-url = "https://github.com/ducaale/xh"
+version-pattern = '^v((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'

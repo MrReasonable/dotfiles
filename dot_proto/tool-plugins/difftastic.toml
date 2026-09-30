@@ -1,0 +1,29 @@
+# proto TOML plugin: Wilfred/difftastic GitHub release binaries.
+# Registered in ~/.proto/.prototools [plugins]; managed by chezmoi.
+# No published checksums (pin exactly). No aarch64 musl build, so glibc on Linux.
+# The command is `difft`, so name the shim/bin after that.
+name = "difftastic"
+type = "cli"
+
+[platform.macos]
+download-file = "difft-{version}-{arch}-apple-darwin.tar.gz"
+exe-path = "difft"
+
+[platform.linux]
+download-file = "difft-{version}-{arch}-unknown-linux-gnu.tar.gz"
+exe-path = "difft"
+
+[install]
+download-url = "https://github.com/Wilfred/difftastic/releases/download/{version}/{download_file}"
+
+[install.arch]
+aarch64 = "aarch64"
+x86_64 = "x86_64"
+
+[install.exes.difft]
+exe-path = "difft"
+primary = true
+
+[resolve]
+git-url = "https://github.com/Wilfred/difftastic"
+version-pattern = '^((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'

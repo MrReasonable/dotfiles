@@ -34,6 +34,19 @@
 	line-numbers = true
 [diff]
 	colorMoved = default
+	# Structural (syntax-aware) diffs on demand: `git difftool`, or the aliases
+	# below; delta stays the everyday pager.
+	tool = difftastic
+[difftool]
+	prompt = false
+[difftool "difftastic"]
+	cmd = difft "$LOCAL" "$REMOTE"
+[pager]
+	difftool = true
+[alias]
+	dft = -c diff.external=difft diff
+	dlog = -c diff.external=difft log -p --ext-diff
+	dshow = -c diff.external=difft show --ext-diff
 [apply]
 	whitespaces = nowarn
 [color]
