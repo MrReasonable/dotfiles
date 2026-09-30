@@ -41,4 +41,7 @@ return {
   -- Learning aid: hints for the motions available from the cursor (toggle
   -- with :Precognition toggle)
   { import = "astrocommunity.workflow.precognition-nvim" },
+  -- Habit coach: suggests faster motions (hint mode, configured in
+  -- lua/plugins/hardtime.lua); `:Hardtime report` lists your top habits
+  { import = "astrocommunity.workflow.hardtime-nvim" },
 }
