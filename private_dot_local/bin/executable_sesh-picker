@@ -7,9 +7,14 @@
 # zoxide, so set PATH here, and have fzf's reload bindings call back into this
 # script by absolute path so they get the same PATH inside the popup.
 #
-#   sesh-picker            open the picker, then connect to the selection
-#   sesh-picker list ...   `sesh list --icons ...` (used by the reloads)
-#   sesh-picker find       directories under ~ (ctrl-f)
+#   sesh-picker [CURRENT]      open the picker, then connect to the selection;
+#                              CURRENT is the session it was opened from
+#   sesh-picker list ...       `sesh list --icons ...` (used by the reloads)
+#   sesh-picker find           directories under ~ (ctrl-f)
+#   sesh-picker kill CUR NAME  ctrl-d: kill tmux session NAME, but only an exact
+#                              match that isn't CUR, so it can never take down
+#                              the session you're in (killing the last one
+#                              exits the tmux server) or act on a zoxide/dir row
 set -euo pipefail
 
 PATH="$HOME/.proto/shims:$HOME/.zi/plugins/ajeetdsouza---zoxide:$HOME/.zi/plugins/fzf:$HOME/.local/bin:$PATH"
@@ -22,7 +27,15 @@ self="$HOME/.local/bin/sesh-picker"
 case "${1-}" in
   list) shift; exec sesh list --icons "$@" ;;
   find) exec fd -H -d 2 -t d -E .Trash . "$HOME" ;;
+  kill)
+    current=${2-}; name=${3-}
+    [ -n "$name" ] && [ "$name" != "$current" ] || exit 0
+    # '=' makes -t an exact name match (tmux otherwise prefix/pattern-matches)
+    tmux has-session -t "=$name" 2>/dev/null || exit 0
+    exec tmux kill-session -t "=$name" ;;
 esac
+
+current=${1:-$(tmux display-message -p '#S' 2>/dev/null || true)}
 
 selection=$(
   sesh list --icons | fzf-tmux -p 80%,70% \
@@ -33,6 +46,6 @@ selection=$(
     --bind "ctrl-t:change-prompt(🪟  )+reload($self list -t)" \
     --bind "ctrl-x:change-prompt(📁  )+reload($self list -z)" \
     --bind "ctrl-f:change-prompt(🔎  )+reload($self find)" \
-    --bind "ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload($self list)"
+    --bind "ctrl-d:execute-silent($self kill '$current' {2..})+change-prompt(⚡  )+reload($self list)"
 ) || exit 0   # Esc / no selection
 [ -n "$selection" ] && exec sesh connect "$selection"

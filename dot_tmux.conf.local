@@ -416,7 +416,8 @@ bind m run "cut -c3- '#{TMUX_CONF}' | sh -s _toggle_mouse" \; display 'mouse #{?
 #   ^a all  ^t tmux  ^x zoxide  ^f find dirs  ^d kill tmux session
 # The logic lives in ~/.local/bin/sesh-picker, which sets its own PATH: run-shell
 # and the popup only get the tmux server's environment.
-bind-key T run-shell '"$HOME/.local/bin/sesh-picker"'
+# run-shell expands #{session_name}: the picker won't let ctrl-d kill it.
+bind-key T run-shell '"$HOME/.local/bin/sesh-picker" "#{session_name}"'
 
 
 # -- tpm -----------------------------------------------------------------------
