@@ -93,13 +93,29 @@ zi wait lucid light-mode for \
 {{- /* zi wait pack atload=+"zicompinit_fast; zicdreplay" for brew-completions */ -}}
 {{- end }}
 
+# @console-tools: zi installs fd/bat/eza/rg only when they're missing. A tool
+# already on PATH from outside zi (e.g. Homebrew) is skipped; otherwise the
+# annex prints its "Loading … consisting of" notice on every login, because it
+# checks for the plugin dir on disk and ignores the recipe's if'' guard.
+# eza's zi recipe only ships a linux-x86_64 binary, and the annex refuses the
+# whole group if eza is absent elsewhere, so skip it there (use brew instead).
+local -a _ct_skip
+local _ct_tool _ct_cmd
+for _ct_tool _ct_cmd in fd fd bat bat eza eza ripgrep rg; do
+  if [[ -n ${commands[$_ct_cmd]} && ${commands[$_ct_cmd]} != ${ZI[PLUGINS_DIR]}/* ]] ||
+     [[ $_ct_tool == eza && $OSTYPE/$CPUTYPE != linux*/x86_64 && -z ${commands[eza]} ]]; then
+    _ct_skip+=( $_ct_tool )
+  fi
+done
+
 zi light-mode for z-shell/z-a-meta-plugins \
   @annexes \
   @zsh-users+fast \
   @fuzzy \
-  skip'eza' @console-tools \
+  skip"${_ct_skip[*]}" @console-tools \
   @ext-git \
   @romkatv
+unset _ct_skip _ct_tool _ct_cmd
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 if [[ "$TERM_PROGRAM" != "vscode" ]]; then
