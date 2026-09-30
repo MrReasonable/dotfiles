@@ -112,9 +112,7 @@ zstyle ':prezto:module:gpg-agent:auto-start' local
 zi wait lucid light-mode for \
     OMZP::colored-man-pages \
     OMZP::common-aliases \
-    OMZP::rbenv \
     OMZP::iterm2 \
-    OMZP::jenv \
     OMZP::composer \
     OMZP::ssh-agent \
     OMZP::direnv \
@@ -123,14 +121,14 @@ zi wait lucid light-mode for \
     OMZP::golang \
     z-shell/z-a-rust \
     zpm-zsh/tmux \
-    xlshiz/pyenv-zsh-plugin \
     akccakcctw/zsh-better-pnpm-completion \
     lukechilds/zsh-better-npm-completion \
     ryutok/rust-zsh-completions \
     zdharma-continuum/zinit-console \
+  atload'YSU_IGNORED_GLOBAL_ALIASES=(${(k)galiases})' \
+    MichaelAquilina/zsh-you-should-use \
     laggardkernel/zsh-gpg-agent \
     greymd/docker-zsh-completion \
-    bostonaholic/ngrok.plugin.zsh \
     has'eza' atinit'AUTOCD=1' \
         z-shell/zsh-eza \
 {{- if eq .chezmoi.os "darwin"}}
@@ -160,6 +158,10 @@ done
 
 # Only the annexes (needed to install recipes) and the prompt load before the
 # first prompt; the rest loads in turbo right after it's drawn.
+# Turbo order matters: zsh-completions runs compinit, fzf-tab must load after
+# compinit but before autosuggestions/F-Sy-H wrap the completion widgets.
+# zoxide: --no-cmd because its default `zi` command would shadow zi itself, so
+# `z` jumps and `zz` picks interactively; init is cached at install/update.
 zi light-mode for z-shell/z-a-meta-plugins \
   @annexes \
   @romkatv
@@ -168,7 +170,16 @@ zi wait lucid light-mode for \
   @fuzzy \
   skip"${_ct_skip[*]}" @console-tools \
   @ext-git \
-  @zsh-users+fast \
+  atpull'zi creinstall $PWD' pick'/dev/null' atload'zicompinit; zicdreplay' \
+    zsh-users/zsh-completions \
+  Aloxaf/fzf-tab \
+  atload'!_zsh_autosuggest_start' \
+    zsh-users/zsh-autosuggestions \
+    z-shell/F-Sy-H \
+  from'gh-r' as'program' pick'zoxide' \
+  atclone'./zoxide init zsh --no-cmd >| init.zsh' atpull'%atclone' src'init.zsh' \
+  atload"alias z=__zoxide_z zz=__zoxide_zi" \
+    ajeetdsouza/zoxide \
   id-as'proto-activate' atload'(( $+functions[proto_activate] )) && proto_activate' \
     z-shell/null
 unset _ct_skip _ct_tool _ct_cmd
@@ -200,7 +211,11 @@ which snap > /dev/null && sudo snap refresh;\
 zi cclear && zi update -p -a && zi cclear && zi compinit"
 {{- end }}
 
-zstyle ':completion:*' menu select
+# fzf-tab draws the completion list, so zsh's own menu stays off.
+zstyle ':completion:*' menu no
+zstyle ':completion:*:descriptions' format '[%d]'
+zstyle ':fzf-tab:*' switch-group '<' '>'
+zstyle ':fzf-tab:complete:(cd|__zoxide_z):*' fzf-preview 'eza -1 --color=always $realpath'
 # Completion cache: also where OMZP::composer caches `composer global config
 # bin-dir`; without it that PHP call (~0.2s) re-runs in turbo on every startup.
 # Delete $XDG_CACHE_HOME/zsh/zcompcache/composer if composer's bin-dir moves.
@@ -208,7 +223,6 @@ zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompcache"
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:complete:*:options' sort false
-zstyle ':fzf-tab:complete:_zlua:*' query-string input
 
 export GPG_TTY=$TTY
 
