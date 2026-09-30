@@ -1,0 +1,221 @@
+#!/usr/bin/env zsh
+# Build the generated "Did you know?" tips shown at shell startup (see the
+# tip()/tips() functions in ~/.zshrc). Writes one file per source into
+# ${XDG_CACHE_HOME:-~/.cache}/zsh/tips/ (plain lines, `code` in backticks):
+#
+#   tmux.txt   tmux's own binding descriptions (read from a throwaway server
+#              with NO config), minus keys your config rebinds, plus your
+#              Oh my tmux / ~/.tmux.conf.local bindings described by comments
+#   nvim.txt   Neovim key mappings that have a description (AstroNvim/which-key)
+#   tldr.txt   tldr examples for the tools you chose: Homebrew formulae you
+#              installed (brew leaves), proto tools, zi programs, ~/.local/bin
+#              and a core set, not every dependency that happens to be on PATH
+#   navi.txt   navi cheats whose command is actually available
+#   git.txt    your git aliases
+#
+# .zshrc re-runs this in the background at most once a day; run it by hand to
+# refresh now. Needs the interactive shell's PATH, so it's started from turbo.
+emulate -L zsh
+setopt extended_glob pipe_fail no_unset
+
+out=${XDG_CACHE_HOME:-$HOME/.cache}/zsh/tips
+lock=$out.lock
+mkdir -p ${out:h}
+# one build at a time across shells; a lock older than 10 min is stale
+if ! mkdir $lock 2>/dev/null; then
+  [[ -n $lock(#qN/mm+10) ]] || exit 0
+  rm -rf $lock && mkdir $lock || exit 0
+fi
+tmp=$(mktemp -d ${out}.new.XXXXXX)
+trap 'rm -rf $tmp $lock' EXIT
+
+# Pretty key names: C-a -> Ctrl-A, M-x -> Alt-X, <C-x> -> Ctrl-X, <NL> -> Ctrl-J
+keyname() {
+  local k=$1
+  k=${k//<lt>/<}; k=${k//<NL>/Ctrl-J}; k=${k//<CR>/Enter}; k=${k//<Esc>/Esc}
+  k=${k//<Tab>/Tab}; k=${k//<BS>/Backspace}; k=${k//<Space>/Space }
+  k=${k//(#b)<C-(?)>/Ctrl-${(U)match[1]}}; k=${k//(#b)<[MA]-(?)>/Alt-${(U)match[1]}}
+  k=${k//(#b)<([CMAS])-([^>]##)>/${match[1]/C/Ctrl}${match[1]/[MA]/Alt}-${match[2]}}
+  k=${k//(#b)(#s)C-(?)/Ctrl-${(U)match[1]}}; k=${k//(#b)(#s)M-(?)/Alt-${(U)match[1]}}
+  print -r -- $k
+}
+
+# ── tmux ─────────────────────────────────────────────────────────────────────
+# Never start a server with the real config (tmux-continuum would save/restore
+# sessions) and never touch the live one: no $TMUX, own socket, /dev/null config.
+() {
+  (( $+commands[tmux] )) || return
+  local conf=$HOME/.tmux.conf.local omt=$HOME/.tmux/.tmux.conf
+  local prefix=C-b line key note
+  prefix=${${(M)${(f)"$(<$conf)"}:#set(-option)# -g prefix *}##* } 2>/dev/null
+  [[ -n $prefix ]] || prefix=C-b
+  local P=$(keyname $prefix)
+
+  # keys the config binds in the prefix table (these override the defaults)
+  local -A rebound
+  local -a words
+  for line in ${(f)"$(cat $omt $conf 2>/dev/null)"}; do
+    [[ $line == (#s)[[:space:]]#bind(-key|)[[:space:]]* ]] || continue
+    words=(${(z)line}); words=(${words[2,-1]})
+    while [[ ${words[1]-} == -* ]]; do
+      [[ ${words[1]} == -(n|T) ]] && { words=(); break }   # root/other tables
+      [[ ${words[1]} == -*[TN] ]] && shift words           # flag takes an arg
+      shift words
+    done
+    (( $#words )) && rebound[${(Q)words[1]}]=1
+  done
+
+  local sock=tips-build-$$
+  env -u TMUX -u TMUX_PANE tmux -L $sock -f /dev/null start-server \; list-keys -N 2>/dev/null |
+  while IFS= read -r line; do
+    [[ $line == (#b)C-b\ ([^[:space:]]##)[[:space:]]##(*) ]] || continue
+    key=${match[1]} note=${match[2]}
+    (( ${+rebound[$key]} )) && continue
+    print -r -- "\`$P $(keyname $key)\`: $note"
+  done > $tmp/tmux.txt
+  env -u TMUX -u TMUX_PANE tmux -L $sock kill-server 2>/dev/null
+  rm -f ${TMUX_TMPDIR:-/tmp}/tmux-$UID/$sock /private/tmp/tmux-$UID/$sock 2>/dev/null
+
+  # the config's own bindings, described by a trailing or preceding comment
+  local prev=''
+  for line in ${(f)"$(cat $omt $conf 2>/dev/null)"}; do
+    if [[ $line == (#s)[[:space:]]#bind(-key|)[[:space:]]* ]]; then
+      note=''
+      [[ $line == (#b)*[[:space:]]\#[[:space:]]##(*) ]] && note=${match[1]}
+      [[ -z $note && $prev == (#b)(#s)\#[[:space:]]##(*) ]] && note=${match[1]}
+      words=(${(z)line}); words=(${words[2,-1]})
+      local root=0
+      while [[ ${words[1]-} == -* ]]; do
+        [[ ${words[1]} == -n ]] && root=1
+        [[ ${words[1]} == -T ]] && { words=(); break }
+        [[ ${words[1]} == -*N ]] && shift words
+        shift words
+      done
+      if (( $#words )) && [[ -n $note && $note != *'#!important'* ]]; then
+        key=$(keyname ${(Q)words[1]})
+        (( root )) && print -r -- "\`$key\` in tmux (no prefix): $note" \
+                   || print -r -- "\`$P $key\` in tmux: $note"
+      fi
+    fi
+    prev=$line
+  done >> $tmp/tmux.txt
+}
+
+# ── Neovim ───────────────────────────────────────────────────────────────────
+() {
+  (( $+commands[nvim] )) || return
+  local lua=$tmp/nvkeys.lua tsv=$tmp/nvkeys.tsv
+  cat > $lua <<'LUA'
+local out, seen = {}, {}
+for _, mode in ipairs({ "n", "x", "i", "t" }) do
+  for _, m in ipairs(vim.api.nvim_get_keymap(mode)) do
+    local d = m.desc
+    if d and d ~= "" and not d:find("^:help") and not m.lhs:find("<Plug>")
+      and not m.lhs:find("<SNR>") and not seen[mode .. m.lhs] then
+      seen[mode .. m.lhs] = true
+      local lhs = m.lhs:gsub("^" .. vim.pesc(vim.g.mapleader or "\\"), "<Leader>")
+      table.insert(out, mode .. "\t" .. lhs .. "\t" .. d:gsub("[\t\n]", " "))
+    end
+  end
+end
+local f = io.open(os.getenv("NVKEYS_OUT"), "w")
+f:write(table.concat(out, "\n"), "\n")
+f:close()
+LUA
+  NVKEYS_OUT=$tsv timeout 90 nvim --headless -c "luafile $lua" -c 'qa!' >/dev/null 2>&1 || return
+  local mode lhs desc where
+  local -A modename=(n '' x ' (visual)' i ' (insert)' t ' (terminal)')
+  while IFS=$'\t' read -r mode lhs desc; do
+    lhs=${lhs//<Leader>/Space }
+    print -r -- "\`$(keyname $lhs)\` in Neovim${modename[$mode]-}: $desc"
+  done < $tsv > $tmp/nvim.txt
+  rm -f $lua $tsv
+}
+
+# ── tldr (tlrc's page cache, read directly) ──────────────────────────────────
+() {
+  (( $+commands[tldr] )) || return
+  local cache=${${(M)${(f)"$(tldr --info 2>/dev/null)"}:#Cache: *}#Cache: }
+  cache=${cache%% \(*}
+  local pages=$cache/pages.en
+  [[ -d $pages ]] || return
+  local -a platforms=(common) files
+  [[ $OSTYPE == darwin* ]] && platforms+=(osx) || platforms+=(linux)
+  # Tools you chose, not every dependency on PATH (netpbm's pam* helpers...).
+  local -A wanted
+  local c leaf
+  for c in git ssh scp rsync curl wget tar find xargs sed awk grep jq make \
+           tmux nvim docker kubectl gh ps kill lsof du df top open pbcopy \
+           launchctl defaults diskutil caffeinate say mdfind networksetup; do
+    wanted[$c]=1
+  done
+  if (( $+commands[brew] )); then
+    local bp=${HOMEBREW_PREFIX:-$(brew --prefix)}
+    for leaf in ${(f)"$(brew leaves 2>/dev/null)"}; do
+      for c in $bp/opt/${leaf:t}/bin/*(N:t); do wanted[$c]=1; done
+    done
+  fi
+  for c in $HOME/.proto/shims/*(N:t) $HOME/.local/bin/*(N*:t) \
+           $HOME/.zi/plugins/*/*(N*:t) $HOME/.zi/plugins/*/*/*(N*:t); do
+    wanted[$c]=1
+  done
+  local plat f name desc line
+  for plat in $platforms; do
+    for f in $pages/$plat/*.md(N); do
+      name=${f:t:r}
+      (( $+commands[$name] && $+wanted[$name] )) || continue
+      # alias pages (gcp -> cp, ...) only point at another page
+      [[ "$(<$f)" == *'This command is an alias of'* ]] && continue
+      desc=''
+      while IFS= read -r line; do
+        if [[ $line == -\ View\ documentation* ]]; then desc=''
+        elif [[ $line == (#b)-\ (*): ]]; then desc=${match[1]}
+        elif [[ -n $desc && $line == (#b)\`(*)\` ]]; then
+          line=${match[1]//\{\{/}; line=${line//\}\}/}
+          print -r -- "$name — $desc: \`$line\`"
+          desc=''
+        fi
+      done < $f
+    done
+  done > $tmp/tldr.txt
+}
+
+# ── navi cheats ──────────────────────────────────────────────────────────────
+() {
+  (( $+commands[navi] )) || return
+  local dir=$(navi info cheats-path 2>/dev/null)
+  [[ -d $dir ]] || return
+  local f line desc cmd full
+  for f in $dir/**/*.cheat(N); do
+    desc='' full=''
+    while IFS= read -r line; do
+      if [[ -n $full ]]; then                    # continuation of a \-split command
+        full+=" ${line##[[:space:]]#}"
+      elif [[ $line == (#b)\#\ (*) ]]; then desc=${match[1]}; continue
+      elif [[ -n $desc && -n $line && $line != [%\$\;@]* ]]; then full=$line
+      else continue
+      fi
+      [[ $full == *\\ ]] && { full=${full%\\}; full=${full%%[[:space:]]#}; continue }
+      cmd=${full%% *}
+      (( $+commands[$cmd] || $+builtins[$cmd] )) &&
+        print -r -- "$desc: \`$full\` (\`navi\` fills in the <blanks>)"
+      desc='' full=''
+    done < $f
+  done > $tmp/navi.txt
+}
+
+# ── git aliases ──────────────────────────────────────────────────────────────
+() {
+  (( $+commands[git] )) || return
+  local name val
+  git config --global --get-regexp '^alias\.' 2>/dev/null |
+  while read -r name val; do
+    print -r -- "\`git ${name#alias.}\` is your alias for \`${val#!}\`"
+  done > $tmp/git.txt
+}
+
+# drop empty sources, then swap the new set in
+for f in $tmp/*.txt(N); do [[ -s $f ]] || rm -f $f; done
+rm -rf ${out}.old; [[ -d $out ]] && mv $out ${out}.old
+mv $tmp $out && rm -rf ${out}.old
+touch $out/.built

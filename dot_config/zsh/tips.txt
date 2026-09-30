@@ -1,0 +1,49 @@
+# "Did you know?" tips, one per line, shown at shell startup by .zshrc.
+# `backticks` are highlighted. Lines starting with # and blank lines are skipped.
+# Managed by chezmoi: edit ~/.local/share/chezmoi/dot_config/zsh/tips.txt.
+
+`Ctrl-T` fuzzy-finds files (fd, with a bat preview) and inserts the pick at the cursor.
+`Alt-C` fuzzy-picks a subdirectory to cd into, with an eza tree preview.
+`Ctrl-R` searches history with atuin; press `Ctrl-R` again inside it to cycle session/directory/global scope.
+Type the start of a command, then `↑`/`↓` to walk only the history lines that begin with it.
+`Ctrl-X Ctrl-E` (or `Esc` then `v`) opens the command line in nvim; save and quit to run it.
+`z proj` jumps to your most-used directory matching "proj"; `zz` picks interactively.
+`Tab` opens an fzf picker for completions; `<` and `>` switch between completion groups.
+`cd` + `Tab` previews each directory with eza as you move through the list.
+`y` opens yazi, a file manager; quit it and your shell is left in the directory you browsed to.
+`cd -` + `Tab` lists your recent directories (the pushd stack) to jump back to.
+Just type a directory's name (no `cd`) to change into it.
+Autosuggestions: press `→` to accept the grey suggestion from history.
+`git dft` shows a syntax-aware diff with difftastic; `git dlog` and `git dshow` do the same for log/show.
+Stage fixes, then `git absorb --and-rebase` folds each one into the commit it belongs to.
+In a git diff (delta), `n` / `N` jump to the next/previous file.
+`git forgit log`, `git forgit add` and `git forgit diff` are interactive fzf versions of those commands.
+`git open` opens the current repo (and branch) in your browser.
+`lazygit` is a full git UI in the terminal; `lazydocker` does the same for containers.
+`tldr tar` shows practical examples instead of the full man page.
+`dust` shows what's using disk space as a tree; `dust -d 1` for just the top level.
+`btop` is a resource monitor: CPU, memory, disks, network and processes.
+`sd 'old' 'new' file.txt` is find-and-replace without sed's escaping headaches.
+`hyperfine 'cmd one' 'cmd two'` benchmarks commands against each other.
+`just` runs recipes from a `justfile`; `just --list` shows them.
+`xh httpbin.org/json` is curl with readable output; `xh post url name=foo` sends JSON.
+`watchexec -e ts -- pnpm test` re-runs a command whenever matching files change.
+`jless file.json` (or `... | jless`) browses JSON/YAML: collapse with `Space`, search with `/`.
+`tspin app.log` or `kubectl logs pod | tspin` highlights dates, levels, IPs and UUIDs in logs.
+`rm` moves things to the Trash, so it's recoverable; `\rm` (or `command rm`) really deletes.
+`man` pages render through bat, with syntax colouring.
+`ll` is a long listing (eza), `la` shows everything, `lt` shows a tree.
+Global aliases work anywhere in a line: `cmd H` = `| head`, `G` = `| grep`, `NUL` = `> /dev/null 2>&1`.
+`fd -e md` finds files by extension; `rg -t py foo` searches only Python files.
+`bat -A file` shows hidden characters (tabs, line endings, trailing spaces).
+`gping 1.1.1.1 google.com` graphs ping times for several hosts at once.
+`navi` is an interactive cheatsheet: pick a command, fill in the blanks, run it.
+`sudo bandwhich` shows which processes are using your network bandwidth.
+`glow README.md` renders Markdown nicely in the terminal.
+In tmux, `Ctrl-A T` opens the sesh picker: `^x` for zoxide dirs, `^t` for sessions, `^d` kills another session.
+In tmux, `Ctrl-A +` maximises the current pane (again to restore); `Ctrl-A -` and `Ctrl-A _` split it.
+In tmux, `Ctrl-A Tab` jumps to the last window; `Ctrl-A e` edits the tmux config, `Ctrl-A r` reloads it.
+`update-all` updates chezmoi, brew, zi plugins and proto tools, and warns about anything still behind.
+`proto outdated` lists proto-managed tools with newer versions.
+`zi times` shows how long each zi plugin took to load.
+`tip` shows another tip; `tips` lets you browse them all.
