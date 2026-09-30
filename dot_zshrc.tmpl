@@ -158,8 +158,9 @@ done
 
 # Only the annexes (needed to install recipes) and the prompt load before the
 # first prompt; the rest loads in turbo right after it's drawn.
-# Turbo order matters: zsh-completions runs compinit, fzf-tab must load after
-# compinit but before autosuggestions/F-Sy-H wrap the completion widgets.
+# Turbo order matters: fzf-tab must load after compinit (run by the label's
+# zsh-completions) but before autosuggestions/F-Sy-H wrap the completion
+# widgets, so those two are skipped from @zsh-users+fast and loaded after it.
 # zoxide: --no-cmd because its default `zi` command would shadow zi itself, so
 # `z` jumps and `zz` picks interactively; init is cached at install/update.
 zi light-mode for z-shell/z-a-meta-plugins \
@@ -170,8 +171,7 @@ zi wait lucid light-mode for \
   @fuzzy \
   skip"${_ct_skip[*]}" @console-tools \
   @ext-git \
-  atpull'zi creinstall $PWD' pick'/dev/null' atload'zicompinit; zicdreplay' \
-    zsh-users/zsh-completions \
+  skip'zsh-autosuggestions F-Sy-H' @zsh-users+fast \
   Aloxaf/fzf-tab \
   atload'!_zsh_autosuggest_start' \
     zsh-users/zsh-autosuggestions \
