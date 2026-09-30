@@ -1,0 +1,25 @@
+# proto TOML plugin: dandavison/delta GitHub release binaries.
+# Registered in ~/.proto/.prototools [plugins]; managed by chezmoi.
+name = "delta"
+type = "cli"
+
+[platform.macos]
+archive-prefix = "delta-{version}-{arch}-apple-darwin"
+download-file = "delta-{version}-{arch}-apple-darwin.tar.gz"
+exe-path = "delta"
+
+[platform.linux]
+archive-prefix = "delta-{version}-{arch}-unknown-linux-gnu"
+download-file = "delta-{version}-{arch}-unknown-linux-gnu.tar.gz"
+exe-path = "delta"
+
+[install]
+download-url = "https://github.com/dandavison/delta/releases/download/{version}/{download_file}"
+
+[install.arch]
+aarch64 = "aarch64"
+x86_64 = "x86_64"
+
+[resolve]
+git-url = "https://github.com/dandavison/delta"
+version-pattern = '^((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'

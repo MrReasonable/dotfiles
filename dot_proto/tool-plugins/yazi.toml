@@ -1,0 +1,33 @@
+# proto TOML plugin: sxyazi/yazi GitHub release binaries.
+# Registered in ~/.proto/.prototools [plugins]; managed by chezmoi.
+name = "yazi"
+type = "cli"
+
+[platform.macos]
+archive-prefix = "yazi-{arch}-apple-darwin"
+download-file = "yazi-{arch}-apple-darwin.zip"
+exe-path = "yazi"
+
+[platform.linux]
+archive-prefix = "yazi-{arch}-unknown-linux-musl"
+download-file = "yazi-{arch}-unknown-linux-musl.zip"
+exe-path = "yazi"
+
+[install]
+download-url = "https://github.com/sxyazi/yazi/releases/download/v{version}/{download_file}"
+
+[install.arch]
+aarch64 = "aarch64"
+x86_64 = "x86_64"
+
+# `ya` is yazi's package/plugin manager, shipped alongside it.
+[install.exes.yazi]
+exe-path = "yazi"
+primary = true
+
+[install.exes.ya]
+exe-path = "ya"
+
+[resolve]
+git-url = "https://github.com/sxyazi/yazi"
+version-pattern = '^v((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'
