@@ -1,0 +1,27 @@
+# proto TOML plugin: joshmedeski/sesh GitHub release binaries.
+# Registered in ~/.proto/.prototools [plugins]; managed by chezmoi.
+# Checksums: one combined file per release, verified.
+name = "sesh"
+type = "cli"
+
+[platform.macos]
+download-file = "sesh_Darwin_{arch}.tar.gz"
+checksum-file = "sesh_{version}_checksums.txt"
+exe-path = "sesh"
+
+[platform.linux]
+download-file = "sesh_Linux_{arch}.tar.gz"
+checksum-file = "sesh_{version}_checksums.txt"
+exe-path = "sesh"
+
+[install]
+download-url = "https://github.com/joshmedeski/sesh/releases/download/v{version}/{download_file}"
+checksum-url = "https://github.com/joshmedeski/sesh/releases/download/v{version}/{checksum_file}"
+
+[install.arch]
+aarch64 = "arm64"
+x86_64 = "x86_64"
+
+[resolve]
+git-url = "https://github.com/joshmedeski/sesh"
+version-pattern = '^v((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'

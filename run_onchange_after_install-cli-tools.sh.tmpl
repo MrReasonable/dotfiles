@@ -23,3 +23,9 @@ export PATH="$HOME/.proto/bin:$HOME/.proto/shims:$PATH"
 cd "$HOME/.proto" && proto install
 # Rebuild shims/bins so plugin changes (e.g. renamed executables) take effect.
 proto regen --bin
+{{- if ne .chezmoi.os "darwin" }}
+
+# `rm` in .zshrc sends files to the trash; macOS has /usr/bin/trash built in,
+# elsewhere use trash-cli (as a uv tool, uv being proto-managed).
+command -v trash-put >/dev/null 2>&1 || uv tool install trash-cli
+{{- end }}

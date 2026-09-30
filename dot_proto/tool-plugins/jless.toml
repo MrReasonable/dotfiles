@@ -1,0 +1,25 @@
+# proto TOML plugin: PaulJuliusMartinez/jless GitHub release binaries.
+# Registered in ~/.proto/.prototools [plugins]; managed by chezmoi.
+# No published checksums (pin exactly). Linux builds are x86_64-only.
+name = "jless"
+type = "cli"
+
+[platform.macos]
+download-file = "jless-v{version}-{arch}-apple-darwin.zip"
+exe-path = "jless"
+
+[platform.linux]
+archs = ["x86_64"]
+download-file = "jless-v{version}-{arch}-unknown-linux-gnu.zip"
+exe-path = "jless"
+
+[install]
+download-url = "https://github.com/PaulJuliusMartinez/jless/releases/download/v{version}/{download_file}"
+
+[install.arch]
+aarch64 = "aarch64"
+x86_64 = "x86_64"
+
+[resolve]
+git-url = "https://github.com/PaulJuliusMartinez/jless"
+version-pattern = '^v((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'
