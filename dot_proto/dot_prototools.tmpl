@@ -1,15 +1,20 @@
 # Global proto toolchain. Managed by chezmoi (dot_proto/dot_prototools.tmpl);
-# `proto pin --global` edits the live copy, so re-add it with `chezmoi re-add`
-# (or edit the template) afterwards.
-node = "26.10.0"
-npm = "12.1.0"
-pnpm = "12.8.1"
-uv = "0.12.21"
+# edit here rather than with `proto pin --global` / `proto outdated --update`
+# (the latter also rewrites ranges into exact versions).
+#
+# Tools whose downloads proto checksum-verifies use a major range ("~26"; for
+# 0.x the minor is the major, "~0.12"); `update-all` installs the newest
+# release inside each range. Tools without published checksums stay pinned
+# exactly, so a new binary only arrives through a reviewed change here.
+node = "~26"
+npm = "~12"
+pnpm = "~12"
+uv = "~0.12"
 
 # CLI tools from GitHub releases, via the TOML plugins in ./tool-plugins.
-# Pinned exactly: only atuin publishes checksums, so new versions arrive only
-# when bumped here. `update-all` warns when any of these are behind.
-atuin = "18.23.0"
+# atuin publishes checksums (verified by its plugin), so it gets a range; the
+# rest publish none and stay exact. `update-all` warns when they're behind.
+atuin = "~18"
 delta = "0.19.2"
 dust = "1.2.6"
 hyperfine = "1.20.0"
