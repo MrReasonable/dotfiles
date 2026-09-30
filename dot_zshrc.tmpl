@@ -264,7 +264,10 @@ _proto_outdated_warn() {
   # the global ~/.proto/.prototools; from here it walks up and reads both.
   json=$(builtin cd ~/.proto && PROTO_LOG=off proto outdated --json 2>/dev/null) || return 0
   if (( $+commands[jq] )); then
-    lines=$(jq -r 'to_entries[] | select(.value.is_latest | not)
+    # Compare numerically rather than trusting is_latest, which is also false
+    # when a registry's "latest" tag lags a newer installed release.
+    lines=$(jq -r 'def v: split("-")[0] | split(".") | map(tonumber? // 0);
+      to_entries[] | select((.value.latest_version | v) > (.value.current_version | v))
       | "  \(.key) \(.value.current_version) -> \(.value.latest_version)  (\(.value.config_source))"' <<<"$json")
   elif [[ $json == *'"is_latest": false'* ]]; then
     # No jq (e.g. a bare Linux box): fall back to proto's own table.
@@ -273,16 +276,39 @@ _proto_outdated_warn() {
   [[ -n $lines ]] || return 0
   print -P "%F{yellow}proto: newer versions available:%f"
   print -r -- "$lines"
-  print -P "%F{yellow}Bump the global pins in ~/.local/share/chezmoi/dot_proto/dot_prototools.tmpl, then chezmoi apply.%f"
+  print -P "%F{yellow}Widen the range or bump the pin in ~/.local/share/chezmoi/dot_proto/dot_prototools.tmpl, then chezmoi apply.%f"
+}
+
+# Bring every range-pinned proto tool up to the newest release in its range,
+# then warn about whatever is still behind (a new major, or an exact pin).
+# Plain `proto install` keeps the newest *installed* match and `proto outdated
+# --update` rewrites ranges to exact versions, so install each spec explicitly.
+_proto_update() {
+  (( $+commands[proto] )) || return 0
+  if (( $+commands[jq] )); then
+    (
+      builtin cd ~/.proto || exit
+      local tool spec
+      PROTO_LOG=off proto outdated --json 2>/dev/null |
+        jq -r 'to_entries[] | select(.value.config_version | test("^[0-9]+\\.[0-9]+\\.[0-9]+$") | not)
+          | "\(.key)\t\(.value.config_version)"' |
+        while IFS=$'\t' read -r tool spec; do
+          proto install "$tool" "$spec" || print -P "%F{red}proto: failed to update $tool ($spec)%f"
+        done
+    )
+  else
+    print -P "%F{yellow}proto: jq not found; skipping in-range updates.%f"
+  fi
+  _proto_outdated_warn
 }
 
 {{- if eq .chezmoi.os "darwin" }}
-alias update-all="chezmoi update && chezmoi apply && brew update && brew upgrade && brew cleanup && zi cclear && zi update -p -a && zi cclear && zi compinit; _proto_outdated_warn"
+alias update-all="chezmoi update && chezmoi apply && brew update && brew upgrade && brew cleanup && zi cclear && zi update -p -a && zi cclear && zi compinit; _proto_update"
 {{- else }}
 alias update-all="chezmoi update && chezmoi apply && which apt-get > /dev/null && sudo apt-get update && sudo apt-get dist-upgrade && sudo apt-get --purge autoremove; \
 which flatpak > /dev/null && flatpak update -y && sudo flatpak update -y;  \
 which snap > /dev/null && sudo snap refresh;\
-zi cclear && zi update -p -a && zi cclear && zi compinit; _proto_outdated_warn"
+zi cclear && zi update -p -a && zi cclear && zi compinit; _proto_update"
 {{- end }}
 
 # fzf-tab draws the completion list, so zsh's own menu stays off.
