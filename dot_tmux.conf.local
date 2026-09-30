@@ -414,10 +414,22 @@ bind m run "cut -c3- '#{TMUX_CONF}' | sh -s _toggle_mouse" \; display 'mouse #{?
 # <prefix> T: sesh session picker (tmux sessions, zoxide dirs) in an fzf
 # popup; picking one switches to it, or creates it.
 #   ^a all  ^t tmux  ^x zoxide  ^f find dirs  ^d kill tmux session
-# The logic lives in ~/.local/bin/sesh-picker, which sets its own PATH: run-shell
-# and the popup only get the tmux server's environment.
-# run-shell expands #{session_name}: the picker won't let ctrl-d kill it.
-bind-key T run-shell '"$HOME/.local/bin/sesh-picker" "#{session_name}"'
+# sesh, zoxide and fzf come from the tmux server's PATH, i.e. the zsh that
+# started tmux; if ^a/^x say "command failed", restart the tmux server.
+# ^d kills only a *different* session, by exact name ('=' target): tmux fills
+# in #{session_name} here, and killing the one you're in (if it's your only
+# one) would exit the tmux server. On zoxide/dir rows it quietly does nothing.
+bind-key T run-shell "sesh connect \"$(
+  sesh list --icons | fzf-tmux -p 80%,70% \
+    --no-sort --ansi --border-label ' sesh ' --prompt '⚡  ' \
+    --header '  ^a all ^t tmux ^x zoxide ^f find ^d kill' \
+    --bind 'tab:down,btab:up' \
+    --bind 'ctrl-a:change-prompt(⚡  )+reload(sesh list --icons)' \
+    --bind 'ctrl-t:change-prompt(🪟  )+reload(sesh list -t --icons)' \
+    --bind 'ctrl-x:change-prompt(📁  )+reload(sesh list -z --icons)' \
+    --bind 'ctrl-f:change-prompt(🔎  )+reload(fd -H -d 2 -t d -E .Trash . ~)' \
+    --bind 'ctrl-d:execute-silent(n={2..}; [ \"\$n\" != \"#{session_name}\" ] && tmux kill-session -t \"=\$n\")+change-prompt(⚡  )+reload(sesh list --icons)'
+)\""
 
 
 # -- tpm -----------------------------------------------------------------------
