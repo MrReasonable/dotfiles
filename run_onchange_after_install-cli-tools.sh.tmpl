@@ -23,6 +23,16 @@ export PATH="$HOME/.proto/bin:$HOME/.proto/shims:$PATH"
 cd "$HOME/.proto" && proto install
 # Rebuild shims/bins so plugin changes (e.g. renamed executables) take effect.
 proto regen --bin
+
+# Rust: make the proto-pinned toolchain rustup's default and give it
+# rust-analyzer (used by Neovim), clippy and rustfmt. proto's rust plugin has
+# no components setting, and `rustup component add` is a no-op when present.
+rust_bin=$(proto bin rust 2>/dev/null | grep -o '/[^"]*/toolchains/[^/"]*/bin/cargo' | tail -1)
+if [ -n "$rust_bin" ] && [ -x "$HOME/.cargo/bin/rustup" ]; then
+  toolchain=$(basename "$(dirname "$(dirname "$rust_bin")")")
+  "$HOME/.cargo/bin/rustup" default "$toolchain"
+  "$HOME/.cargo/bin/rustup" component add --toolchain "$toolchain" rust-analyzer clippy rustfmt
+fi
 {{- if ne .chezmoi.os "darwin" }}
 
 # `rm` in .zshrc sends files to the trash; macOS has /usr/bin/trash built in,

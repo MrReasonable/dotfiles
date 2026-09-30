@@ -1,4 +1,7 @@
-.config/nvim/plugin
+# Neovim config lives in ./nvim (not deployed as ~/nvim); ~/.config/nvim is a
+# symlink to it (dot_config/symlink_nvim.tmpl), so edits and lazy-lock.json
+# updates land straight in this repo.
+nvim
 .tmux/plugins
 {{ if ne .chezmoi.os "darwin" }}
 Brewfile
