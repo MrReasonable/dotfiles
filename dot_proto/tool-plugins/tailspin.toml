@@ -1,0 +1,29 @@
+# proto TOML plugin: bensadeh/tailspin GitHub release binaries.
+# Registered in ~/.proto/.prototools [plugins]; managed by chezmoi.
+# No published checksums (pin exactly). The command is `tspin`, so name the
+# shim/bin after that.
+name = "tailspin"
+type = "cli"
+
+[platform.macos]
+download-file = "tailspin-{arch}-apple-darwin.tar.gz"
+exe-path = "tspin"
+
+[platform.linux]
+download-file = "tailspin-{arch}-unknown-linux-musl.tar.gz"
+exe-path = "tspin"
+
+[install]
+download-url = "https://github.com/bensadeh/tailspin/releases/download/{version}/{download_file}"
+
+[install.arch]
+aarch64 = "aarch64"
+x86_64 = "x86_64"
+
+[install.exes.tspin]
+exe-path = "tspin"
+primary = true
+
+[resolve]
+git-url = "https://github.com/bensadeh/tailspin"
+version-pattern = '^((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'

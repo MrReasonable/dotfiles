@@ -1,0 +1,29 @@
+# proto TOML plugin: watchexec/watchexec GitHub release binaries.
+# Registered in ~/.proto/.prototools [plugins]; managed by chezmoi.
+# Checksums: one combined SHA256SUMS per release, verified.
+name = "watchexec"
+type = "cli"
+
+[platform.macos]
+archive-prefix = "watchexec-{version}-{arch}-apple-darwin"
+download-file = "watchexec-{version}-{arch}-apple-darwin.tar.xz"
+checksum-file = "SHA256SUMS"
+exe-path = "watchexec"
+
+[platform.linux]
+archive-prefix = "watchexec-{version}-{arch}-unknown-linux-musl"
+download-file = "watchexec-{version}-{arch}-unknown-linux-musl.tar.xz"
+checksum-file = "SHA256SUMS"
+exe-path = "watchexec"
+
+[install]
+download-url = "https://github.com/watchexec/watchexec/releases/download/v{version}/{download_file}"
+checksum-url = "https://github.com/watchexec/watchexec/releases/download/v{version}/{checksum_file}"
+
+[install.arch]
+aarch64 = "aarch64"
+x86_64 = "x86_64"
+
+[resolve]
+git-url = "https://github.com/watchexec/watchexec"
+version-pattern = '^v((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'

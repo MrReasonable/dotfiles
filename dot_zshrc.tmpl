@@ -258,6 +258,41 @@ done
 bindkey -M vicmd 'k' up-line-or-beginning-search 'j' down-line-or-beginning-search 'v' edit-command-line
 unset _km
 
+# rm moves things to the trash (recoverable) rather than deleting them:
+# macOS' /usr/bin/trash, or trash-cli's trash-put elsewhere. Neither accepts
+# rm's flags, so they're dropped: directories need no -r, and -f only means
+# "ignore missing paths". `command rm` (or \rm) still deletes for real, and
+# scripts are unaffected. `function` syntax, because common-aliases (turbo)
+# aliases rm='rm -i' and `rm()` would be alias-expanded if that ran first.
+function rm {
+  local trash_cmd
+  if [[ -x /usr/bin/trash ]]; then trash_cmd=/usr/bin/trash
+  elif (( $+commands[trash-put] )); then trash_cmd=trash-put
+  else command rm "$@"; return; fi
+  local -a paths
+  local force=0 opts_done=0 arg
+  for arg in "$@"; do
+    if (( ! opts_done )) && [[ $arg == -?* ]]; then
+      if [[ $arg == -- ]]; then opts_done=1
+      elif [[ $arg == --force || ( $arg != --* && $arg == *f* ) ]]; then force=1
+      fi
+      continue
+    fi
+    # macOS' trash takes no `--`, so keep dash-named paths from reading as flags
+    # by making them explicitly relative.
+    [[ $arg == -* ]] && arg=./$arg
+    if [[ -e $arg || -L $arg ]]; then paths+=("$arg")
+    elif (( ! force )); then print -u2 "rm: ${arg#./}: No such file or directory"; return 1
+    fi
+  done
+  if (( ! $#paths )); then
+    (( force )) && return 0
+    print -ru2 -- "usage: rm [-f] file ... (moves to the trash; \\rm really deletes)"
+    return 64
+  fi
+  $trash_cmd "${paths[@]}"
+}
+
 # y: run yazi, then cd to wherever it was left when it quits.
 y() {
   local tmp cwd
