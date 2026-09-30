@@ -1,0 +1,27 @@
+# proto TOML plugin: casey/just GitHub release binaries.
+# Registered in ~/.proto/.prototools [plugins]; managed by chezmoi.
+# Checksums: one combined SHA256SUMS per release, verified.
+name = "just"
+type = "cli"
+
+[platform.macos]
+download-file = "just-{version}-{arch}-apple-darwin.tar.gz"
+checksum-file = "SHA256SUMS"
+exe-path = "just"
+
+[platform.linux]
+download-file = "just-{version}-{arch}-unknown-linux-musl.tar.gz"
+checksum-file = "SHA256SUMS"
+exe-path = "just"
+
+[install]
+download-url = "https://github.com/casey/just/releases/download/{version}/{download_file}"
+checksum-url = "https://github.com/casey/just/releases/download/{version}/{checksum_file}"
+
+[install.arch]
+aarch64 = "aarch64"
+x86_64 = "x86_64"
+
+[resolve]
+git-url = "https://github.com/casey/just"
+version-pattern = '^((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'
