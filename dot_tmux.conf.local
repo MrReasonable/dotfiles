@@ -411,24 +411,12 @@ bind m run "cut -c3- '#{TMUX_CONF}' | sh -s _toggle_mouse" \; display 'mouse #{?
 # move status line to top
 #set -g status-position top
 
-# <prefix> T: sesh session picker (tmux sessions, zoxide dirs, configured
-# sessions) in an fzf popup; picking one switches to it or creates it.
+# <prefix> T: sesh session picker (tmux sessions, zoxide dirs) in an fzf
+# popup; picking one switches to it, or creates it.
 #   ^a all  ^t tmux  ^x zoxide  ^f find dirs  ^d kill tmux session
-# run-shell gets the tmux server's environment, which may predate zsh putting
-# proto's shims and zi's zoxide/fzf on PATH (sesh shells out to zoxide), so
-# prepend them; \$ defers expansion to the shell rather than tmux.
-bind-key T run-shell "export PATH=\"\$HOME/.proto/shims:\$HOME/.zi/plugins/ajeetdsouza---zoxide:\$HOME/.zi/plugins/fzf:\$PATH\"; sesh connect \"$(
-  sesh list --icons | fzf-tmux -p 80%,70% \
-    --no-sort --ansi --border-label ' sesh ' --prompt '⚡  ' \
-    --header '  ^a all ^t tmux ^x zoxide ^f find ^d kill' \
-    --bind 'tab:down,btab:up' \
-    --bind 'ctrl-a:change-prompt(⚡  )+reload(sesh list --icons)' \
-    --bind 'ctrl-t:change-prompt(🪟  )+reload(sesh list -t --icons)' \
-    --bind 'ctrl-x:change-prompt(📁  )+reload(sesh list -z --icons)' \
-    --bind 'ctrl-f:change-prompt(🔎  )+reload(fd -H -d 2 -t d -E .Trash . ~)' \
-    --bind 'ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload(sesh list --icons)' \
-    -- --ansi
-)\""
+# The logic lives in ~/.local/bin/sesh-picker, which sets its own PATH: run-shell
+# and the popup only get the tmux server's environment.
+bind-key T run-shell '"$HOME/.local/bin/sesh-picker"'
 
 
 # -- tpm -----------------------------------------------------------------------

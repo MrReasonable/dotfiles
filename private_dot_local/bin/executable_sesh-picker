@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# sesh session picker for tmux, bound to <prefix> T in ~/.tmux.conf.local.
+#
+# tmux runs the binding, and fzf-tmux's popup, with the tmux *server's*
+# environment, which can predate zsh putting proto's shims and zi's tools on
+# PATH (e.g. a server started before zoxide was installed). sesh shells out to
+# zoxide, so set PATH here, and have fzf's reload bindings call back into this
+# script by absolute path so they get the same PATH inside the popup.
+#
+#   sesh-picker            open the picker, then connect to the selection
+#   sesh-picker list ...   `sesh list --icons ...` (used by the reloads)
+#   sesh-picker find       directories under ~ (ctrl-f)
+set -euo pipefail
+
+PATH="$HOME/.proto/shims:$HOME/.zi/plugins/ajeetdsouza---zoxide:$HOME/.zi/plugins/fzf:$HOME/.local/bin:$PATH"
+[ -d /opt/homebrew/bin ] && PATH="$PATH:/opt/homebrew/bin"
+# zi installs fd into a versioned directory
+for d in "$HOME"/.zi/plugins/sharkdp---fd/fd-*/; do [ -d "$d" ] && PATH="$PATH:${d%/}"; done
+export PATH
+self="$HOME/.local/bin/sesh-picker"
+
+case "${1-}" in
+  list) shift; exec sesh list --icons "$@" ;;
+  find) exec fd -H -d 2 -t d -E .Trash . "$HOME" ;;
+esac
+
+selection=$(
+  sesh list --icons | fzf-tmux -p 80%,70% \
+    --no-sort --ansi --border-label ' sesh ' --prompt '⚡  ' \
+    --header '  ^a all ^t tmux ^x zoxide ^f find ^d kill' \
+    --bind 'tab:down,btab:up' \
+    --bind "ctrl-a:change-prompt(⚡  )+reload($self list)" \
+    --bind "ctrl-t:change-prompt(🪟  )+reload($self list -t)" \
+    --bind "ctrl-x:change-prompt(📁  )+reload($self list -z)" \
+    --bind "ctrl-f:change-prompt(🔎  )+reload($self find)" \
+    --bind "ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload($self list)"
+) || exit 0   # Esc / no selection
+[ -n "$selection" ] && exec sesh connect "$selection"
