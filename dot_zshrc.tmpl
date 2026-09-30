@@ -389,6 +389,14 @@ _proto_update() {
         while IFS=$'\t' read -r tool spec; do
           proto install "$tool" "$spec" || print -P "%F{red}proto: failed to update $tool ($spec)%f"
         done
+      # A new Rust toolchain needs its components; mirror the install script.
+      local rust_bin toolchain
+      rust_bin=$(proto bin rust 2>/dev/null | grep -o '/[^"]*/toolchains/[^/"]*/bin/cargo' | tail -1)
+      if [[ -n $rust_bin && -x $HOME/.cargo/bin/rustup ]]; then
+        toolchain=${${rust_bin:h:h}:t}
+        $HOME/.cargo/bin/rustup default $toolchain >/dev/null &&
+          $HOME/.cargo/bin/rustup component add --toolchain $toolchain rust-analyzer clippy rustfmt
+      fi
     )
   else
     print -P "%F{yellow}proto: jq not found; skipping in-range updates.%f"
@@ -454,6 +462,12 @@ export CPPFLAGS="-I${brew_dir}/opt/bzip2/include -I${brew_dir}/opt/zlib/include"
 {{- end }}
 
 [ -d $HOME/.local/bin ] && export PATH="$HOME/.local/bin:$PATH"
+# rustup's proxies (cargo, rustc, rust-analyzer, ...) run rustup's default
+# toolchain, which the install script / update-all keep on proto's global
+# `rust` pin. Needed because proto has no rust shims and, from ~ itself,
+# `proto activate` doesn't read the global ~/.proto/.prototools; a project's
+# own rust pin still wins via proto's activation PATH.
+[ -d $HOME/.cargo/bin ] && export PATH="$PATH:$HOME/.cargo/bin"
 [ -d $HOME/bin ] && export PATH="$HOME/bin:$PATH"
 
 [ -r $HOME/.kube/user-config ] && export KUBECONFIG="$HOME/.kube/user-config"
