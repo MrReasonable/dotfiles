@@ -1,5 +1,47 @@
 {{- if eq .chezmoi.os "darwin" -}}
-if [[ -d /opt/homebrew ]]; then
+# Kept first: it can prompt for a password, which must happen before the p10k
+# instant prompt below takes over the terminal.
+#
+# Tmux child-pane guard: tmux preserves env (and gpg-agent socket) from the
+# session-root shell, so child panes inherit the unlocked keychain + loaded
+# GPG passphrases without re-prompting. Without this guard, every new tmux
+# pane (e.g. one per Claude Code reviewer agent) re-runs `security
+# unlock-keychain` and `security find-generic-password`, prompting for the
+# macOS login password per pane.
+if [[ -n "$SSH_CONNECTION" || -n "$SSH_TTY" ]] && [[ -z "$TMUX" ]]; then
+  # Tell pinentry-auto.sh to use pinentry-curses over SSH.
+  export PINENTRY_USER_DATA="USE_TTY=1"
+  # SSH doesn't auto-unlock the login keychain like GUI login does, so
+  # gpg-load-passphrase.sh can't read the stored GPG passphrase until we
+  # unlock it. Prompts for the macOS login password once per SSH session.
+  if [[ -o interactive ]]; then
+    security unlock-keychain "$HOME/Library/Keychains/login.keychain-db"
+  fi
+fi
+{{ end -}}
+
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ "$TERM_PROGRAM" != "vscode" ]]; then
+
+  if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+  fi
+fi
+
+# Keep PATH/FPATH free of duplicates: nested shells and tmux panes inherit an
+# already-built PATH and then prepend to it again.
+typeset -U path fpath
+
+{{- if eq .chezmoi.os "darwin" }}
+# Login shells already ran `brew shellenv` in ~/.zprofile, so skip the fork and
+# just move brew back to the front (PATH order must beat ~/.orbstack/bin, which
+# also ships kubectl/orb/orbctl). Non-login shells without it still eval it.
+if [[ -n $HOMEBREW_PREFIX ]]; then
+  path=($HOMEBREW_PREFIX/bin $HOMEBREW_PREFIX/sbin $path)
+  fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
+elif [[ -d /opt/homebrew ]]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 else
   eval "$(/usr/local/bin/brew shellenv)"
@@ -8,7 +50,7 @@ fi
 # The following lines were added by compinstall
 zstyle :compinstall filename '{{ .chezmoi.homeDir }}/.zshrc'
 {{- if eq .chezmoi.os "darwin" }}
-local brew_dir="$(brew --prefix)"
+local brew_dir="$HOMEBREW_PREFIX"
 {{- else if eq .chezmoi.os "linux" }}
 test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
 test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
@@ -26,10 +68,13 @@ source "$HOME/.zi/bin/zi.zsh"
 autoload -Uz _zi
 (( ${+_comps} )) && _comps[zi]=_zi
 # examples here -> https://wiki.zshell.dev/ecosystem/category/-annexes
-zicompinit # <- https://wiki.zshell.dev/docs/guides/commands
+# compinit runs once, from zsh-completions' atload (zicompinit; zicdreplay) in
+# the turbo block below. Trust the cached dump (-C: no compaudit scan, no fpath
+# rescan) unless it is over a day old; `zi compinit` forces a rebuild.
+() { (( $# )) && ZI[COMPINIT_OPTS]=-C } ${ZI[ZCOMPDUMP_PATH]}(N.mh-24)
 
 {{- if eq .chezmoi.os "darwin" }}
-export PATH="$(brew --prefix)/opt/findutils/libexec/gnubin:$PATH"
+export PATH="${brew_dir}/opt/findutils/libexec/gnubin:$PATH"
 export PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"
 {{- end }}
 
@@ -38,17 +83,21 @@ if [[ ! -f $HOME/.local/bin/mise ]]; then
 fi
 eval "$(~/.local/bin/mise activate zsh)"
 type proto > /dev/null 2>&1 || eval "$(mise use aqua:moonrepo/proto && mise install)"
-type proto > /dev/null 2>&1 && eval "$(proto activate)"
-
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ "$TERM_PROGRAM" != "vscode" ]]; then
-
-  if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+if (( $+commands[proto] )); then
+  # `proto activate` prints static glue (hook functions); cache it per binary.
+  _proto_glue=${XDG_CACHE_HOME:-$HOME/.cache}/zsh/proto-activate.zsh
+  if [[ ! -s $_proto_glue || $commands[proto] -nt $_proto_glue ]]; then
+    mkdir -p ${_proto_glue:h} && proto activate zsh >| $_proto_glue
   fi
+  # Source the glue minus its trailing immediate `proto_activate` call; that
+  # first activation is deferred to turbo below.
+  eval "${$(<$_proto_glue)%proto_activate}"
+  # proto also re-activates before *every* prompt (~35ms each); chpwd already
+  # covers cd, so drop the precmd hook.
+  precmd_functions=(${precmd_functions:#proto_activate})
+  unset _proto_glue
 fi
+
 
 {{- if eq .chezmoi.os "darwin" }}
 _GPG_AGENT_SOCK="${HOME}/.gnupg/S.gpg-agent"
@@ -57,7 +106,8 @@ _GPG_AGENT_SOCK="${XDG_RUNTIME_DIR}/.gnupg/S.gpg-agent"
 {{- end }}
 
 zstyle ':prezto:module:gpg-agent:auto-start' local
-zstyle :omz:plugins:ssh-agent identities $(find ~/.ssh -regex '.+/id_[^.]+$' -printf '%f ')
+# id_* keys without an extension (skips id_*.pub), same as the old find -regex.
+() { zstyle :omz:plugins:ssh-agent identities ${@:#*.*} } ~/.ssh/id_*(N:t)
 
 zi wait lucid light-mode for \
     OMZP::colored-man-pages \
@@ -108,13 +158,19 @@ for _ct_tool _ct_cmd in fd fd bat bat eza eza ripgrep rg; do
   fi
 done
 
+# Only the annexes (needed to install recipes) and the prompt load before the
+# first prompt; the rest loads in turbo right after it's drawn.
 zi light-mode for z-shell/z-a-meta-plugins \
   @annexes \
-  @zsh-users+fast \
+  @romkatv
+
+zi wait lucid light-mode for \
   @fuzzy \
   skip"${_ct_skip[*]}" @console-tools \
   @ext-git \
-  @romkatv
+  @zsh-users+fast \
+  id-as'proto-activate' atload'(( $+functions[proto_activate] )) && proto_activate' \
+    z-shell/null
 unset _ct_skip _ct_tool _ct_cmd
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
@@ -151,27 +207,9 @@ zstyle ':fzf-tab:complete:_zlua:*' query-string input
 
 export GPG_TTY=$TTY
 
-{{- if eq .chezmoi.os "darwin" }}
-# Tmux child-pane guard: tmux preserves env (and gpg-agent socket) from the
-# session-root shell, so child panes inherit the unlocked keychain + loaded
-# GPG passphrases without re-prompting. Without this guard, every new tmux
-# pane (e.g. one per Claude Code reviewer agent) re-runs `security
-# unlock-keychain` and `security find-generic-password`, prompting for the
-# macOS login password per pane.
-if [[ -n "$SSH_CONNECTION" || -n "$SSH_TTY" ]] && [[ -z "$TMUX" ]]; then
-  # Tell pinentry-auto.sh to use pinentry-curses over SSH.
-  export PINENTRY_USER_DATA="USE_TTY=1"
-  # SSH doesn't auto-unlock the login keychain like GUI login does, so
-  # gpg-load-passphrase.sh can't read the stored GPG passphrase until we
-  # unlock it. Prompts for the macOS login password once per SSH session.
-  if [[ -o interactive ]]; then
-    security unlock-keychain "$HOME/Library/Keychains/login.keychain-db"
-  fi
-fi
-{{- end }}
 
 if [[ -o interactive ]] && [[ -z "$TMUX" ]] && command -v gpg >/dev/null 2>&1; then
-  gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
+  gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1 &!
 fi
 
 # Note: ~/.gnupg/gpg-load-passphrase.sh used to be invoked here to preload
@@ -195,10 +233,11 @@ export PATH="$PNPM_HOME:$PATH"
 {{- if eq .chezmoi.os "darwin" }}
 export PATH="${brew_dir}/opt/openjdk/bin:$PATH"
 export PATH="${brew_dir}/opt/unzip/bin:$PATH"
-brew ls --versions llvm > /dev/null && \
-export PATH="$(brew --prefix llvm)/bin:$PATH"
-export LDFLAGS="-L$(brew --prefix)/opt/bzip2/lib -L$(brew --prefix)/opt/zlib/lib"
-export CPPFLAGS="-I$(brew --prefix)/opt/bzip2/include -I$(brew --prefix)/opt/zlib/lib"
+# $brew_dir/opt/<formula> is the same symlink `brew --prefix <formula>` prints,
+# without the ~0.4s of Ruby that `brew ls`/`brew --prefix llvm` cost per shell.
+[[ -d ${brew_dir}/opt/llvm/bin ]] && export PATH="${brew_dir}/opt/llvm/bin:$PATH"
+export LDFLAGS="-L${brew_dir}/opt/bzip2/lib -L${brew_dir}/opt/zlib/lib"
+export CPPFLAGS="-I${brew_dir}/opt/bzip2/include -I${brew_dir}/opt/zlib/include"
 {{- end }}
 
 [ -d $HOME/.local/bin ] && export PATH="$HOME/.local/bin:$PATH"
@@ -238,5 +277,3 @@ setopt PUSHD_MINUS
 export LANG=en_GB.UTF-8
 unset LC_ALL
 
-autoload -Uz compinit
-compinit
