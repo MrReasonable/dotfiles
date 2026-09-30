@@ -201,6 +201,11 @@ zi cclear && zi update -p -a && zi cclear && zi compinit"
 {{- end }}
 
 zstyle ':completion:*' menu select
+# Completion cache: also where OMZP::composer caches `composer global config
+# bin-dir`; without it that PHP call (~0.2s) re-runs in turbo on every startup.
+# Delete $XDG_CACHE_HOME/zsh/zcompcache/composer if composer's bin-dir moves.
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompcache"
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:complete:*:options' sort false
 zstyle ':fzf-tab:complete:_zlua:*' query-string input
