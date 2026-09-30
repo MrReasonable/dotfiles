@@ -6,15 +6,19 @@ type = "cli"
 [platform.macos]
 archive-prefix = "atuin-{arch}-apple-darwin"
 download-file = "atuin-{arch}-apple-darwin.tar.gz"
+checksum-file = "atuin-{arch}-apple-darwin.tar.gz.sha256"
 exe-path = "atuin"
 
 [platform.linux]
 archive-prefix = "atuin-{arch}-unknown-linux-musl"
 download-file = "atuin-{arch}-unknown-linux-musl.tar.gz"
+checksum-file = "atuin-{arch}-unknown-linux-musl.tar.gz.sha256"
 exe-path = "atuin"
 
 [install]
 download-url = "https://github.com/atuinsh/atuin/releases/download/v{version}/{download_file}"
+# atuin is the only one of these tools that publishes checksums; verify them.
+checksum-url = "https://github.com/atuinsh/atuin/releases/download/v{version}/{checksum_file}"
 
 [install.arch]
 aarch64 = "aarch64"
