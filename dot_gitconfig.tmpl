@@ -12,6 +12,7 @@
 	ff = only
 [merge]
 	ff = only
+	conflictStyle = zdiff3
 [branch]
   autoSetupRebase = always
 [init]
@@ -21,6 +22,18 @@
   untrackedCache = true
   fsmonitor = false
 	editor = vim
+	# delta comes from mise, so apps that don't load the shell (IDEs, GUIs) may
+	# not find it; fall back to plain less there.
+	pager = "command -v delta >/dev/null 2>&1 && exec delta || exec less -FRX"
+[interactive]
+	diffFilter = "command -v delta >/dev/null 2>&1 && exec delta --color-only || exec cat"
+[delta]
+	# n/N jump between files in a diff; `delta --side-by-side` or
+	# DELTA_FEATURES=+side-by-side for two columns.
+	navigate = true
+	line-numbers = true
+[diff]
+	colorMoved = default
 [apply]
 	whitespaces = nowarn
 [color]

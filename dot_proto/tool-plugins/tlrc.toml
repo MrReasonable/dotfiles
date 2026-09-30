@@ -1,0 +1,28 @@
+# proto TOML plugin: tldr-pages/tlrc GitHub release binaries.
+# Registered in ~/.proto/.prototools [plugins]; managed by chezmoi.
+name = "tlrc"
+type = "cli"
+
+[platform.macos]
+download-file = "tlrc-v{version}-{arch}-apple-darwin.tar.gz"
+exe-path = "tldr"
+
+[platform.linux]
+download-file = "tlrc-v{version}-{arch}-unknown-linux-musl.tar.gz"
+exe-path = "tldr"
+
+[install]
+download-url = "https://github.com/tldr-pages/tlrc/releases/download/v{version}/{download_file}"
+
+[install.arch]
+aarch64 = "aarch64"
+x86_64 = "x86_64"
+
+# The tool is tlrc but its command is `tldr`; name the shim/bin after that.
+[install.exes.tldr]
+exe-path = "tldr"
+primary = true
+
+[resolve]
+git-url = "https://github.com/tldr-pages/tlrc"
+version-pattern = '^v((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'

@@ -1,0 +1,20 @@
+# proto TOML plugin: aristocratos/btop GitHub release binaries.
+# Registered in ~/.proto/.prototools [plugins]; managed by chezmoi.
+name = "btop"
+type = "cli"
+
+[platform.linux]
+archive-prefix = "btop"
+download-file = "btop-{arch}-unknown-linux-musl.tar.gz"
+exe-path = "bin/btop"
+
+[install]
+download-url = "https://github.com/aristocratos/btop/releases/download/v{version}/{download_file}"
+
+[install.arch]
+aarch64 = "aarch64"
+x86_64 = "x86_64"
+
+[resolve]
+git-url = "https://github.com/aristocratos/btop"
+version-pattern = '^v((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'

@@ -1,0 +1,25 @@
+# proto TOML plugin: bootandy/dust GitHub release binaries.
+# Registered in ~/.proto/.prototools [plugins]; managed by chezmoi.
+name = "dust"
+type = "cli"
+
+[platform.macos]
+archive-prefix = "dust-v{version}-{arch}-apple-darwin"
+download-file = "dust-v{version}-{arch}-apple-darwin.tar.gz"
+exe-path = "dust"
+
+[platform.linux]
+archive-prefix = "dust-v{version}-{arch}-unknown-linux-musl"
+download-file = "dust-v{version}-{arch}-unknown-linux-musl.tar.gz"
+exe-path = "dust"
+
+[install]
+download-url = "https://github.com/bootandy/dust/releases/download/v{version}/{download_file}"
+
+[install.arch]
+aarch64 = "aarch64"
+x86_64 = "x86_64"
+
+[resolve]
+git-url = "https://github.com/bootandy/dust"
+version-pattern = '^v((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'

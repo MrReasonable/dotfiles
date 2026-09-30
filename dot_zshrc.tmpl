@@ -82,7 +82,6 @@ if [[ ! -f $HOME/.local/bin/mise ]]; then
  curl https://mise.run | sh
 fi
 eval "$(~/.local/bin/mise activate zsh)"
-type proto > /dev/null 2>&1 || eval "$(mise use aqua:moonrepo/proto && mise install)"
 if (( $+commands[proto] )); then
   # `proto activate` prints static glue (hook functions); cache it per binary.
   _proto_glue=${XDG_CACHE_HOME:-$HOME/.cache}/zsh/proto-activate.zsh
@@ -110,7 +109,6 @@ zstyle ':prezto:module:gpg-agent:auto-start' local
 () { zstyle :omz:plugins:ssh-agent identities ${@:#*.*} } ~/.ssh/id_*(N:t)
 
 zi wait lucid light-mode for \
-    OMZP::colored-man-pages \
     OMZP::common-aliases \
     OMZP::iterm2 \
     OMZP::composer \
@@ -141,6 +139,18 @@ zi wait lucid light-mode for \
 {{- /* zi wait pack atload=+"zicompinit_fast; zicdreplay" for brew-completions */ -}}
 {{- end }}
 
+# Source a tool's generated shell init, re-generating it only when the tool's
+# binary changes (upgrades move it), instead of forking the tool every startup.
+_cached_init() {
+  local bin=${commands[$1]} cache
+  [[ -n $bin ]] || return 0
+  cache=${XDG_CACHE_HOME:-$HOME/.cache}/zsh/init-${(j:_:)${@//[^A-Za-z0-9-]/}}.zsh
+  if [[ ! -s $cache || $bin -nt $cache ]]; then
+    mkdir -p ${cache:h} && "$@" >| $cache
+  fi
+  source $cache
+}
+
 # @console-tools: zi installs fd/bat/eza/rg only when they're missing. A tool
 # already on PATH from outside zi (e.g. Homebrew) is skipped; otherwise the
 # annex prints its "Loading … consisting of" notice on every login, because it
@@ -161,6 +171,9 @@ done
 # Turbo order matters: fzf-tab must load after compinit (run by the label's
 # zsh-completions) but before autosuggestions/F-Sy-H wrap the completion
 # widgets, so those two are skipped from @zsh-users+fast and loaded after it.
+# proto-activate goes first: it puts proto's tools (atuin, delta, ...) on PATH
+# for everything after it.
+# atuin owns Ctrl-R (after fzf's) but not Up, which stays prefix search.
 # zoxide: --no-cmd because its default `zi` command would shadow zi itself, so
 # `z` jumps and `zz` picks interactively; init is cached at install/update.
 zi light-mode for z-shell/z-a-meta-plugins \
@@ -168,20 +181,23 @@ zi light-mode for z-shell/z-a-meta-plugins \
   @romkatv
 
 zi wait lucid light-mode for \
+  id-as'proto-activate' atload'(( $+functions[proto_activate] )) && proto_activate' \
+    z-shell/null \
   @fuzzy \
   skip"${_ct_skip[*]}" @console-tools \
   @ext-git \
   skip'zsh-autosuggestions F-Sy-H' @zsh-users+fast \
   Aloxaf/fzf-tab \
+  hlissner/zsh-autopair \
+  has'atuin' id-as'atuin-init' atload'_cached_init atuin init zsh --disable-up-arrow' \
+    z-shell/null \
   atload'!_zsh_autosuggest_start' \
     zsh-users/zsh-autosuggestions \
     z-shell/F-Sy-H \
   from'gh-r' as'program' pick'zoxide' \
   atclone'./zoxide init zsh --no-cmd >| init.zsh' atpull'%atclone' src'init.zsh' \
   atload"alias z=__zoxide_z zz=__zoxide_zi" \
-    ajeetdsouza/zoxide \
-  id-as'proto-activate' atload'(( $+functions[proto_activate] )) && proto_activate' \
-    z-shell/null
+    ajeetdsouza/zoxide
 unset _ct_skip _ct_tool _ct_cmd
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
@@ -201,6 +217,43 @@ type goenv > /dev/null 2>&1 && eval "$(goenv init -)"
 type soroban > /dev/null 2>&1 && eval "$(soroban completion --shell zsh)"
 
 export CLICOLOR=1
+
+# fzf: fd for listings (fast, honours .gitignore), bat/eza previews.
+# Ctrl-T files, Alt-C directories (Ghostty sends Option as Alt).
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
+export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:300 {}'"
+export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --color=always {} | head -200'"
+
+# Man pages through bat (falls back to less where bat isn't installed yet).
+export MANPAGER="sh -c 'col -bx | { command -v bat >/dev/null && bat -l man -p || less -R; }'"
+export MANROFFOPT='-c'
+
+# EDITOR=nvim makes zsh start in the vi keymap, so bind in viins and vicmd.
+# Up/Down: search history for lines starting with what's typed so far.
+autoload -Uz up-line-or-beginning-search down-line-or-beginning-search edit-command-line
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+zle -N edit-command-line
+for _km in viins vicmd emacs; do
+  bindkey -M $_km '^[[A' up-line-or-beginning-search '^[OA' up-line-or-beginning-search
+  bindkey -M $_km '^[[B' down-line-or-beginning-search '^[OB' down-line-or-beginning-search
+  # Ctrl-X Ctrl-E: edit the command line in $EDITOR
+  bindkey -M $_km '^X^E' edit-command-line
+done
+bindkey -M vicmd 'k' up-line-or-beginning-search 'j' down-line-or-beginning-search 'v' edit-command-line
+unset _km
+
+# y: run yazi, then cd to wherever it was left when it quits.
+y() {
+  local tmp cwd
+  tmp=$(mktemp -t yazi-cwd.XXXXXX)
+  yazi "$@" --cwd-file="$tmp"
+  IFS= read -r -d '' cwd < "$tmp"
+  [[ -n $cwd && $cwd != $PWD ]] && builtin cd -- "$cwd"
+  command rm -f -- "$tmp"
+}
 
 {{- if eq .chezmoi.os "darwin" }}
 alias update-all="chezmoi update && chezmoi apply && brew update && brew upgrade && brew cleanup && zi cclear && zi update -p -a && zi cclear && zi compinit"

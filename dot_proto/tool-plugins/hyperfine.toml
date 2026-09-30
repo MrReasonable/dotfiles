@@ -1,0 +1,25 @@
+# proto TOML plugin: sharkdp/hyperfine GitHub release binaries.
+# Registered in ~/.proto/.prototools [plugins]; managed by chezmoi.
+name = "hyperfine"
+type = "cli"
+
+[platform.macos]
+archive-prefix = "hyperfine-v{version}-{arch}-apple-darwin"
+download-file = "hyperfine-v{version}-{arch}-apple-darwin.tar.gz"
+exe-path = "hyperfine"
+
+[platform.linux]
+archive-prefix = "hyperfine-v{version}-{arch}-unknown-linux-gnu"
+download-file = "hyperfine-v{version}-{arch}-unknown-linux-gnu.tar.gz"
+exe-path = "hyperfine"
+
+[install]
+download-url = "https://github.com/sharkdp/hyperfine/releases/download/v{version}/{download_file}"
+
+[install.arch]
+aarch64 = "aarch64"
+x86_64 = "x86_64"
+
+[resolve]
+git-url = "https://github.com/sharkdp/hyperfine"
+version-pattern = '^v((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'
