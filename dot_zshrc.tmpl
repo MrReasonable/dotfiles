@@ -255,7 +255,7 @@ zi wait lucid light-mode for \
     z-shell/null \
   from'gh-r' as'program' pick'zoxide' \
   atclone'./zoxide init zsh --no-cmd >| init.zsh' atpull'%atclone' src'init.zsh' \
-  atload"alias z=__zoxide_z zz=__zoxide_zi" \
+  atload"alias z=__zoxide_z zz=__zoxide_zi; compdef _z_zoxide_complete __zoxide_z" \
     ajeetdsouza/zoxide
 unset _ct_skip _ct_tool _ct_cmd
 
@@ -337,6 +337,25 @@ function rm {
     return 64
   fi
   $trash_cmd "${paths[@]}"
+}
+
+# Tab after `z`: zoxide's matches for the words typed so far (fuzzy, most
+# used first), then local directories, shown by fzf-tab with the eza preview.
+# zoxide's own completion is only registered when it defines `z` itself,
+# which --no-cmd (needed so its `zi` doesn't shadow zi) turns off. Registered
+# on __zoxide_z because `z` is an alias for it (complete_aliases is off).
+_z_zoxide_complete() {
+  local -a matches shown
+  matches=(${(f)"$(zoxide query --list --exclude "$PWD" -- ${words[2,CURRENT]} 2>/dev/null)"})
+  # Insert full paths (compadd would escape a leading ~) but list them as ~/...
+  shown=(${matches/#$HOME/\~})
+  # -U: zoxide already matched, so don't filter by the typed prefix
+  (( $#matches )) && compadd -U -V zoxide -X '%Bzoxide (most used first)%b' -d shown -- $matches
+  (( CURRENT == 2 )) && _cd -/
+  # zoxide matches are fuzzy, so their common prefix (often just $HOME/) means
+  # nothing: open the list instead of inserting it over what was typed
+  (( $#matches )) && compstate[insert]=menu
+  return 0
 }
 
 # y: run yazi, then cd to wherever it was left when it quits.
