@@ -245,6 +245,9 @@ done
 # proto-activate goes first: it puts proto's tools (atuin, delta, ...) on PATH
 # for everything after it.
 # atuin owns Ctrl-R (after fzf's) but not Up, which stays prefix search.
+# micromamba (proto-installed) gets its `micromamba activate` shell hook here
+# rather than via `micromamba shell init`, which would write into ~/.zshrc
+# (chezmoi-managed). Not cached: the hook embeds the versioned binary path.
 # zoxide: --no-cmd because its default `zi` command would shadow zi itself, so
 # `z` jumps and `zz` picks interactively; init is cached at install/update.
 zi light-mode for z-shell/z-a-meta-plugins \
@@ -267,6 +270,8 @@ zi wait lucid light-mode for \
   atload'!_zsh_autosuggest_start' \
     zsh-users/zsh-autosuggestions \
     z-shell/F-Sy-H \
+  has'micromamba' id-as'micromamba-init' atload'eval "$(micromamba shell hook --shell zsh)"' \
+    z-shell/null \
   id-as'tips-refresh' atload'_tips_refresh' \
     z-shell/null \
   from'gh-r' as'program' pick'zoxide' \
