@@ -309,7 +309,6 @@
         "Green Component": 0.8862745098039215,
         "Red Component": 0.8823529411764706
       },
-      "Dynamic Profile Parent Name": "Default",
       "Foreground Color (Dark)": {
         "Alpha Component": 1.0,
         "Blue Component": 0.9607843137254902,
@@ -340,6 +339,8 @@
         "Red Component": 0.2196078431372549
       },
       "Name": "TokyoNight",
+      "Non Ascii Font": "FiraCodeNF-Reg 13",
+      "Normal Font": "FiraCodeNF-Reg 13",
       "Selected Text Color (Dark)": {
         "Alpha Component": 1.0,
         "Blue Component": 0.9607843137254902,
@@ -368,6 +369,7 @@
         "Green Component": 0.7568627450980392,
         "Red Component": 0.7176470588235294
       },
+      "Transparency": 0.2850188386524823,
       "Use Separate Colors for Light and Dark Mode": true
     }
   ]
