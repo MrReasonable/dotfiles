@@ -338,6 +338,8 @@
         "Green Component": 0.4392156862745098,
         "Red Component": 0.2196078431372549
       },
+      "Minimum Contrast (Dark)": 0.0,
+      "Minimum Contrast (Light)": 0.4,
       "Name": "TokyoNight",
       "Non Ascii Font": "FiraCodeNF-Reg 13",
       "Normal Font": "FiraCodeNF-Reg 13",
