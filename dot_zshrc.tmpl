@@ -216,6 +216,12 @@ ZSH_TMUX_DEFAULT_SESSION_NAME=main
 ZSH_TMUX_AUTOSTART=false
 ZSH_TMUX_FIXTERM=false
 
+# zsh-eza's options minus its default --color-scale=all: that shades dates and
+# sizes on a gradient that ignores the eza theme (pale cyan dates and bright
+# green sizes on a light background). Colours come from TokyoNight's eza
+# themes instead, chosen per light/dark mode by ~/.local/bin/appearance.
+zstyle ':zsh-eza:config' user-params '--git --icons --group --group-directories-first --time-style=long-iso'
+
 # @console-tools: zi installs fd/bat/eza/rg only when they're missing. A tool
 # already on PATH from outside zi (e.g. Homebrew) is skipped; otherwise the
 # annex prints its "Loading … consisting of" notice on every login, because it

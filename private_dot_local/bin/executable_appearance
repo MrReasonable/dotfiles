@@ -8,7 +8,9 @@
 #   appearance fzf        print fzf's --color option for the current mode
 #                         (TokyoNight Day / Storm, from folke/tokyonight.nvim)
 #   appearance env        print shell `export`s for the current mode: fzf's
-#                         colours and COLORFGBG ("0;15" light, "15;0" dark),
+#                         colours, eza's theme (EZA_CONFIG_DIR, TokyoNight
+#                         themes in ~/.config/eza/{day,storm}) and COLORFGBG
+#                         ("0;15" light, "15;0" dark),
 #                         which apps such as Claude Code read to pick a light
 #                         or dark theme (inside tmux it's otherwise whatever
 #                         iTerm2 set when the tmux server started)
@@ -42,18 +44,19 @@ fzf_colors() {
 }
 
 colorfgbg() { if [ "$(mode)" = light ]; then echo "0;15"; else echo "15;0"; fi; }
+eza_dir() { if [ "$(mode)" = light ]; then echo "$HOME/.config/eza/day"; else echo "$HOME/.config/eza/storm"; fi; }
 
 case "${1-}" in
   "") mode ;;
   fzf) fzf_colors ;;
   env)
-    printf "export COLORFGBG='%s' FZF_DEFAULT_OPTS='%s'\n" "$(colorfgbg)" "$(fzf_colors)" ;;
+    printf "export COLORFGBG='%s' EZA_CONFIG_DIR='%s' FZF_DEFAULT_OPTS='%s'\n" "$(colorfgbg)" "$(eza_dir)" "$(fzf_colors)" ;;
   tmux-sync)
     [ -n "${TMUX-}" ] || exit 0   # only ever acts on the tmux server it runs inside
     want=$(mode)
     # New panes and popups (sesh picker, tmux-fzf) get the server's
     # environment; keep it current even when nothing else changed.
-    tmux set-environment -g COLORFGBG "$(colorfgbg)" \; set-environment -g FZF_DEFAULT_OPTS "$(fzf_colors)"
+    tmux set-environment -g COLORFGBG "$(colorfgbg)" \; set-environment -g EZA_CONFIG_DIR "$(eza_dir)" \; set-environment -g FZF_DEFAULT_OPTS "$(fzf_colors)"
     have=$(tmux show-options -gqv @theme)
     [ "$want" = "$have" ] && exit 0
     tmux set-option -g @theme "$want"
