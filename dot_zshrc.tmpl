@@ -162,7 +162,7 @@ zi wait lucid light-mode for \
     z-shell/ZUI \
     OMZP::golang \
     z-shell/z-a-rust \
-    zpm-zsh/tmux \
+    OMZP::tmux \
     akccakcctw/zsh-better-pnpm-completion \
     lukechilds/zsh-better-npm-completion \
     ryutok/rust-zsh-completions \
@@ -205,6 +205,16 @@ _carapace_init() {
   local cmd
   for cmd in ${(k)native}; do _comps[$cmd]=$native[$cmd]; done
 }
+
+# OMZP::tmux (Oh My Zsh's tmux plugin, loaded in turbo below): a bare `tmux`
+# attaches to the session "main" or creates it; with arguments it's plain
+# tmux. Also adds tl (list), ta (attach), ts (new named), to (create-or-attach
+# named), tds (session for this directory), tkss (kill session).
+# FIXTERM off: otherwise it starts tmux via its own extra config and changes
+# the terminal type, instead of plain ~/.tmux.conf.
+ZSH_TMUX_DEFAULT_SESSION_NAME=main
+ZSH_TMUX_AUTOSTART=false
+ZSH_TMUX_FIXTERM=false
 
 # @console-tools: zi installs fd/bat/eza/rg only when they're missing. A tool
 # already on PATH from outside zi (e.g. Homebrew) is skipped; otherwise the
@@ -477,8 +487,6 @@ fi
 # itself is still on disk for manual runs after a reboot if desired.
 
 export EDITOR=nvim
-export TMUX_AUTOSTART=false
-export TMUX_MOTD=false
 
 # pnpm
 export PNPM_HOME="{{ .chezmoi.homeDir }}/Library/pnpm"
@@ -505,13 +513,6 @@ export CPPFLAGS="-I${brew_dir}/opt/bzip2/include -I${brew_dir}/opt/zlib/include"
 
 [ -r $HOME/.kube/user-config ] && export KUBECONFIG="$HOME/.kube/user-config"
 
-# Outside tmux, a bare `tmux` attaches to the session "main" (creating it if
-# needed); with arguments (`tmux ls`, `tmux attach -t work`) it's plain tmux.
-# (Was `alias tmux=tmux new -A -s main`: unquoted, so it only aliased tmux to
-# itself and every bare `tmux` started a new unnamed session.)
-if [[ -z "$TMUX" ]]; then
-  tmux() { if (( $# )); then command tmux "$@"; else command tmux new -A -s main; fi }
-fi   
 
 export HISTFILE=~/.zsh_history
 export HISTSIZE=100000
