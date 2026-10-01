@@ -505,8 +505,12 @@ export CPPFLAGS="-I${brew_dir}/opt/bzip2/include -I${brew_dir}/opt/zlib/include"
 
 [ -r $HOME/.kube/user-config ] && export KUBECONFIG="$HOME/.kube/user-config"
 
+# Outside tmux, a bare `tmux` attaches to the session "main" (creating it if
+# needed); with arguments (`tmux ls`, `tmux attach -t work`) it's plain tmux.
+# (Was `alias tmux=tmux new -A -s main`: unquoted, so it only aliased tmux to
+# itself and every bare `tmux` started a new unnamed session.)
 if [[ -z "$TMUX" ]]; then
-  alias tmux=tmux new -A -s main
+  tmux() { if (( $# )); then command tmux "$@"; else command tmux new -A -s main; fi }
 fi   
 
 export HISTFILE=~/.zsh_history
