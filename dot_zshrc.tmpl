@@ -284,17 +284,20 @@ export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
 export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:300 {}'"
 export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --color=always {} | head -200'"
-# fzf colours follow the system light/dark mode (TokyoNight Day / Storm, from
-# ~/.local/bin/appearance, which tmux's fzf popups use too). Re-checked before
-# a prompt at most every 30s, so open shells follow a switch.
+# Follow the system light/dark mode in this shell: fzf's colours (TokyoNight
+# Day / Storm) and COLORFGBG, which apps such as Claude Code read to pick a
+# light or dark theme (inside tmux it's otherwise the stale value iTerm2 set
+# when the tmux server started). From ~/.local/bin/appearance, which tmux
+# uses for new panes and popups too. Re-checked before a prompt at most every
+# 30s, so open shells follow a switch.
 zmodload zsh/datetime
-typeset -gi _fzf_theme_checked=0
-_fzf_theme_refresh() {
-  (( EPOCHSECONDS - _fzf_theme_checked < 30 )) && return
-  _fzf_theme_checked=$EPOCHSECONDS
-  [[ -x $HOME/.local/bin/appearance ]] && export FZF_DEFAULT_OPTS="$($HOME/.local/bin/appearance fzf)"
+typeset -gi _theme_checked=0
+_theme_refresh() {
+  (( EPOCHSECONDS - _theme_checked < 30 )) && return
+  _theme_checked=$EPOCHSECONDS
+  [[ -x $HOME/.local/bin/appearance ]] && eval "$($HOME/.local/bin/appearance env)"
 }
-precmd_functions+=(_fzf_theme_refresh)
+precmd_functions+=(_theme_refresh)
 
 # Man pages through bat (falls back to less where bat isn't installed yet).
 export MANPAGER="sh -c 'col -bx | { command -v bat >/dev/null && bat -l man -p || less -R; }'"
