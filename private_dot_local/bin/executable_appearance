@@ -1,0 +1,53 @@
+#!/bin/sh
+# One answer to "is the system in light or dark mode?" for everything that
+# can't follow it by itself (tmux's status bar, fzf). Neovim follows it via
+# auto-dark-mode.nvim; iTerm2 via its per-mode profile colours; bat and delta
+# by asking the terminal.
+#
+#   appearance            print "light" or "dark"
+#   appearance fzf        print fzf's --color option for the current mode
+#                         (TokyoNight Day / Storm, from folke/tokyonight.nvim)
+#   appearance tmux-sync  make tmux's @theme match, reloading the config (which
+#                         picks the palette in ~/.tmux.conf.local) only when it
+#                         changed. Called from tmux's client-light/dark-theme
+#                         hooks, at config load, and every status refresh.
+set -eu
+
+mode() {
+  case "$(uname -s)" in
+    Darwin)
+      # AppleInterfaceStyle exists only in Dark mode
+      if defaults read -g AppleInterfaceStyle 2>/dev/null | grep -q Dark; then echo dark; else echo light; fi ;;
+    *)
+      if command -v gsettings >/dev/null 2>&1 &&
+         gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null | grep -q light; then
+        echo light
+      else
+        echo dark
+      fi ;;
+  esac
+}
+
+fzf_colors() {
+  if [ "$(mode)" = light ]; then
+    echo "--color=bg+:#b7c1e3,bg:#d0d5e3,border:#4094a3,fg:#3760bf,gutter:#d0d5e3,header:#b15c00,hl+:#188092,hl:#188092,info:#8990b3,marker:#d20065,pointer:#d20065,prompt:#188092,query:#3760bf:regular,scrollbar:#4094a3,separator:#b15c00,spinner:#d20065"
+  else
+    echo "--color=bg+:#2e3c64,bg:#1f2335,border:#29a4bd,fg:#c0caf5,gutter:#1f2335,header:#ff9e64,hl+:#2ac3de,hl:#2ac3de,info:#545c7e,marker:#ff007c,pointer:#ff007c,prompt:#2ac3de,query:#c0caf5:regular,scrollbar:#29a4bd,separator:#ff9e64,spinner:#ff007c"
+  fi
+}
+
+case "${1-}" in
+  "") mode ;;
+  fzf) fzf_colors ;;
+  tmux-sync)
+    [ -n "${TMUX-}" ] || exit 0   # only ever acts on the tmux server it runs inside
+    want=$(mode)
+    have=$(tmux show-options -gqv @theme)
+    [ "$want" = "$have" ] && exit 0
+    tmux set-option -g @theme "$want"
+    # fzf popups (sesh picker, tmux-fzf) get the server's environment
+    tmux set-environment -g FZF_DEFAULT_OPTS "$(fzf_colors)"
+    tmux source-file "$HOME/.tmux.conf"
+    ;;
+  *) echo "usage: appearance [fzf|tmux-sync]" >&2; exit 64 ;;
+esac

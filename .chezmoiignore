@@ -4,6 +4,7 @@
 nvim
 .tmux/plugins
 {{ if ne .chezmoi.os "darwin" }}
+Library
 Brewfile
 Brewfile.lock.json
 .gnupg/pinentry-auto.sh

@@ -86,23 +86,47 @@ tmux_conf_24b_colour=auto
 tmux_conf_theme=enabled
 
 # default theme
-tmux_conf_theme_colour_1="#080808"    # dark gray
-tmux_conf_theme_colour_2="#303030"    # gray
-tmux_conf_theme_colour_3="#8a8a8a"    # light gray
-tmux_conf_theme_colour_4="#00afff"    # light blue
-tmux_conf_theme_colour_5="#ffff00"    # yellow
-tmux_conf_theme_colour_6="#080808"    # dark gray
-tmux_conf_theme_colour_7="#e4e4e4"    # white
-tmux_conf_theme_colour_8="#080808"    # dark gray
-tmux_conf_theme_colour_9="#ffff00"    # yellow
-tmux_conf_theme_colour_10="#ff00af"   # pink
-tmux_conf_theme_colour_11="#5fff00"   # green
-tmux_conf_theme_colour_12="#8a8a8a"   # light gray
-tmux_conf_theme_colour_13="#e4e4e4"   # white
-tmux_conf_theme_colour_14="#080808"   # dark gray
-tmux_conf_theme_colour_15="#080808"   # dark gray
-tmux_conf_theme_colour_16="#d70000"   # red
-tmux_conf_theme_colour_17="#e4e4e4"   # white
+# TokyoNight palettes (folke/tokyonight.nvim), matching iTerm2 and Neovim:
+# Day when @theme is "light", Storm otherwise. @theme is set by
+# `~/.local/bin/appearance tmux-sync` (see the hooks below). Colour 1 is both
+# the bar background and the text on the highlighted segments.
+%if "#{==:#{@theme},light}"
+tmux_conf_theme_colour_1="#d0d5e3"    # bar background (bg_dark) / text on accents
+tmux_conf_theme_colour_2="#c4c8da"    # pane borders, last window (bg_highlight)
+tmux_conf_theme_colour_3="#6172b0"    # bar text (fg_dark)
+tmux_conf_theme_colour_4="#2e7de9"    # current window, active border, clock (blue)
+tmux_conf_theme_colour_5="#8c6c3e"    # messages, copy-mode selection, bell (yellow)
+tmux_conf_theme_colour_6="#e1e2e7"    # status-left text...
+tmux_conf_theme_colour_7="#e1e2e7"
+tmux_conf_theme_colour_8="#e1e2e7"
+tmux_conf_theme_colour_9="#2e7de9"    # ...on blue (session)
+tmux_conf_theme_colour_10="#9854f1"   # ...on magenta (uptime)
+tmux_conf_theme_colour_11="#587539"   # ...on green
+tmux_conf_theme_colour_12="#3760bf"   # status-right text...
+tmux_conf_theme_colour_13="#e1e2e7"
+tmux_conf_theme_colour_14="#e1e2e7"
+tmux_conf_theme_colour_15="#c4c8da"   # ...on light slate (prefix/mouse/time)
+tmux_conf_theme_colour_16="#b15c00"   # ...on orange (user)
+tmux_conf_theme_colour_17="#3760bf"   # ...on deep blue (hostname)
+%else
+tmux_conf_theme_colour_1="#1f2335"    # bar background (bg_dark) / text on accents
+tmux_conf_theme_colour_2="#3b4261"    # pane borders, last window (fg_gutter)
+tmux_conf_theme_colour_3="#a9b1d6"    # bar text (fg_dark)
+tmux_conf_theme_colour_4="#7aa2f7"    # current window, active border, clock (blue)
+tmux_conf_theme_colour_5="#e0af68"    # messages, copy-mode selection, bell (yellow)
+tmux_conf_theme_colour_6="#1f2335"    # status-left text...
+tmux_conf_theme_colour_7="#1f2335"
+tmux_conf_theme_colour_8="#1f2335"
+tmux_conf_theme_colour_9="#7aa2f7"    # ...on blue (session)
+tmux_conf_theme_colour_10="#bb9af7"   # ...on magenta (uptime)
+tmux_conf_theme_colour_11="#9ece6a"   # ...on green
+tmux_conf_theme_colour_12="#a9b1d6"   # status-right text...
+tmux_conf_theme_colour_13="#1f2335"
+tmux_conf_theme_colour_14="#1f2335"
+tmux_conf_theme_colour_15="#3b4261"   # ...on slate (prefix/mouse/time)
+tmux_conf_theme_colour_16="#ff9e64"   # ...on orange (user)
+tmux_conf_theme_colour_17="#7aa2f7"   # ...on blue (hostname)
+%endif
 
 # default theme (ansi)
 #tmux_conf_theme_colour_1="colour0"
@@ -271,7 +295,7 @@ tmux_conf_theme_right_separator_sub='\uE0B3'  #   PowerlineSymbols.otf font, see
 #     - #{username_ssh}
 tmux_conf_theme_status_left=" ❐ #S | ↑#{?uptime_y, #{uptime_y}y,}#{?uptime_d, #{uptime_d}d,}#{?uptime_h, #{uptime_h}h,}#{?uptime_m, #{uptime_m}m,} "
 #tmux_conf_theme_status_left=" ❐ #S | ↑#{?uptime_y, #{uptime_y}y,}#{?uptime_d, #{uptime_d}d,}#{?uptime_h, #{uptime_h}h,}#{?uptime_m, #{uptime_m}m,} | #{pretty_pane_current_path} "
-tmux_conf_theme_status_right=" #{prefix}#{mouse}#{pairing}#{synchronized}#{?battery_status,#{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root} | #{hostname} "
+tmux_conf_theme_status_right="#($HOME/.local/bin/appearance tmux-sync) #{prefix}#{mouse}#{pairing}#{synchronized}#{?battery_status,#{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root} | #{hostname} "
 
 # status left style
 tmux_conf_theme_status_left_fg="$tmux_conf_theme_colour_6,$tmux_conf_theme_colour_7,$tmux_conf_theme_colour_8"
@@ -411,6 +435,15 @@ bind m run "cut -c3- '#{TMUX_CONF}' | sh -s _toggle_mouse" \; display 'mouse #{?
 # move status line to top
 #set -g status-position top
 
+# Follow the system light/dark mode: ~/.local/bin/appearance sets @theme and
+# reloads this file (which picks the palette above) only when it changed.
+# Triggered by the terminal reporting a theme change, at config load (a new
+# server starts dark), and every status refresh (the status-right #() below),
+# in case the terminal doesn't report changes.
+set-hook -g client-light-theme 'run-shell -b "$HOME/.local/bin/appearance tmux-sync"'
+set-hook -g client-dark-theme 'run-shell -b "$HOME/.local/bin/appearance tmux-sync"'
+run-shell -b '$HOME/.local/bin/appearance tmux-sync'
+
 # <prefix> T: sesh session picker (tmux sessions, zoxide dirs) in an fzf
 # popup; picking one switches to it, or creates it.
 #   ^a all  ^t tmux  ^x zoxide  ^f find dirs  ^d kill tmux session
@@ -449,7 +482,9 @@ tmux_conf_update_plugins_on_launch=true
 # by default, reloading the configuration will update tpm and all plugins
 #   - true (default)
 #   - false
-tmux_conf_update_plugins_on_reload=true
+# false: a light/dark switch reloads this config, and each reload would
+# otherwise update every plugin over the network (launch still updates them)
+tmux_conf_update_plugins_on_reload=false
 
 # by default, reloading the configuration will uninstall tpm and plugins when no
 # plugins are enabled

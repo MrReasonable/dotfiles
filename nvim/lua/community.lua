@@ -25,6 +25,10 @@ return {
   { import = "astrocommunity.pack.python.basedpyright" },
   { import = "astrocommunity.pack.python.ruff" },
 
+  -- Colours: TokyoNight (Storm dark / Day light), matching iTerm2, tmux and fzf;
+  -- configured in lua/plugins/appearance.lua
+  { import = "astrocommunity.colorscheme.tokyonight-nvim" },
+
   -- Claude Code inside Neovim (needs the `claude` CLI): <Leader>A…
   { import = "astrocommunity.ai.claudecode-nvim" },
 
