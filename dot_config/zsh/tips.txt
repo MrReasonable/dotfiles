@@ -49,3 +49,4 @@ In tmux, `Ctrl-A Tab` jumps to the last window; `Ctrl-A e` edits the tmux config
 `tip` shows another tip; `tips` lets you browse them all.
 In Neovim, `:Tutor my-00-start` begins your own tutorial series: files, windows, motions, code, fixing, git and Claude.
 In Neovim, `:Practice` opens a fresh practice project (with deliberate mistakes) in a new tab for the `my-*` tutorials.
+Put `layout micromamba` in a project's `.envrc` (then `direnv allow`) and its micromamba env activates whenever you cd in, and deactivates when you leave.
