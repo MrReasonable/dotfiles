@@ -6,7 +6,9 @@
 #   tmux.txt   tmux's own binding descriptions (read from a throwaway server
 #              with NO config), minus keys your config rebinds, plus your
 #              Oh my tmux / ~/.tmux.conf.local bindings described by comments
-#   nvim.txt   Neovim key mappings that have a description (AstroNvim/which-key)
+#   nvim.txt   Neovim key mappings that have a description (AstroNvim/which-key),
+#              including the LSP ones AstroNvim only maps once a language
+#              server attaches (read from a Lua file in the config, via lua_ls)
 #   tldr.txt   tldr examples for the tools you chose: Homebrew formulae you
 #              installed (brew leaves), proto tools, zi programs, ~/.local/bin
 #              and a core set, not every dependency that happens to be on PATH
@@ -35,7 +37,8 @@ keyname() {
   k=${k//<lt>/<}; k=${k//<NL>/Ctrl-J}; k=${k//<CR>/Enter}; k=${k//<Esc>/Esc}
   k=${k//<Tab>/Tab}; k=${k//<BS>/Backspace}; k=${k//<Space>/Space }
   k=${k//(#b)<C-(?)>/Ctrl-${(U)match[1]}}; k=${k//(#b)<[MA]-(?)>/Alt-${(U)match[1]}}
-  k=${k//(#b)<([CMAS])-([^>]##)>/${match[1]/C/Ctrl}${match[1]/[MA]/Alt}-${match[2]}}
+  local -A mod=(C Ctrl M Alt A Alt S Shift)
+  k=${k//(#b)<([CMAS])-([^>]##)>/${mod[${match[1]}]}-${match[2]}}
   k=${k//(#b)(#s)C-(?)/Ctrl-${(U)match[1]}}; k=${k//(#b)(#s)M-(?)/Alt-${(U)match[1]}}
   print -r -- $k
 }
@@ -106,27 +109,46 @@ keyname() {
   (( $+commands[nvim] )) || return
   local lua=$tmp/nvkeys.lua tsv=$tmp/nvkeys.tsv
   cat > $lua <<'LUA'
-local out, seen = {}, {}
-for _, mode in ipairs({ "n", "x", "i", "t" }) do
-  for _, m in ipairs(vim.api.nvim_get_keymap(mode)) do
+-- Global mappings, plus the buffer-local ones AstroNvim adds when a language
+-- server attaches (gd, K, <Leader>la, ...): wait for lua_ls on the opened file.
+local leader = vim.g.mapleader or "\\"
+local function collect()
+  local out, seen = {}, {}
+  local function add(mode, m)
     local d = m.desc
-    if d and d ~= "" and not d:find("^:help") and not m.lhs:find("<Plug>")
-      and not m.lhs:find("<SNR>") and not seen[mode .. m.lhs] then
+    if d and d ~= "" and not d:find("^:help") and not d:find("^which%-key")
+      and not m.lhs:find("<Plug>") and not m.lhs:find("<SNR>") and not seen[mode .. m.lhs] then
       seen[mode .. m.lhs] = true
-      local lhs = m.lhs:gsub("^" .. vim.pesc(vim.g.mapleader or "\\"), "<Leader>")
+      -- every leader press, not just the first (harpoon is <Leader><Leader>…)
+      local lhs = m.lhs:gsub(vim.pesc(leader), "<Leader>")
       table.insert(out, mode .. "\t" .. lhs .. "\t" .. d:gsub("[\t\n]", " "))
     end
   end
+  for _, mode in ipairs({ "n", "x", "i", "t" }) do
+    for _, m in ipairs(vim.api.nvim_buf_get_keymap(0, mode)) do add(mode, m) end
+    for _, m in ipairs(vim.api.nvim_get_keymap(mode)) do add(mode, m) end
+  end
+  local f = io.open(os.getenv("NVKEYS_OUT"), "w")
+  f:write(table.concat(out, "\n"), "\n")
+  f:close()
+  vim.cmd("qa!")
 end
-local f = io.open(os.getenv("NVKEYS_OUT"), "w")
-f:write(table.concat(out, "\n"), "\n")
-f:close()
+local deadline = vim.uv.now() + 20000
+local function wait()
+  if #vim.lsp.get_clients({ bufnr = 0 }) > 0 then vim.defer_fn(collect, 1500)
+  elseif vim.uv.now() > deadline then collect()
+  else vim.defer_fn(wait, 250) end
+end
+wait()
 LUA
-  NVKEYS_OUT=$tsv timeout 90 nvim --headless -c "luafile $lua" -c 'qa!' >/dev/null 2>&1 || return
+  local probe=$HOME/.config/nvim/init.lua
+  [[ -r $probe ]] || probe=''
+  NVKEYS_OUT=$tsv timeout 90 nvim --headless $probe -c "luafile $lua" >/dev/null 2>&1
+  [[ -s $tsv ]] || return
   local mode lhs desc where
   local -A modename=(n '' x ' (visual)' i ' (insert)' t ' (terminal)')
   while IFS=$'\t' read -r mode lhs desc; do
-    lhs=${lhs//<Leader>/Space }
+    lhs=${lhs//<Leader>/Space }; lhs=${lhs%% }
     print -r -- "\`$(keyname $lhs)\` in Neovim${modename[$mode]-}: $desc"
   done < $tsv > $tmp/nvim.txt
   rm -f $lua $tsv
