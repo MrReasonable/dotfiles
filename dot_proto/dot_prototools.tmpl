@@ -19,10 +19,11 @@ rust = "~1"
 # atuin publishes checksums (verified by its plugin), so it gets a range; the
 # rest publish none and stay exact. `update-all` warns when they're behind.
 atuin = "~18"
-# carapace, just, sesh and watchexec publish combined checksum files
-# (verified), so ranges.
+# carapace, just, sesh and watchexec publish combined checksum files, and
+# micromamba per-file ones (verified), so ranges.
 carapace = "~1"
 just = "~1"
+micromamba = "~2"
 sesh = "~2"
 watchexec = "~2"
 delta = "0.19.2"
@@ -51,6 +52,7 @@ dust = "file://./tool-plugins/dust.toml"
 hyperfine = "file://./tool-plugins/hyperfine.toml"
 jless = "file://./tool-plugins/jless.toml"
 just = "file://./tool-plugins/just.toml"
+micromamba = "file://./tool-plugins/micromamba.toml"
 sd = "file://./tool-plugins/sd.toml"
 sesh = "file://./tool-plugins/sesh.toml"
 tailspin = "file://./tool-plugins/tailspin.toml"

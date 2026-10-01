@@ -1,0 +1,34 @@
+# proto TOML plugin: mamba-org/micromamba-releases (conda-compatible package and
+# environment manager, single binary). Registered in ~/.proto/.prototools.
+#
+# Downloads the raw binary, not the .tar.bz2: the release's
+# micromamba-*.tar.bz2.sha256 actually holds the BINARY's hash, so verifying
+# the archive against it always fails. The raw binary matches its .sha256.
+# Tags carry a build suffix ("2.9.0-0"): versions resolve from "-0" builds and
+# the suffix is added back in the URL. macOS uses arm64/64, Linux aarch64/64;
+# proto maps arch once for all platforms, so Linux is x86_64 only here.
+name = "micromamba"
+type = "cli"
+
+[platform.macos]
+download-file = "micromamba-osx-{arch}"
+checksum-file = "micromamba-osx-{arch}.sha256"
+exe-path = "micromamba"
+
+[platform.linux]
+archs = ["x86_64"]
+download-file = "micromamba-linux-{arch}"
+checksum-file = "micromamba-linux-{arch}.sha256"
+exe-path = "micromamba"
+
+[install]
+download-url = "https://github.com/mamba-org/micromamba-releases/releases/download/{version}-0/{download_file}"
+checksum-url = "https://github.com/mamba-org/micromamba-releases/releases/download/{version}-0/{checksum_file}"
+
+[install.arch]
+aarch64 = "arm64"
+x86_64 = "64"
+
+[resolve]
+git-url = "https://github.com/mamba-org/micromamba-releases"
+version-pattern = '^((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))-0$'
