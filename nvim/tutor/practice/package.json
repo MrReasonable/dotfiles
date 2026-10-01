@@ -1,0 +1,6 @@
+{
+  "name": "nvim-practice",
+  "private": true,
+  "type": "module",
+  "description": "Practice project for the my-* Neovim tutorials (:Practice makes a fresh copy)"
+}

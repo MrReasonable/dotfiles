@@ -1,0 +1,60 @@
+# Your Neovim, lesson by lesson
+
+This series teaches YOUR Neovim: AstroNvim with the plugins and keys in
+~/.local/share/chezmoi/nvim. Every key here is one that really exists in your
+config. Do the lessons in order, one a day is a good pace:
+
+    `:Tutor my-01-files`{vim}      finding and switching files, the explorer, harpoon
+    `:Tutor my-02-windows`{vim}    splits, tmux panes, tabs, terminals, sessions
+    `:Tutor my-03-moving`{vim}     motions, flash jumps, text objects, repeat
+    `:Tutor my-04-code`{vim}       go to definition, docs, references, symbols
+    `:Tutor my-05-fixing`{vim}     errors, quick fixes, rename, format, problems list
+    `:Tutor my-06-git-tasks`{vim}  lazygit, hunks, diffs, tasks and tests
+    `:Tutor my-07-claude`{vim}     Claude Code inside Neovim
+
+Before the core ones, do Neovim's own two lessons if you haven't:
+`:Tutor vim-01-beginner`{vim} and `:Tutor vim-02-beginner`{vim}.
+
+# How these lessons work
+
+Some lines need editing. When there's a ✗ at the left, change the line as the
+lesson asks; the ✗ turns into ✓ when it's right.
+
+{{Change this word to say: yellow ||| Change this word to say: done}}
+
+Here, put the cursor on "yellow" and type `ciw`{normal} `done`{normal} `<Esc>`{normal}.
+(`ciw` means "change inner word". Lesson 3 covers it properly.)
+
+Other lessons need a real project, because language servers, git and Claude
+only work on real files. Type:
+
+    `:Practice`{vim}
+
+It opens a fresh copy of a small TypeScript shopping-cart project in a NEW TAB,
+with mistakes put there on purpose. Switch back to this lesson with `[t`{normal}
+(previous tab) and to the project with `]t`{normal} (next tab). Run `:Practice`
+again whenever you want to start over; it never touches your real projects.
+
+Changes in the lessons themselves aren't saved, so experiment freely. `u`{normal}
+undoes the last change.
+
+# Three ways to never get stuck
+
+1. Press `<Space>`{normal} and WAIT. A menu (which-key) shows every leader key
+   group: f find, l language server, g git, x problems, A Claude, T tests,
+   t terminals, b buffers, S sessions, u toggles, Space harpoon. Press a letter
+   to see that group. `<Esc>`{normal} closes it.
+
+2. `<Space>fk`{normal} searches every key mapping by what it DOES. Type
+   "rename" or "split" and it tells you the key.
+
+3. In the shell, `tips nvim` lists all of them, and a random one appears each
+   time a terminal opens.
+
+While you work, two coaches run in the background:
+  - precognition: the hint line under the cursor line shows where `w`, `b`,
+    `e`, `^`, `$` and `%` would jump.
+  - hardtime: suggests faster motions when you repeat keys. `:Hardtime report`{vim}
+    lists your most frequent hints. Check it weekly and fix one habit at a time.
+
+Next: `:Tutor my-01-files`{vim}

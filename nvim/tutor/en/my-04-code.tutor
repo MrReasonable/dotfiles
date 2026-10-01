@@ -1,0 +1,79 @@
+# Lesson 4: Getting around code
+
+This is the heart of using Neovim as an IDE. The language server (vtsls for
+TypeScript; rust-analyzer, basedpyright and gopls for your other languages)
+understands the code, and these keys ask it questions.
+
+Open the practice project: `:Practice`{vim}  (`]t`{normal} / `[t`{normal} to switch between it and this lesson)
+Give the language server a few seconds after opening a file the first time.
+
+# 4.1 Go to definition, and come back
+
+  `gd`{normal}      go to the definition of the thing under the cursor
+  `<C-o>`{normal}   go back where you were   (`<C-i>`{normal} forward again)
+  `gy`{normal}      go to the definition of its TYPE
+  `gI`{normal}      go to its implementation(s)
+
+ 1. Open src/index.ts. Put the cursor on `formatMoney` (line 2) and press `gd`{normal}.
+    You're in money.ts, on the function.
+ 2. Press `<C-o>`{normal}: straight back to index.ts.
+ 3. On `cart` in `cart.add(...)`, press `gy`{normal}: you jump to the Cart class.
+ 4. `<C-o>`{normal} again.
+
+`gd`{normal} then `<C-o>`{normal} is the single most useful habit in this whole series.
+Dive in to see how something works, then pop back out.
+
+# 4.2 Read the docs without leaving
+
+  `K`{normal}      hover: type and documentation of the thing under the cursor
+  `gK`{normal}     signature help: the parameters of the function you're calling
+
+ 1. In cart.ts, put the cursor on `addMoney` and press `K`{normal}. Press `K`{normal} again to
+    jump INTO the popup (scroll it with `j`{normal}/`k`{normal}); `q`{normal} closes it.
+ 2. Go inside the brackets of `addMoney(sum, line)` and press `gK`{normal}.
+
+# 4.3 Who uses this?
+
+  `grr`{normal}          list every reference (also `<Space>lR`{normal}, same thing)
+  `]r`{normal} / `[r`{normal}      next / previous reference in this file
+
+ 1. In money.ts, on `addMoney`, press `grr`{normal}. Every use, across files.
+ 2. Pick the one in cart.ts and press `<Enter>`{normal}.
+
+# 4.4 Find symbols
+
+  `<Space>ls`{normal}   symbols (functions, types, classes) in this file
+  `<Space>lG`{normal}   symbols across the whole project
+  `<Space>lS`{normal}   an outline panel of this file's symbols
+
+ 1. In cart.ts, `<Space>ls`{normal} and type `count`. `<Enter>`{normal} jumps to it.
+ 2. `<Space>lG`{normal} and type `format`: finds formatMoney in another file.
+ 3. `<Space>lS`{normal}: the outline. Move in it and `<Enter>`{normal} jumps; `<Space>lS`{normal} closes it.
+
+# 4.5 Move by code structure
+
+Treesitter knows where functions, arguments and blocks start and end:
+  `]f`{normal} / `[f`{normal}   next / previous function start
+  `]a`{normal} / `[a`{normal}   next / previous argument
+  `]k`{normal} / `[k`{normal}   next / previous block
+  `>A`{normal} / `<A`{normal}   swap this argument with the next / previous one
+
+ 1. In money.ts, hop between the two functions with `]f`{normal} and `[f`{normal}.
+ 2. In cart.ts, on `sum` inside `addMoney(sum, line)`, press `>A`{normal}: it becomes
+    `addMoney(line, sum)`. Press `<A`{normal} to swap it back.
+
+# 4.6 See the types
+
+`<Space>uh`{normal} toggles inlay hints: the types the language server infers, written
+in faint text inside the code (for example the type of `const line = ...` in
+cart.ts). They're on by default; toggle them off when they're noisy.
+`<Space>li`{normal} shows which language servers are attached to this file.
+
+# Recap
+
+  definition  `gd`   back  `<C-o>`   type  `gy`   implementation  `gI`
+  docs  `K`   signature  `gK`   references  `grr`  `]r [r`
+  symbols  `<Space>ls`  project symbols  `<Space>lG`  outline  `<Space>lS`
+  functions  `]f [f`   arguments  `]a [a`  swap  `>A <A`   hints  `<Space>uh`
+
+Next: `:Tutor my-05-fixing`{vim}

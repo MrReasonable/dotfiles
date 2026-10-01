@@ -1,0 +1,15 @@
+{
+  "expect": {
+    "14": "The quick brown fox",
+    "17": "It was cold outside",
+    "27": "apples, pears, plums, cherries.",
+    "30": "const total = price * qty;",
+    "45": "See you on friday at noon",
+    "60": "greet(\"hello\")",
+    "64": "formatMoney()",
+    "67": "This is important",
+    "70": "const empty = {0}",
+    "78": "dog sat on the dog mat with a dog",
+    "88": "say it LOUD"
+  }
+}
