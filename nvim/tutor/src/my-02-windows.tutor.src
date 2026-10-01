@@ -1,0 +1,88 @@
+# Lesson 2: Windows, splits, tabs, terminals and sessions
+
+Words first, they matter:
+  BUFFER    an open file (the top bar lists them)
+  WINDOW    a view onto a buffer; every split is a window
+  TAB PAGE  a whole layout of windows (the practice project lives in its own)
+
+Open the practice project if it isn't already: `:Practice`{vim}  (`]t`{normal} / `[t`{normal} to switch)
+
+# 2.1 Split the screen
+
+  `|`{normal}             split vertically (side by side)
+  `\`{normal}             split horizontally (one above the other)
+  `<Space>q`{normal}      close the current window
+  `<C-w>o`{normal}        close every OTHER window ("only this one")
+  `<C-w>=`{normal}        make all windows the same size
+
+ 1. In the practice tab, open cart.ts and press `|`{normal}. Two views of cart.ts.
+ 2. In the right one, `<Space>ff`{normal} and open money.ts. Now they're side by side.
+ 3. Press `\`{normal}. The right side splits again.
+ 4. Close one with `<Space>q`{normal}, then try `<C-w>o`{normal}.
+
+A split always starts on the same file; then open whatever you need in it.
+From any picker, `<C-v>`{normal} / `<C-s>`{normal} open the result straight into a new split.
+
+# 2.2 Move and resize
+
+  `<C-h>`{normal} `<C-j>`{normal} `<C-k>`{normal} `<C-l>`{normal}   move left / down / up / right
+  `<C-Left>`{normal} `<C-Right>`{normal} `<C-Up>`{normal} `<C-Down>`{normal}   resize the current split
+
+These are the same keys whether the next window is a Neovim split OR a tmux
+pane: at the edge of Neovim's splits, `<C-l>`{normal} carries on into the tmux
+pane to the right (smart-splits). From a plain shell pane, use tmux's
+`Ctrl-A` then `h`/`j`/`k`/`l` to come back.
+
+ 1. Make three splits (`|`{normal} then `\`{normal}) and walk around them with `<C-h>`{normal}/`<C-l>`{normal}/`<C-j>`{normal}/`<C-k>`{normal}.
+ 2. Widen one with `<C-Right>`{normal} a few times, then even them out with `<C-w>=`{normal}.
+ 3. If tmux has a pane beside Neovim, keep pressing `<C-l>`{normal} and you'll cross into it.
+
+# 2.3 Tab pages
+
+Tabs hold whole layouts. Useful for "the code" vs "the tests" vs "a quick look
+at another project". `:Practice` uses one so the project has its own folder.
+
+  `]t`{normal} / `[t`{normal}    next / previous tab
+  `:tabnew`{vim}      new tab              `:tabclose`{vim}   close this tab
+
+ 1. `:tabnew`{vim}, then `]t`{normal} and `[t`{normal} to cycle through all your tabs.
+ 2. `:tabclose`{vim} to get rid of it.
+
+# 2.4 Terminals inside Neovim
+
+  `<C-'>`{normal} or `<F7>`{normal}   toggle a terminal at the bottom
+  `<Space>tf`{normal}         a floating terminal
+  `<Space>th`{normal} / `<Space>tv`{normal}  terminal in a horizontal / vertical split
+  `<Space>tn`{normal} / `<Space>tp`{normal}  a Node / Python REPL
+  `<Space>tt`{normal}         a system monitor
+  `<Space>gg`{normal}         lazygit (lesson 6)
+
+In a terminal you're TYPING into the shell. To scroll or copy its output, leave
+typing mode with `<C-\>`{normal} then `<C-n>`{normal}; `i`{normal} goes back to typing.
+
+ 1. `<Space>tf`{normal}, run `ls src`, then press `<C-'>`{normal} or `<F7>`{normal} to hide it.
+ 2. Toggle it back: the same terminal, still there.
+ 3. Open a split terminal with `<Space>tv`{normal}, run `cat src/money.ts`, then
+    `<C-\>`{normal} `<C-n>`{normal} and scroll up with `k`{normal}.
+
+# 2.5 Sessions: pick up where you left off
+
+A session remembers your open files, splits and tabs.
+
+  `<Space>Sl`{normal}   load the last session (what you had open before quitting)
+  `<Space>S.`{normal}   load the session for the current folder
+  `<Space>SS`{normal}   save a session for the current folder
+  `<Space>Sf`{normal}   pick any saved session
+
+ 1. With a few splits open, `<Space>SS`{normal}. Quit Neovim (`:qa`{vim}).
+ 2. Start Neovim again in the same folder and press `<Space>S.`{normal}.
+    Everything comes back where it was.
+
+# Recap
+
+  split  `|` `\`          close  `<Space>q`        only this  `<C-w>o`
+  move   `<C-h/j/k/l>`    resize `<C-arrows>`      tabs       `]t` `[t`
+  term   `<C-'>` `<Space>tf`   leave terminal typing  `<C-\><C-n>`
+  last session  `<Space>Sl`
+
+Next: `:Tutor my-03-moving`{vim}

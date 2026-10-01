@@ -1,0 +1,72 @@
+# Lesson 7: Claude Code inside Neovim
+
+claudecode.nvim connects the `claude` CLI to Neovim, like the VS Code
+extension: Claude sees the file you're in and what you've selected, and its
+edits open as diffs in Neovim for you to accept or reject. It runs on your
+normal Claude Code account.
+
+Open the practice project: `:Practice`{vim}  (`]t`{normal} / `[t`{normal} switch tabs)
+
+# 7.1 Open and move around
+
+  `<Space>Ac`{normal}   open / close Claude in a split on the right
+  `<Space>Af`{normal}   jump between your code and Claude
+  `<C-h>`{normal} / `<C-l>`{normal}   move left / right between them (works while typing in Claude too)
+  `<Space>Ar`{normal}   resume a previous conversation (pick one)
+  `<Space>AC`{normal}   continue the most recent conversation
+  `<Space>Am`{normal}   choose the model
+
+Claude's split is a terminal. To scroll its output: `<C-\>`{normal} `<C-n>`{normal}, then `k`{normal}/`j`{normal};
+`i`{normal} goes back to typing.
+
+ 1. In the practice tab, open src/cart.ts and press `<Space>Ac`{normal}.
+ 2. Ask Claude: "What does this file do?" It already knows which file you're in.
+ 3. `<C-h>`{normal} back to the code, `<C-l>`{normal} back to Claude.
+
+# 7.2 Give Claude exactly the code you mean
+
+  `<Space>Ab`{normal}            add the whole current file to the conversation
+  select, then `<Space>As`{normal}   send the selection (visual mode)
+
+Selecting is the fastest way to say "this bit":
+ 1. In cart.ts, go to the `add(item: CartItem)` method. `V`{normal} then `j`{normal} `j`{normal} to select
+    its three lines, then `<Space>As`{normal}.
+ 2. In Claude, ask: "Do the TODO above this: merge lines with the same sku
+    instead of adding duplicates."
+
+# 7.3 Review Claude's edits as diffs
+
+When Claude wants to change a file, Neovim opens the change as a diff:
+the original next to the proposal.
+
+  `<Space>Aa`{normal}   accept the diff (the change is written)
+  `<Space>Ad`{normal}   reject it (Claude is told, and you can explain why)
+
+ 1. When the cart.ts diff appears, read it. Use `]c`{normal} / `[c`{normal} to jump between
+    the changed blocks in a diff.
+ 2. If it looks right, `<Space>Aa`{normal}. If not, `<Space>Ad`{normal} and tell Claude what
+    to change.
+ 3. Then check its work with lesson 5: `]d`{normal} for new errors, and lesson 6:
+    `]g`{normal} / `<Space>gp`{normal} to see exactly what changed since the last commit.
+
+# 7.4 A good working loop
+
+  1. Navigate to the code (`<Space>ff`, `gd`, `grr`).
+  2. Select the part you mean (`V` for lines, or `S` to select a whole
+     function or block with flash Treesitter) and `<Space>As`.
+  3. Ask; review the diff; `<Space>Aa` or `<Space>Ad`.
+  4. Verify: `]d` for errors, `<Space>Tf` for tests, `<Space>gp` for the change.
+  5. Commit with `<Space>gg`.
+
+`S`{normal} (flash Treesitter) is the quickest way to select a whole function or
+block before sending it: press `S`{normal}, then the label on the block you want.
+
+# Recap
+
+  open  `<Space>Ac`   focus  `<Space>Af`   move  `<C-h>` `<C-l>`
+  send selection  `<Space>As`   add file  `<Space>Ab`
+  accept  `<Space>Aa`   reject  `<Space>Ad`   resume  `<Space>Ar`   continue  `<Space>AC`
+
+That's the series. Run any lesson again with `:Tutor my-`{vim} and `<Tab>`{normal}.
+Keep `:Hardtime report`{vim} and `tips nvim` going, and in a couple of weeks
+none of this will need thinking about.

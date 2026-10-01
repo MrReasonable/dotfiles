@@ -1,0 +1,98 @@
+# Lesson 1: Finding and switching files
+
+Goal: never reach for the mouse or `:e path/to/file` again.
+First, open the practice project:  `:Practice`{vim}
+It opens in a new tab. Read the steps here, try them there. `]t`{normal} goes to
+the project, `[t`{normal} comes back here.
+
+# 1.1 Find a file by name
+
+`<Space>ff`{normal}  Find files
+
+ 1. In the practice tab, press `<Space>ff`{normal}.
+ 2. Type `mon`. Fuzzy matching finds money.ts from any part of the name.
+ 3. Press `<Enter>`{normal} to open it.
+
+Inside any picker:
+  `<C-j>`{normal} / `<C-k>`{normal}   move down / up the list
+  `<C-v>`{normal}             open the result in a vertical split
+  `<C-s>`{normal}             open it in a horizontal split
+  `<C-t>`{normal}             open it in a new tab
+  `<A-p>`{normal}             hide / show the preview
+  `<Esc>`{normal}             close the picker
+
+# 1.2 Find text anywhere in the project
+
+`<Space>fw`{normal}  Find words (live search across files)
+
+ 1. Press `<Space>fw`{normal} and type `addMoney`.
+ 2. You'll see where it's defined (money.ts) and used (cart.ts).
+ 3. Move to the cart.ts line and press `<Enter>`{normal}. You land ON that line.
+
+`<Space>fW`{normal} is the same but also searches files git ignores.
+`<Space>f<Enter>`{normal} reopens your last search exactly as you left it.
+
+# 1.3 Switch between files you've opened
+
+Every opened file is a BUFFER, shown in the bar along the top.
+
+  `]b`{normal} / `[b`{normal}     next / previous buffer
+  `<Space>fs`{normal}     buffers, recent files and project files in one picker
+  `<Space>fb`{normal}     just the open buffers
+  `<Space>fo`{normal}     recently opened files (across projects)
+  `<Space>bb`{normal}     pick a buffer from the top bar by a letter
+  `<Space>c`{normal}      close this buffer
+  `<Space>bc`{normal}     close every buffer except this one
+
+ 1. Open cart.ts, money.ts and index.ts (use `<Space>ff`{normal} three times).
+ 2. Cycle through them with `]b`{normal} and `[b`{normal}.
+ 3. Press `<Space>bb`{normal}: each tab in the top bar gets a letter. Press one.
+ 4. Close money.ts with `<Space>c`{normal} while it's showing.
+
+`<Space>fs`{normal} is the one to make a habit: one picker for "that file I was
+just in" and "that file I haven't opened yet".
+
+# 1.4 The file explorer
+
+  `<Space>e`{normal}   show / hide the explorer (left side)
+  `<Space>o`{normal}   jump the cursor into it (or back)
+
+Inside the explorer:
+  `<Enter>`{normal}   open file / expand folder    `a`{normal}  add a file (end with / for a folder)
+  `s`{normal}         open in a vertical split     `r`{normal}  rename
+  `S`{normal}         open in a horizontal split   `d`{normal}  delete
+  `H`{normal}         show hidden files            `?`{normal}  all the explorer's keys
+
+ 1. `<Space>e`{normal}, move to src/ and press `a`{normal}. Type `notes.md` and `<Enter>`{normal}.
+ 2. Rename it with `r`{normal} to `todo.md`, then delete it with `d`{normal}.
+ 3. `<Space>e`{normal} again to hide the explorer.
+
+# 1.5 Harpoon: pin the files you're working on
+
+Most of the time you bounce between 3-4 files. Pin them.
+
+  `<Space><Space>a`{normal}   pin the current file
+  `<Space><Space>e`{normal}   show pinned files (reorder: move lines; remove: `dd`)
+  `<C-n>`{normal} / `<C-p>`{normal}       next / previous pinned file
+  `<C-x>`{normal}             jump to pin number N (it asks for the number)
+
+ 1. Pin cart.ts, then money.ts, then index.ts (`<Space><Space>a`{normal} in each).
+ 2. Press `<C-p>`{normal} and `<C-n>`{normal} to hop between just those three.
+ 3. `<C-x>`{normal} then `1`{normal} `<Enter>`{normal} jumps straight to cart.ts.
+ 4. `<Space><Space>e`{normal} shows the list. Reorder it with `dd`{normal} and `p`{normal}, then `<Esc>`{normal}.
+
+Pins are saved per project, so they're still there tomorrow.
+
+# 1.6 Save and new files
+
+  `<Space>w`{normal}   save          `<Space>n`{normal}   new empty file
+
+# Recap
+
+  find by name     `<Space>ff`          find text      `<Space>fw`
+  anything recent  `<Space>fs`          resume search  `<Space>f<Enter>`
+  next buffer      `]b`                 close buffer   `<Space>c`
+  explorer         `<Space>e`           pin file       `<Space><Space>a`
+  hop pins         `<C-n>` / `<C-p>`
+
+Next: `:Tutor my-02-windows`{vim}

@@ -1,0 +1,9 @@
+# Tasks for the overseer part of lesson 6 (`<Space>Mr` lists these).
+
+# count lines of code per file
+lines:
+    wc -l src/*.ts
+
+# list the TODO comments
+todos:
+    grep -n TODO src/*.ts

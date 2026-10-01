@@ -1,0 +1,104 @@
+# Lesson 3: Moving fast and editing with text objects
+
+This lesson happens right here: every ✗ line is an exercise. `u`{normal} undoes.
+Watch the hint line under the cursor (precognition): it marks where `w`, `b`,
+`e`, `^`, `$` and `%` would land from where you are.
+
+# 3.1 Words, and counts
+
+  `w`{normal} next word start   `b`{normal} back a word   `e`{normal} end of word
+  `W`{normal} `B`{normal} `E`{normal}   the same, but only spaces separate "words" (skips punctuation)
+  A number first repeats a motion: `3w`{normal} moves three words.
+
+Delete the extra words (move with `w`{normal}, delete a word with `dw`{normal}):
+The quick quick quick brown fox
+
+`d3w`{normal} deletes three words in one go. Try it here, on the first "very":
+It was very very very cold outside
+
+# 3.2 Within a line
+
+  `0`{normal} start of line   `^`{normal} first non-blank   `$`{normal} end of line
+  `f`{normal}x  jump TO the next x   `t`{normal}x  jump to just before it
+  `F`{normal}x / `T`{normal}x  the same, backwards   `;`{normal} / `,`{normal}  repeat forwards / backwards
+
+Use `f,`{normal} then `;`{normal} to reach the last comma, and replace it with a full stop
+(`r.`{normal} replaces one character):
+apples, pears, plums, cherries,
+
+`A`{normal} appends at the end of the line, `I`{normal} inserts at the start. Add a semicolon:
+const total = price * qty
+
+# 3.3 Flash: jump anywhere you can see
+
+  `s`{normal}   type 2 characters of where you want to go; every match gets a
+      LABEL letter; type the label to jump there
+  `S`{normal}   select a whole code block (Treesitter) instead: labels mark
+      each surrounding node; type one to select it
+
+In your setup `s` is flash, so Vim's "substitute one character" is `cl`{normal}.
+
+Flash works inside commands too: `d`{normal} then `s`{normal} + label deletes up to there.
+
+On the line below, put the cursor at the start, press `s`{normal} `mo`, then the
+label shown on "monday", then `ciw`{normal} `friday`{normal} `<Esc>`{normal}:
+See you on monday at noon
+
+Flash is fastest across the WHOLE screen: try `s`{normal} + two letters to jump
+to any word of this paragraph in three keystrokes.
+
+# 3.4 Text objects: say what, not where
+
+Operators `d` (delete), `c` (change), `y` (copy) work on TEXT OBJECTS:
+  `iw`{normal} / `aw`{normal}   inner word / a word (with its space)
+  `i"`{normal} / `a"`{normal}   inside / around quotes  (also `i'`{normal} for single quotes)
+  `i(`{normal} / `a(`{normal}   inside / around brackets  (also `i[`{normal}, `i{`{normal}, `i<`{normal})
+  `ip`{normal}         inner paragraph       `it`{normal}  inside an HTML/JSX tag
+The cursor can be ANYWHERE inside the object.
+
+Change the text inside the quotes to hello (`ci"`{normal} anywhere inside them):
+greet("good morning to you")
+
+Delete the arguments, keeping the outer brackets: put the cursor on "GBP", then
+`di(`{normal}. (On "total" it would empty the INNER brackets: the nearest pair wins.)
+formatMoney(cart.total(), "GBP")
+
+Delete the word "really" and its space (`daw`{normal}):
+This is really important
+
+Change everything inside the braces to a single 0 (`ci{`{normal}):
+const empty = { pence: 450, currency: "GBP" }
+
+# 3.5 Repeat: the dot
+
+`.`{normal} repeats your last change. Combine it with `n`{normal} (next search match):
+  1. Put the cursor at the start of the line below, then `/cat`{normal} `<Enter>`{normal}.
+  2. `ciw`{normal} `dog`{normal} `<Esc>`{normal} changes it.
+  3. `n`{normal} `.`{normal} `n`{normal} `.`{normal} for the rest.
+cat sat on the cat mat with a cat
+
+`*`{normal} searches for the word under the cursor directly (no typing).
+
+# 3.6 Visual selection
+
+  `v`{normal} select characters   `V`{normal} whole lines   `<C-v>`{normal} a block (columns)
+  `>`{normal} / `<`{normal} indent / unindent the selection   `gv`{normal} reselect the last one
+
+Uppercase the word "loud" (`viw`{normal} selects it, `U`{normal} uppercases the selection):
+say it loud
+
+# 3.7 Jump back
+
+Every big move (search, `gd`, flash, opening a file) is remembered:
+  `<C-o>`{normal} goes BACK to where you were, `<C-i>`{normal} goes forward again.
+  `` `. ``{normal}    jumps to where you last changed something.
+You'll use `<C-o>`{normal} constantly in lesson 4.
+
+# Recap
+
+  words  `w b e` (+ counts `3w`)    line  `0 ^ $`   find  `f t ; ,`
+  flash  `s` + 2 chars + label       select block  `S`
+  text objects  `ciw ci" di( daw ci{ dip`   repeat  `.`   next  `n`   word  `*`
+  visual  `v V <C-v>`   back / forward  `<C-o> <C-i>`
+
+Next: `:Tutor my-04-code`{vim}

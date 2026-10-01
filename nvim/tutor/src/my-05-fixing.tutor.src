@@ -1,0 +1,84 @@
+# Lesson 5: Fixing code: errors, quick fixes, rename, format
+
+The practice project has three deliberate mistakes. Fix them all using only
+the keys in this lesson. Start fresh: `:Practice`{vim}  (`]t`{normal} / `[t`{normal} to switch)
+
+# 5.1 Find the errors
+
+  `]d`{normal} / `[d`{normal}   next / previous problem (error, warning or hint)
+  `]D`{normal} / `[D`{normal}   last / first problem in the file
+  `gl`{normal}         show the full message for the problem under the cursor
+
+Errors are underlined, marked in the left column and summarised at the end
+of the line.
+
+ 1. Open src/cart.ts. Press `]d`{normal}: you land on `Money`, underlined in red.
+ 2. Press `gl`{normal}: "Cannot find name 'Money'". It's used but never imported.
+
+# 5.2 Quick fixes: code actions
+
+  `<Space>la`{normal}   code actions for the cursor position: fixes, imports, refactors
+  `<Space>lA`{normal}   source actions for the whole file (organise imports, fix all)
+
+ 1. With the cursor on `Money`, press `<Space>la`{normal}.
+ 2. Choose the action that adds or updates the import from "./money".
+    Line 1 becomes `import { addMoney, Money } from "./money";` (or similar),
+    and every `Money` error in the file disappears.
+
+Code actions are worth trying on ANY error: missing imports, unused variables,
+"add missing property", converting functions and more, depending on the language.
+
+# 5.3 Rename everywhere
+
+  `<Space>lr`{normal}   rename the symbol under the cursor, in every file that uses it
+
+The method `totl` in cart.ts is misspelled, and index.ts calls it.
+
+ 1. In cart.ts, put the cursor on `totl` and press `<Space>lr`{normal}.
+ 2. Type `total` and press `<Enter>`{normal}.
+ 3. Open index.ts (`<Space>fs`{normal}): its call became `cart.total()` too.
+
+Never search-and-replace a name by hand again: rename understands scope, so it
+won't touch an unrelated `totl` somewhere else.
+
+# 5.4 The last error, by hand
+
+ 1. In index.ts, press `]d`{normal} to reach the error on the second `cart.add`.
+ 2. `gl`{normal}: "Type 'string' is not assignable to type 'number'".
+ 3. Remove the quotes around "1" (a quantity is a number, not text): search for
+    it with `/"1"`{normal} `<Enter>`{normal} (the cursor lands on the opening quote), then
+    `x`{normal} deletes that quote, `l`{normal} steps onto the closing one, `x`{normal} deletes it.
+ 4. The error disappears a moment later.
+
+# 5.5 Formatting
+
+Files are formatted automatically when you save (`<Space>w`{normal}).
+  `<Space>lf`{normal}   format now
+  `<Space>uf`{normal}   turn format-on-save off / on for this buffer (`<Space>uF`{normal} for all)
+
+ 1. In money.ts, mess up the indentation of a few lines (`>>`{normal} indents a line).
+ 2. `<Space>lf`{normal}: back to tidy.
+
+# 5.6 The problems list, and TODOs
+
+  `<Space>xx`{normal}   problems in this file, as a list (Trouble)
+  `<Space>xX`{normal}   problems in the whole project
+  `<Space>xt`{normal}   every TODO / FIXME comment in the project
+  `<Space>lD`{normal}   search problems with the picker
+
+In the list: `j`{normal}/`k`{normal} to move, `<Enter>`{normal} to jump to it, `q`{normal} to close.
+
+ 1. Run `:Practice`{vim} again to get all the errors back, then `<Space>xX`{normal}.
+    Both files' errors in one list. Fix them from there.
+ 2. `<Space>xt`{normal}: the TODO in cart.ts shows up. `<Enter>`{normal} on it.
+
+# 5.7 Quieter or louder
+
+  `<Space>ud`{normal}   hide / show diagnostics (when you're mid-refactor and the red is noise)
+
+# Recap
+
+  next problem  `]d`   read it  `gl`   quick fix  `<Space>la`   rename  `<Space>lr`
+  format  `<Space>lf`   problems list  `<Space>xx` / `<Space>xX`   TODOs  `<Space>xt`
+
+Next: `:Tutor my-06-git-tasks`{vim}

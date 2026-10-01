@@ -1,0 +1,91 @@
+# Lesson 6: Git, tasks and tests
+
+`:Practice`{vim} makes the project a git repo with one commit, then changes
+src/index.ts on top (a "BISCUIT" line was added), so there's something to look at.
+(`]t`{normal} / `[t`{normal} switch between the project and this lesson.)
+
+# 6.1 See what changed, line by line
+
+Changed lines are marked in the left column (added, changed, deleted).
+
+  `]g`{normal} / `[g`{normal}     next / previous changed block ("hunk")
+  `<Space>gp`{normal}     preview the hunk: what it was before
+  `<Space>gs`{normal}     stage (or unstage) this hunk
+  `<Space>gr`{normal}     reset this hunk: throw the change away
+  `<Space>gS`{normal} / `<Space>gR`{normal}   stage / reset the whole file
+  `<Space>gl`{normal}     who last changed this line (blame); `<Space>gL`{normal} full blame
+  `<Space>gd`{normal}     diff this file against the last commit
+
+ 1. Open src/index.ts. Press `]g`{normal}: you land on the added BISCUIT line.
+ 2. `<Space>gp`{normal} shows it as an addition.
+ 3. `<Space>gs`{normal} stages just that hunk. (`<Space>gs`{normal} again unstages it.)
+ 4. `<Space>gr`{normal} would throw it away. Try it, then `u`{normal} to bring it back.
+
+# 6.2 lazygit: the full git UI
+
+  `<Space>gg`{normal}   lazygit in a floating window
+
+Inside lazygit: `<Space>`{normal} stages / unstages a file, `c`{normal} commits, `P`{normal} pushes,
+`p`{normal} pulls, `<Tab>`{normal} or the number keys switch panels, `?`{normal} lists every key,
+`q`{normal} quits back to Neovim.
+
+ 1. `<Space>gg`{normal}. src/index.ts is under Files. `<Space>`{normal} stages it.
+ 2. `c`{normal}, type a message ("Add biscuits"), `<Enter>`{normal}. Committed.
+ 3. `q`{normal} to return.
+
+# 6.3 Browse history and branches
+
+  `<Space>gt`{normal}   git status as a picker      `<Space>gb`{normal}   branches
+  `<Space>gc`{normal}   commits in the repo         `<Space>gC`{normal}   commits touching this file
+  `<Space>gT`{normal}   stashes                     `<Space>go`{normal}   open on GitHub (real repos)
+
+ 1. `<Space>gc`{normal}: your new commit and the original one. `<Enter>`{normal} shows one.
+
+# 6.4 Diffview: review changes side by side
+
+  `:DiffviewOpen`{vim}                    every uncommitted change, side by side
+  `:DiffviewOpen HEAD~1`{vim}             changes since the previous commit
+  `:DiffviewFileHistory %`{vim}           the history of this file, commit by commit
+  `:DiffviewClose`{vim}                   close it
+
+In Diffview, `<Tab>`{normal} / `<S-Tab>`{normal} move between changed files.
+It's the best way to review a branch before you push it, and it shows merge
+conflicts as three panes (yours, theirs, result).
+
+ 1. `:DiffviewOpen HEAD~1`{vim}: your BISCUIT commit, side by side.
+ 2. `:DiffviewClose`{vim}.
+
+# 6.5 Run tasks without leaving
+
+overseer finds tasks from justfiles, package.json scripts, Cargo, Make and more.
+
+  `<Space>Mr`{normal}   pick a task and run it
+  `<Space>Mt`{normal}   show / hide the task list and output
+  `<Space>Mc`{normal}   run any shell command as a task
+  `<Space>Ma`{normal}   actions on a task (restart, stop, open output)
+
+ 1. `<Space>Mr`{normal}: the practice project's justfile offers "lines" and "todos".
+    Run "lines".
+ 2. `<Space>Mt`{normal}: the task list. `<Enter>`{normal} on the task shows its output.
+
+In your own projects this is where `pnpm test`, `cargo build` or `just deploy`
+live, with output you can come back to.
+
+# 6.6 Tests (in your own projects)
+
+neotest runs tests from inside the test file and marks pass / fail in the
+left column. The practice project has no test runner, so try these in a real
+project with tests (Jest/Vitest, cargo test, pytest, go test):
+
+  `<Space>Tt`{normal}   run the test under the cursor   `<Space>Tf`{normal}   every test in the file
+  `<Space>Tp`{normal}   every test in the project       `<Space>T<Enter>`{normal}   test summary panel
+  `]T`{normal} / `[T`{normal}     next / previous test             `<Space>Td`{normal}   debug the test
+  `<Space>TWt`{normal}  re-run this test whenever the file is saved (watch)
+
+# Recap
+
+  hunks  `]g [g`   preview  `<Space>gp`   stage  `<Space>gs`   reset  `<Space>gr`
+  blame  `<Space>gl`   lazygit  `<Space>gg`   review  `:DiffviewOpen`
+  tasks  `<Space>Mr` `<Space>Mt`   tests  `<Space>Tt` `<Space>Tf`
+
+Next: `:Tutor my-07-claude`{vim}
