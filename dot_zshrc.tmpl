@@ -315,6 +315,7 @@ _theme_refresh() {
 }
 precmd_functions+=(_theme_refresh)
 
+
 # Man pages through bat (falls back to less where bat isn't installed yet).
 export MANPAGER="sh -c 'col -bx | { command -v bat >/dev/null && bat -l man -p || less -R; }'"
 export MANROFFOPT='-c'
