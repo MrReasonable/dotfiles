@@ -1,32 +1,30 @@
--- Follow macOS light/dark mode, and make line numbers readable.
+-- Colours: TokyoNight, following macOS light/dark mode, to match iTerm2, the
+-- tmux status bar and fzf (all TokyoNight Storm in dark mode, Day in light).
 --
 -- auto-dark-mode.nvim checks the system appearance every few seconds (it asks
 -- macOS directly, so tmux in between doesn't matter) and flips 'background';
--- astrotheme then shows astrolight or astrodark to match. Loading the plain
--- "astrotheme" colorscheme (instead of AstroNvim's default "astrodark") is
--- what lets it pick the palette from 'background'.
+-- the plain "tokyonight" colorscheme then shows `style` (dark) or
+-- `light_style` (light) to match.
 
 ---@type LazySpec
 return {
   {
     "AstroNvim/astroui",
     ---@type AstroUIOpts
-    opts = { colorscheme = "astrotheme" },
+    opts = { colorscheme = "tokyonight" },
   },
   {
-    "AstroNvim/astrotheme",
+    "folke/tokyonight.nvim",
     opts = {
-      highlights = {
-        -- astrodark's line numbers (#3a3e47) all but vanish on its near-black
-        -- background, especially over a translucent terminal...
-        astrodark = {
-          LineNr = { fg = "#7a7f8a" },
-        },
-        -- and astrolight's (#b5b9bd) are just as faint on its near-white one
-        astrolight = {
-          LineNr = { fg = "#7b8189" },
-        },
-      },
+      style = "storm", -- dark mode
+      light_style = "day", -- light mode
+      on_highlights = function(hl, c)
+        -- line numbers default to fg_gutter, which is faint in both styles;
+        -- dark5 is TokyoNight's own slightly brighter grey
+        hl.LineNr = { fg = c.dark5 }
+        hl.LineNrAbove = { fg = c.dark5 }
+        hl.LineNrBelow = { fg = c.dark5 }
+      end,
     },
   },
   {
