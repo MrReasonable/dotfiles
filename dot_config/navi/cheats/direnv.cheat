@@ -1,0 +1,28 @@
+% direnv, environment
+
+# Approve this folder's .envrc (needed after every change)
+direnv allow
+
+# Stop using this folder's .envrc
+direnv deny
+
+# Reload the current .envrc
+direnv reload
+
+# Show what direnv has loaded
+direnv status
+
+# Edit this folder's .envrc (approves it on save)
+direnv edit .
+
+# Load a .env file in .envrc (also on by default via load_dotenv)
+echo 'dotenv' >> .envrc && direnv allow
+
+# Add ./bin to PATH for this project
+echo 'PATH_add bin' >> .envrc && direnv allow
+
+# Activate a micromamba environment for this project (./env, environment.yml or name)
+echo 'layout micromamba' > .envrc && direnv allow
+
+# Use a Python virtualenv in .venv for this project
+echo 'layout python3' > .envrc && direnv allow

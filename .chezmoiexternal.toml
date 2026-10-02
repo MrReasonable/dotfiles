@@ -2,3 +2,27 @@
   type = "git-repo"
   url = "https://github.com/gpakosz/.tmux"
   refreshPeriod = "24h"
+
+# navi cheatsheets (community), refreshed weekly; navi reads the .cheat files
+# under ~/.local/share/navi/cheats and ignores everything else.
+[".local/share/navi/cheats/denisidoro__cheats"]
+  type = "archive"
+  url = "https://github.com/denisidoro/cheats/archive/refs/heads/master.tar.gz"
+  exact = true
+  stripComponents = 1
+  refreshPeriod = "168h"
+[".local/share/navi/cheats/papanito__cheats"]
+  type = "archive"
+  url = "https://github.com/papanito/cheats/archive/refs/heads/main.tar.gz"
+  exact = true
+  stripComponents = 1
+  refreshPeriod = "168h"
+# cheat/cheatsheets (cheat's format, not navi's): converted into navi
+# cheatsheets by ~/.local/bin/navi-cheats-build, so kept outside navi's path.
+[".local/share/navi/sources/cheat-cheatsheets"]
+  type = "archive"
+  url = "https://github.com/cheat/cheatsheets/archive/refs/heads/master.tar.gz"
+  exact = true
+  stripComponents = 1
+  exclude = [".github", ".github/**", "*.md", "LICENSE*", ".*"]
+  refreshPeriod = "168h"

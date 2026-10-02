@@ -1,0 +1,30 @@
+% my shell, setup, zsh
+
+# Update everything: chezmoi, brew, zi plugins, proto tools
+update-all
+
+# Replace this shell with a fresh one (picks up .zshrc changes)
+exec zsh
+
+# Show a random tip / browse all tips
+tip
+
+# Browse tips from one source
+tips <tips_source>
+
+# Rebuild the generated tips now
+tips-build
+
+# Rebuild navi's generated cheatsheets (tldr + cheat/cheatsheets)
+navi-cheats-build
+
+# Is macOS in light or dark mode (what tmux, fzf and eza follow)
+appearance
+
+# Re-sync tmux's colours with the system appearance
+appearance tmux-sync
+
+# Time shell startup
+hyperfine --warmup 2 'zsh -i -c exit'
+
+$ tips_source: echo -e "setup\ntmux\nnvim\ntldr\nnavi\ngit"

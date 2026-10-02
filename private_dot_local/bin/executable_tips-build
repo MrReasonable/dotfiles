@@ -12,7 +12,7 @@
 #   tldr.txt   tldr examples for the tools you chose: Homebrew formulae you
 #              installed (brew leaves), proto tools, zi programs, ~/.local/bin
 #              and a core set, not every dependency that happens to be on PATH
-#   navi.txt   navi cheats whose command is actually available
+#   navi.txt   navi cheats (community + yours) whose command is available
 #   git.txt    your git aliases
 #
 # .zshrc re-runs this in the background at most once a day; run it by hand to
@@ -205,10 +205,14 @@ LUA
 # ── navi cheats ──────────────────────────────────────────────────────────────
 () {
   (( $+commands[navi] )) || return
+  # navi's own folder (community repos) plus your cheatsheets in chezmoi;
+  # skip generated__* (converted tldr pages are already the tldr source)
   local dir=$(navi info cheats-path 2>/dev/null)
-  [[ -d $dir ]] || return
+  local -a files=($dir/**/*.cheat(N) $HOME/.config/navi/cheats/**/*.cheat(N))
+  files=(${files:#*/generated__*})
+  (( $#files )) || return
   local f line desc cmd full
-  for f in $dir/**/*.cheat(N); do
+  for f in $files; do
     desc='' full=''
     while IFS= read -r line; do
       if [[ -n $full ]]; then                    # continuation of a \-split command
@@ -235,6 +239,10 @@ LUA
     print -r -- "\`git ${name#alias.}\` is your alias for \`${val#!}\`"
   done > $tmp/git.txt
 }
+
+# navi's generated cheatsheets (tldr + cheat/cheatsheets) follow the same
+# daily refresh
+[[ -x $HOME/.local/bin/navi-cheats-build ]] && $HOME/.local/bin/navi-cheats-build >/dev/null 2>&1
 
 # drop empty sources, then swap the new set in
 for f in $tmp/*.txt(N); do [[ -s $f ]] || rm -f $f; done

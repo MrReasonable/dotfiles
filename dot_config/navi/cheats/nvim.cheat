@@ -1,0 +1,72 @@
+% nvim, neovim, editor
+
+# Open files / a folder
+nvim <files>
+
+# Open at a line
+nvim +<line> <file>
+
+# Open the result of a ripgrep search in the quickfix list
+nvim -q <(rg --vimgrep '<pattern>')
+
+# Diff two files
+nvim -d <file1> <file2>
+
+# Start your Neovim tutorial series
+nvim -c 'Tutor my-00-start'
+
+# Open the practice project
+nvim -c Practice
+
+# Update plugins (headless)
+nvim --headless "+Lazy! sync" +qa
+
+# Install / update language servers and tools (headless)
+nvim --headless "+MasonToolsUpdateSync" +qa
+
+# Check health
+nvim -c checkhealth
+
+# Startup time
+nvim --startuptime /tmp/nvim-startup.log +qa && tail -1 /tmp/nvim-startup.log
+
+# Edit your Neovim config (it's a symlink into chezmoi)
+cd ~/.local/share/chezmoi/nvim && nvim .
+
+% nvim, neovim, ex-commands
+
+# (in Neovim) Plugin manager
+:Lazy
+
+# (in Neovim) Language servers, formatters, linters
+:Mason
+
+# (in Neovim) Language servers attached to this file
+:LspInfo
+
+# (in Neovim) Search and replace in the whole file, confirming each
+:%s/<old>/<new>/gc
+
+# (in Neovim) Run a command on every line matching a pattern
+:g/<pattern>/<command>
+
+# (in Neovim) Delete lines matching a pattern
+:g/<pattern>/d
+
+# (in Neovim) Sort selected lines, removing duplicates
+:'<,'>sort u
+
+# (in Neovim) Replace in every file from the last search (quickfix)
+:cdo s/<old>/<new>/g | update
+
+# (in Neovim) Review all git changes side by side
+:DiffviewOpen
+
+# (in Neovim) Your most common slow habits
+:Hardtime report
+
+# (in Neovim) Toggle the motion-hint line
+:Precognition toggle
+
+# (in Neovim) Your tutorials
+:Tutor my-00-start

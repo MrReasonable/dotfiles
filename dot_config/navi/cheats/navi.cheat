@@ -1,0 +1,18 @@
+% navi, cheatsheets
+
+# Open navi (in zsh, Ctrl-G does this and puts the command on your prompt)
+navi
+
+# Search navi for something, then print the command
+navi --print --query "<query>"
+
+# Edit your own cheatsheets (in chezmoi), then apply
+chezmoi edit --apply ~/.config/navi/cheats/<my_cheat>
+
+# Regenerate the tldr / cheat/cheatsheets conversions
+navi-cheats-build
+
+# Refresh the community cheatsheet repos now
+chezmoi apply --refresh-externals ~/.local/share/navi
+
+$ my_cheat: ls ~/.config/navi/cheats

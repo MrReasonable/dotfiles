@@ -1,0 +1,47 @@
+% tmux, sessions, panes
+
+# Attach to the session "main", or create it (bare `tmux`, OMZ tmux plugin)
+tmux
+
+# List sessions
+tl
+
+# Attach to a named session
+ta <session>
+
+# Create or attach to a named session
+to <name>
+
+# A session for the current directory
+tds
+
+# Kill a session
+tkss <session>
+
+# Rename the current session
+tmux rename-session <name>
+
+# Kill the tmux server (every session)
+tmux kill-server
+
+# Send keys to another pane (e.g. re-run the last command there)
+tmux send-keys -t <pane> 'Up' Enter
+
+# Capture a pane's scrollback to a file
+tmux capture-pane -p -S - -t <pane> > <file>
+
+# Reload the tmux config (or Ctrl-A r)
+tmux source-file ~/.tmux.conf
+
+# Connect to a sesh session (tmux, zoxide dirs) by name
+sesh connect <sesh_target>
+
+# List sesh targets
+sesh list
+
+# Keys: Ctrl-A T sesh picker, Ctrl-A Ctrl-G navi, Ctrl-A - / _ split below / beside, Ctrl-A + zoom, Ctrl-A r reload
+echo "see: tips tmux"
+
+$ session: tmux list-sessions -F '#S'
+$ pane: tmux list-panes -a -F '#S:#I.#P #{pane_current_command}' --- --column 1
+$ sesh_target: sesh list

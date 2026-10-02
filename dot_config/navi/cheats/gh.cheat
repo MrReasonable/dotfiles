@@ -1,0 +1,55 @@
+% gh, github
+
+# Create a pull request (fills title/body from commits)
+gh pr create --fill
+
+# Create a draft pull request
+gh pr create --fill --draft
+
+# List open pull requests
+gh pr list
+
+# Check out a pull request locally
+gh pr checkout <pr>
+
+# View a pull request in the browser
+gh pr view <pr> --web
+
+# Watch a PR's CI checks
+gh pr checks <pr> --watch
+
+# Merge a pull request (squash) and delete its branch
+gh pr merge <pr> --squash --delete-branch
+
+# Review: approve a pull request
+gh pr review <pr> --approve
+
+# Status of PRs relevant to you
+gh pr status
+
+# Recent workflow runs
+gh run list
+
+# Watch a workflow run live
+gh run watch <run>
+
+# Re-run failed jobs of a run
+gh run rerun <run> --failed
+
+# Show a failed run's logs
+gh run view <run> --log-failed
+
+# Create an issue
+gh issue create --title "<title>" --body "<body>"
+
+# Open the repo in the browser
+gh browse
+
+# Clone a repo
+gh repo clone <owner_repo>
+
+# Call the API (e.g. a repo's details)
+gh api repos/<owner_repo>
+
+$ pr: gh pr list --json number,title --jq '.[] | "\(.number)\t\(.title)"' --- --column 1 --delimiter '\t'
+$ run: gh run list --json databaseId,displayTitle,status --jq '.[] | "\(.databaseId)\t\(.status)\t\(.displayTitle)"' --- --column 1 --delimiter '\t'

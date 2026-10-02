@@ -1,0 +1,58 @@
+% macos, mac
+
+# Keep the Mac awake while a command runs
+caffeinate -i <command>
+
+# Keep the Mac awake for N seconds
+caffeinate -d -t <seconds>
+
+# Copy a file's contents to the clipboard
+pbcopy < <file>
+
+# Paste the clipboard to stdout
+pbpaste
+
+# Open a file/folder/URL with its default app (. = Finder here)
+open <path>
+
+# Open with a specific app
+open -a "<app>" <path>
+
+# Reveal a file in Finder
+open -R <path>
+
+# Spotlight search from the terminal
+mdfind -name "<name>"
+
+# Which process is using a port
+lsof -nP -iTCP:<port> -sTCP:LISTEN
+
+# Show / hide hidden files in Finder
+defaults write com.apple.finder AppleShowAllFiles -bool <true_false> && killall Finder
+
+# Is the system in dark mode (prints Dark, or an error in light mode)
+defaults read -g AppleInterfaceStyle
+
+# Flush the DNS cache
+sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder
+
+# List / control background agents (launchd)
+launchctl list | grep -i <text>
+
+# Restart a launchd agent (e.g. com.iandominey.hermes-bridge)
+launchctl kickstart -k gui/$(id -u)/<label>
+
+# Text to speech
+say "<text>"
+
+# Disk usage of the startup disk
+df -h /
+
+# Check fseventsd memory (it leaks after ~2 weeks of uptime)
+ps -o rss=,command= -p $(pgrep fseventsd) | awk '{printf "%.1f GB\n", $1/1048576}'
+
+# Uptime
+uptime
+
+$ true_false: echo -e "true\nfalse"
+$ label: launchctl list | awk 'NR>1 {print $3}' | grep -v '^com.apple'

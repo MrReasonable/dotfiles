@@ -1,0 +1,37 @@
+% jq, json, http, xh, jless, cli
+
+# Pretty-print JSON
+jq . <file>
+
+# Get a field
+jq -r '.<field>' <file>
+
+# Map an array to one field per line
+jq -r '.[].<field>' <file>
+
+# Filter array items
+jq '.[] | select(.<field> == "<value>")' <file>
+
+# Browse JSON/YAML interactively (Space folds, / searches)
+jless <file>
+
+# Browse an API response interactively
+xh <url> | jless
+
+# GET a URL with readable output
+xh <url>
+
+# POST JSON (key=value pairs become a JSON body)
+xh post <url> <key>=<value>
+
+# Send a bearer token
+xh <url> -A bearer -a <token>
+
+# Download a file
+xh --download <url>
+
+# Highlight a log file (dates, levels, IPs)
+tspin <file>
+
+# Follow and highlight a log
+tail -f <file> | tspin

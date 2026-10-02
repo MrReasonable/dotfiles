@@ -1,0 +1,21 @@
+% zi, zsh, plugins
+
+# Update all plugins (parallel)
+zi update --parallel --all
+
+# Update zi itself
+zi self-update
+
+# How long each plugin took to load
+zi times
+
+# Delete a plugin
+zi delete <plugin>
+
+# Clear completion cache, then rebuild completions
+zi cclear && zi compinit
+
+# Plugin report
+zi report <plugin>
+
+$ plugin: ls ~/.zi/plugins | sed 's/---/\//'

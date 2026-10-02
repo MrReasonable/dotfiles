@@ -1,0 +1,45 @@
+% brew, homebrew, macos
+
+# Install a formula / an app (cask)
+brew install <formula>
+
+# Install a macOS app
+brew install --cask <cask>
+
+# Update Homebrew and upgrade everything
+brew update && brew upgrade
+
+# What would be upgraded
+brew outdated
+
+# Uninstall, then remove unused dependencies
+brew uninstall <installed> && brew autoremove
+
+# Formulae you installed yourself (not dependencies)
+brew leaves
+
+# What depends on a formula
+brew uses --installed <installed>
+
+# Info about a formula
+brew info <formula>
+
+# Search formulae and casks
+brew search <text>
+
+# Clean old versions and caches
+brew cleanup
+
+# Diagnose problems
+brew doctor
+
+# Pin a formula at its current version
+brew pin <installed>
+
+# Background services (databases etc.)
+brew services list
+
+# Start / stop a service
+brew services start <installed>
+
+$ installed: brew list --formula

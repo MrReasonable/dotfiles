@@ -1,0 +1,48 @@
+% proto, toolchain, versions
+
+# Install every tool pinned for this folder (and the global ~/.proto/.prototools)
+proto install
+
+# Install a tool at a version or range
+proto install <tool> <version>
+
+# Pin a tool for this folder (writes ./.prototools)
+proto pin <tool> <version>
+
+# Pin a tool globally: edit the chezmoi template instead of `proto pin --global`
+chezmoi edit ~/.proto/.prototools
+
+# Which tools have newer versions
+proto outdated
+
+# Bring range-pinned global tools up to date (what update-all does)
+_proto_update
+
+# Status of the tools configured here
+proto status
+
+# Path of the binary proto would run
+proto bin <tool>
+
+# Versions available for a tool
+proto versions <tool>
+
+# Run a specific version once, without pinning
+proto run <tool> <version> -- <args>
+
+# Uninstall a version
+proto uninstall <tool> <version>
+
+# Remove versions nothing uses any more
+proto clean
+
+# Rebuild shims and bins (after changing a plugin)
+proto regen --bin
+
+# Upgrade proto itself
+proto upgrade
+
+# Diagnose PATH / setup problems
+proto diagnose
+
+$ tool: ls ~/.proto/tools

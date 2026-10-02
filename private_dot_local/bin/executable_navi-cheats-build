@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+"""Generate navi cheatsheets from tldr pages and cheat/cheatsheets.
+
+Writes into ~/.local/share/navi/cheats/ (navi's cheats path):
+  generated__tldr/<tool>.cheat   your tlrc cache's pages, for tools you chose
+                                 (Homebrew leaves, proto tools, zi programs,
+                                 ~/.local/bin and a core set), with tldr's
+                                 {{placeholders}} turned into navi <blanks>
+  generated__cheat/<tool>.cheat  cheat/cheatsheets (a chezmoi external in
+                                 ~/.local/share/navi/sources), for commands
+                                 on your PATH
+
+Re-run any time (also run daily by tips-build). Managed by chezmoi.
+"""
+import json, os, pathlib, re, shutil, subprocess
+
+HOME = pathlib.Path.home()
+OUT = HOME / ".local/share/navi/cheats"
+CHEAT_SRC = HOME / ".local/share/navi/sources/cheat-cheatsheets"
+CORE = """git ssh scp rsync curl wget tar find xargs sed awk grep jq make tmux nvim
+docker kubectl gh ps kill lsof du df top open pbcopy launchctl defaults diskutil
+caffeinate say mdfind networksetup zip unzip gzip openssl ssh-keygen chmod chown
+ln cron crontab dig nc ping traceroute sort uniq cut tr head tail less wc diff
+watch time date env export history alias""".split()
+
+
+def run(cmd):
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=60).stdout
+    except (OSError, subprocess.SubprocessError):
+        return ""
+
+
+def wanted_tools():
+    tools = set(CORE)
+    if shutil.which("brew"):
+        prefix = os.environ.get("HOMEBREW_PREFIX") or run(["brew", "--prefix"]).strip()
+        for leaf in run(["brew", "leaves"]).split():
+            bindir = pathlib.Path(prefix, "opt", leaf.split("/")[-1], "bin")
+            if bindir.is_dir():
+                tools.update(p.name for p in bindir.iterdir())
+    for d in (HOME / ".proto/shims", HOME / ".local/bin"):
+        if d.is_dir():
+            tools.update(p.name for p in d.iterdir())
+    zi = HOME / ".zi/plugins"
+    if zi.is_dir():
+        for p in list(zi.glob("*/*")) + list(zi.glob("*/*/*")):
+            if p.is_file() and os.access(p, os.X_OK):
+                tools.add(p.name)
+    return tools
+
+
+def var_name(text):
+    """{{path/to/file1 path/to/file2 ...}} -> path_to_file1"""
+    first = text.strip().split()[0] if text.strip() else "value"
+    name = re.sub(r"[^A-Za-z0-9]+", "_", first).strip("_").lower() or "value"
+    return name if name[0].isalpha() else "v_" + name
+
+
+OPTION = re.compile(r"\[(-[^|\]\s]+)\|(--[^\]\s]+)\]")  # tldr's [-r|--recursive]
+
+
+def tldr_command(cmd):
+    cmd = OPTION.sub(lambda m: m.group(2), cmd)
+    def repl(m):
+        inner = OPTION.sub(lambda o: o.group(2), m.group(1))
+        if inner.startswith("-") and " " not in inner:  # an option, not a value
+            return inner
+        return f"<{var_name(inner)}>"
+    return re.sub(r"\{\{(.*?)\}\}", repl, cmd)
+
+
+def build_tldr(tools):
+    info = run(["tldr", "--info"])
+    m = re.search(r"Cache: (\S+)", info)
+    if not m:
+        return 0
+    pages = pathlib.Path(m.group(1)) / "pages.en"
+    platforms = ["common", "osx" if os.uname().sysname == "Darwin" else "linux"]
+    out = OUT / "generated__tldr"
+    shutil.rmtree(out, ignore_errors=True); out.mkdir(parents=True)
+    count = 0
+    for plat in platforms:
+        for page in sorted((pages / plat).glob("*.md")):
+            name = page.stem
+            if name not in tools or not shutil.which(name):
+                continue
+            text = page.read_text(errors="replace")
+            if "This command is an alias of" in text:
+                continue
+            summary = next((l[2:].strip() for l in text.splitlines() if l.startswith("> ")), "")
+            entries, desc = [], None
+            for line in text.splitlines():
+                if line.startswith("- "):
+                    desc = line[2:].rstrip(":").strip()
+                elif desc and line.startswith("`") and line.endswith("`"):
+                    if not desc.startswith("View documentation"):
+                        entries.append((desc, tldr_command(line[1:-1])))
+                    desc = None
+            if not entries:
+                continue
+            body = [f"% {name}, tldr", f"; {summary}" if summary else ";", ""]
+            for d, c in entries:
+                body += [f"# {d}", c, ""]
+            (out / f"{name}.cheat").write_text("\n".join(body))
+            count += len(entries)
+    return count
+
+
+def build_cheat():
+    if not CHEAT_SRC.is_dir():
+        return 0
+    out = OUT / "generated__cheat"
+    shutil.rmtree(out, ignore_errors=True); out.mkdir(parents=True)
+    count = 0
+    for sheet in sorted(p for p in CHEAT_SRC.iterdir() if p.is_file() and not p.name.startswith(".")):
+        name = sheet.name
+        if not shutil.which(name):
+            continue
+        lines = sheet.read_text(errors="replace").splitlines()
+        tags = []
+        if lines and lines[0].strip() == "---":  # front matter
+            end = next((i for i in range(1, len(lines)) if lines[i].strip() == "---"), 0)
+            m = re.search(r"tags:\s*\[(.*?)\]", "\n".join(lines[1:end]))
+            if m:
+                tags = [t.strip() for t in m.group(1).split(",") if t.strip()]
+            lines = lines[end + 1:]
+        entries, desc = [], None
+        for line in lines + [""]:
+            s = line.rstrip()
+            if s.startswith("#"):
+                d = s.lstrip("#").strip().rstrip(":")
+                desc = d[3:] if d.lower().startswith("to ") else d
+                desc = desc[:1].upper() + desc[1:] if desc else desc
+            elif not s.strip():
+                desc = None  # a blank line ends the entry
+            elif desc:
+                cmd = s.strip()
+                if cmd.startswith("$ "):
+                    cmd = cmd[2:]
+                if cmd[:1] in "%@$;":  # navi syntax characters
+                    continue
+                entries.append((desc, cmd))
+        if not entries:
+            continue
+        body = [f"% {', '.join([name, 'cheat'] + tags)}", ""]
+        for d, c in entries:
+            body += [f"# {d}", c, ""]
+        (out / f"{name}.cheat").write_text("\n".join(body))
+        count += len(entries)
+    return count
+
+
+if __name__ == "__main__":
+    tools = wanted_tools()
+    t = build_tldr(tools)
+    c = build_cheat()
+    print(f"navi-cheats-build: {t} tldr commands, {c} cheat/cheatsheets commands")

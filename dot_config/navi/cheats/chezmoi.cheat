@@ -1,0 +1,48 @@
+% chezmoi, dotfiles
+
+# See what chezmoi would change
+chezmoi diff
+
+# Apply the dotfiles to this machine
+chezmoi apply
+
+# Pull from GitHub and apply
+chezmoi update
+
+# Edit a managed file in the source (then apply)
+chezmoi edit <managed_file>
+
+# Edit a managed file and apply when you save
+chezmoi edit --apply <managed_file>
+
+# Start managing a file
+chezmoi add <file>
+
+# Copy a live file's edits back into the source (e.g. after p10k configure)
+chezmoi re-add <managed_file>
+
+# Stop managing a file (keeps the file)
+chezmoi forget <managed_file>
+
+# Which managed files differ from the source
+chezmoi status
+
+# List managed files
+chezmoi managed
+
+# Where a file lives in the source
+chezmoi source-path <managed_file>
+
+# Open a shell in the source repo
+chezmoi cd
+
+# Commit and push dotfile changes
+chezmoi git -- add -A && chezmoi git -- commit -m "<message>" && chezmoi git -- push
+
+# Refresh externals (navi cheats, Oh my tmux) now
+chezmoi apply --refresh-externals
+
+# Health check
+chezmoi doctor
+
+$ managed_file: chezmoi managed --include=files --path-style=absolute

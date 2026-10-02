@@ -1,0 +1,46 @@
+% rust, cargo
+
+# New binary / library project
+cargo new <name>
+
+# New library
+cargo new --lib <name>
+
+# Build / run
+cargo run
+
+# Run with arguments
+cargo run -- <args>
+
+# Release build
+cargo build --release
+
+# Check (fast, no binary)
+cargo check
+
+# Lint
+cargo clippy --all-targets -- -D warnings
+
+# Format
+cargo fmt
+
+# Run tests / one test
+cargo test <test_name>
+
+# Add a dependency
+cargo add <crate>
+
+# Update dependencies
+cargo update
+
+# Docs for the project and its dependencies, in the browser
+cargo doc --open
+
+# Install a CLI from crates.io
+cargo install <crate>
+
+# Toolchain in use (proto-pinned via rustup)
+rustup show active-toolchain
+
+# Add a rustup component (e.g. rust-src)
+rustup component add <component>

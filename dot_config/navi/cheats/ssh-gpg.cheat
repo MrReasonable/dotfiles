@@ -1,0 +1,37 @@
+% ssh, gpg, keys, security
+
+# New SSH key (ed25519)
+ssh-keygen -t ed25519 -C "<comment>" -f ~/.ssh/<key_name>
+
+# Copy an SSH public key to a server
+ssh-copy-id -i ~/.ssh/<key_name>.pub <user_host>
+
+# Copy your public key to the clipboard
+pbcopy < ~/.ssh/<key_name>.pub
+
+# Keys loaded in the SSH agent
+ssh-add -l
+
+# Add a key to the agent (with macOS keychain)
+ssh-add --apple-use-keychain ~/.ssh/<key_name>
+
+# Tunnel a remote port to localhost
+ssh -L <local_port>:localhost:<remote_port> <user_host>
+
+# Remote tmux session (attach or create "main")
+ssh -t <user_host> tmux new -A -s main
+
+# GPG keys with secret parts (signing keys)
+gpg --list-secret-keys --keyid-format=long
+
+# Export a public GPG key (e.g. for GitHub)
+gpg --armor --export <gpg_key>
+
+# Restart the GPG agent
+gpgconf --kill gpg-agent
+
+# Test commit signing
+echo test | gpg --clearsign
+
+$ key_name: ls ~/.ssh | grep -v '\.pub$' | grep '^id_'
+$ gpg_key: gpg --list-secret-keys --keyid-format=long | awk '/^sec/ {split($2,a,"/"); print a[2]}'

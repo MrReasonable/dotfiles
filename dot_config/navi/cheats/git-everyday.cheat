@@ -1,0 +1,75 @@
+% git, everyday
+
+# Undo the last commit, keeping its changes staged
+git reset --soft HEAD~1
+
+# Discard all local changes to a file
+git restore <file>
+
+# Unstage a file
+git restore --staged <file>
+
+# Amend the last commit without changing its message
+git commit --amend --no-edit
+
+# Stash including untracked files, with a message
+git stash push -u -m "<message>"
+
+# Apply a stash and drop it
+git stash pop <stash>
+
+# Create a branch from the current one and switch to it
+git switch -c <new_branch>
+
+# Switch to a branch
+git switch <branch>
+
+# Delete a merged local branch
+git branch -d <branch>
+
+# Delete local branches whose remote is gone
+git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs -r git branch -D
+
+# Rebase this branch onto main
+git fetch && git rebase origin/main
+
+# Continue / abort a rebase
+git rebase --continue
+
+# Find the commit that introduced a bug
+git bisect start && git bisect bad && git bisect good <commit>
+
+# Show what changed in a commit
+git show --stat <commit>
+
+# Who changed each line of a file
+git blame -w -C <file>
+
+# Search all commits for a string being added or removed
+git log -S '<text>' --oneline
+
+# Recover a lost commit or branch
+git reflog
+
+# A second working copy of another branch (worktree)
+git worktree add ../<folder> <branch>
+
+# List / remove worktrees
+git worktree list
+
+# Shallow clone
+git clone --depth 1 <url>
+
+# Push a new branch and set upstream (autoSetupRemote is on)
+git push
+
+# Force-push safely
+git push --force-with-lease
+
+# Show files changed between two branches
+git diff --stat <branch>...HEAD
+
+$ branch: git branch -a --format='%(refname:short)' | sed 's#^origin/##' | sort -u
+$ commit: git log --oneline -50 --- --column 1
+$ stash: git stash list --- --column 1 --delimiter ':'
+$ file: git status --short | awk '{print $2}'
