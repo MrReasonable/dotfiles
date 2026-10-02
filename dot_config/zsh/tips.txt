@@ -50,3 +50,5 @@ In tmux, `Ctrl-A Tab` jumps to the last window; `Ctrl-A e` edits the tmux config
 In Neovim, `:Tutor my-00-start` begins your own tutorial series: files, windows, motions, code, fixing, git and Claude.
 In Neovim, `:Practice` opens a fresh practice project (with deliberate mistakes) in a new tab for the `my-*` tutorials.
 Put `layout micromamba` in a project's `.envrc` (then `direnv allow`) and its micromamba env activates whenever you cd in, and deactivates when you leave.
+`Ctrl-G` in zsh opens navi's cheatsheets; pick one, fill in the <blanks>, and the command lands on your prompt.
+In tmux, `Ctrl-A Ctrl-G` opens navi in a split and pastes the chosen command into the pane you were in (works in vim, psql, ssh...).

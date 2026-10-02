@@ -245,6 +245,8 @@ done
 # proto-activate goes first: it puts proto's tools (atuin, delta, ...) on PATH
 # for everything after it.
 # atuin owns Ctrl-R (after fzf's) but not Up, which stays prefix search.
+# navi's own widget owns Ctrl-G (was list-expand): pick a cheatsheet command,
+# fill in its <blanks>, and it lands on the prompt (also see tmux prefix C-g).
 # micromamba (proto-installed) gets its `micromamba activate` shell hook here
 # rather than via `micromamba shell init`, which would write into ~/.zshrc
 # (chezmoi-managed). Not cached: the hook embeds the versioned binary path.
@@ -266,6 +268,8 @@ zi wait lucid light-mode for \
   Aloxaf/fzf-tab \
   hlissner/zsh-autopair \
   has'atuin' id-as'atuin-init' atload'_cached_init atuin init zsh --disable-up-arrow' \
+    z-shell/null \
+  has'navi' id-as'navi-widget' atload'_cached_init navi widget zsh' \
     z-shell/null \
   atload'!_zsh_autosuggest_start' \
     zsh-users/zsh-autosuggestions \
