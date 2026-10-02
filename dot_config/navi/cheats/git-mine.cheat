@@ -1,0 +1,40 @@
+% git, mine
+
+# Syntax-aware diff (difftastic)
+git dft
+
+# Syntax-aware log with diffs
+git dlog
+
+# Syntax-aware show of a commit
+git dshow <commit>
+
+# Fold staged fixes into the commits they belong to, then squash them in
+git absorb --and-rebase
+
+# Create fixup! commits only (squash later with autosquash)
+git absorb
+
+# Squash fixup!/squash! commits into their targets
+git rebase -i --autosquash <base>
+
+# Commit a fixup for a specific commit
+git commit --fixup=<commit>
+
+# Interactive log / add / diff / checkout (forgit)
+git forgit log
+
+# Interactively stage files (forgit)
+git forgit add
+
+# Interactively check out a branch (forgit)
+git forgit checkout_branch
+
+# Open this repo on GitHub (git-open)
+git open
+
+# Full git UI
+lazygit
+
+$ commit: git log --oneline -30 --- --column 1
+$ base: echo -e "main\norigin/main\nHEAD~5"; git branch --format='%(refname:short)'

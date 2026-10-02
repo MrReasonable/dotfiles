@@ -1,0 +1,36 @@
+% claude, claude code, ai
+
+# Start Claude Code in this folder
+claude
+
+# Continue the most recent conversation here
+claude --continue
+
+# Pick a past conversation to resume
+claude --resume
+
+# One-off question, print the answer and exit
+claude -p "<prompt>"
+
+# Pipe something in for Claude to analyse
+<command> | claude -p "<prompt>"
+
+# Use a specific model
+claude --model <model>
+
+# Give Claude access to another folder too
+claude --add-dir <path>
+
+# Start in plan mode (no edits until you approve)
+claude --permission-mode plan
+
+# List / add MCP servers
+claude mcp list
+
+# Health check
+claude doctor
+
+# Update Claude Code now (otherwise it updates in the background)
+claude update
+
+$ model: echo -e "opus\nsonnet\nhaiku"

@@ -1,0 +1,11 @@
+# navi config (managed by chezmoi: dot_config/navi/config.yaml.tmpl).
+finder:
+  command: fzf
+
+cheats:
+  paths:
+    # community repos (chezmoi externals) + generated sheets (navi-cheats-build:
+    # your tldr pages and cheat/cheatsheets, converted)
+    - {{ .chezmoi.homeDir }}/.local/share/navi/cheats
+    # your own, in chezmoi (dot_config/navi/cheats)
+    - {{ .chezmoi.homeDir }}/.config/navi/cheats

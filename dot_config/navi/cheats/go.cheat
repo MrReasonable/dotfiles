@@ -1,0 +1,31 @@
+% go, golang
+
+# New module
+go mod init <module>
+
+# Run / build
+go run .
+
+# Build a binary
+go build -o <binary> .
+
+# Test everything, verbose
+go test ./... -v
+
+# Test with the race detector
+go test -race ./...
+
+# Tidy dependencies
+go mod tidy
+
+# Add a dependency
+go get <module>@latest
+
+# Install a tool
+go install <module>@latest
+
+# Vet and format
+go vet ./... && gofmt -l .
+
+# Docs for a package or symbol
+go doc <package>

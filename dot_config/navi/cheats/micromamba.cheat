@@ -1,0 +1,58 @@
+% micromamba, conda, python, environments
+
+# Create a named environment
+micromamba create -n <name> python=<python_version> <packages>
+
+# Create an environment inside this project (./env), like conda-example
+micromamba create -p ./env python=<python_version> <packages>
+
+# Create an environment from environment.yml
+micromamba create -f environment.yml
+
+# Activate / deactivate an environment
+micromamba activate <env>
+
+# Deactivate the current environment
+micromamba deactivate
+
+# List environments
+micromamba env list
+
+# Install packages into the active environment
+micromamba install <packages>
+
+# Install packages into a named environment
+micromamba install -n <env> <packages>
+
+# Update all packages in an environment
+micromamba update -n <env> --all
+
+# Remove packages
+micromamba remove -n <env> <packages>
+
+# List packages in an environment
+micromamba list -n <env>
+
+# Search conda-forge for a package
+micromamba search <package>
+
+# Export an environment to environment.yml
+micromamba env export -n <env> > environment.yml
+
+# Delete an environment
+micromamba env remove -n <env>
+
+# Run a command in an environment without activating it
+micromamba run -n <env> <command>
+
+# Clean caches (downloaded packages, tarballs)
+micromamba clean --all
+
+# Auto-activate in a project on cd: write .envrc and approve it (./env or environment.yml)
+echo 'layout micromamba' > .envrc && direnv allow
+
+# Auto-activate a named environment in this project on cd
+echo 'layout micromamba <env>' > .envrc && direnv allow
+
+$ env: micromamba env list | awk 'NR>2 && NF {print $1}'
+$ python_version: echo -e "3.13\n3.12\n3.11\n3.14"

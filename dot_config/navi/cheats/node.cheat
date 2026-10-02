@@ -1,0 +1,44 @@
+% node, javascript, typescript, pnpm, npm, bun
+
+# Install dependencies
+pnpm install
+
+# Add a dependency / a dev dependency
+pnpm add <package>
+
+# Add a dev dependency
+pnpm add -D <package>
+
+# Remove a dependency
+pnpm remove <package>
+
+# Run a package.json script
+pnpm run <script>
+
+# Run a package's binary without installing it
+pnpm dlx <package>
+
+# Update dependencies interactively (latest versions)
+pnpm update -i --latest
+
+# Why is a package installed
+pnpm why <package>
+
+# Outdated dependencies
+pnpm outdated
+
+# Run a TypeScript file directly
+bun run <file>
+
+# Type-check a TypeScript project without emitting
+pnpm exec tsc --noEmit
+
+# Pin this project's Node and pnpm versions (writes .prototools)
+proto pin node <node_version> && proto pin pnpm <pnpm_version>
+
+# List globally installed npm packages
+npm ls -g --depth=0
+
+$ script: jq -r '.scripts | keys[]' package.json
+$ node_version: echo -e "~26\n~24\nlts"
+$ pnpm_version: echo -e "~12\n~11"

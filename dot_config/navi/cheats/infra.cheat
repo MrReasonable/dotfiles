@@ -1,0 +1,36 @@
+% terraform, opentofu, infra
+
+# Initialise a working directory
+terraform init
+
+# Plan changes
+terraform plan -out=tfplan
+
+# Apply a saved plan
+terraform apply tfplan
+
+# Format all files
+terraform fmt -recursive
+
+# Validate configuration
+terraform validate
+
+# Show state resources
+terraform state list
+
+# OpenTofu equivalent of plan (same commands, `tofu`)
+tofu plan
+
+% ansible, infra
+
+# Ping all hosts in an inventory
+ansible all -i <inventory> -m ping
+
+# Run a playbook (dry run first)
+ansible-playbook -i <inventory> <playbook> --check --diff
+
+# Run a playbook for real
+ansible-playbook -i <inventory> <playbook>
+
+# Lint a playbook
+ansible-lint <playbook>

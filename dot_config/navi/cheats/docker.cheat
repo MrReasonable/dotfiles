@@ -1,0 +1,40 @@
+% docker, containers, orbstack
+
+# Running containers
+docker ps
+
+# All containers
+docker ps -a
+
+# Logs of a container (follow)
+docker logs -f <container>
+
+# Shell into a running container
+docker exec -it <container> sh
+
+# Run a throwaway container with a shell
+docker run --rm -it <image> sh
+
+# Build an image from the current folder
+docker build -t <tag> .
+
+# Start a compose project in the background
+docker compose up -d
+
+# Follow compose logs
+docker compose logs -f
+
+# Stop and remove a compose project
+docker compose down
+
+# Remove stopped containers, unused images, networks and build cache
+docker system prune
+
+# Disk used by Docker
+docker system df
+
+# OrbStack: list Linux machines
+orb list
+
+$ container: docker ps --format '{{.Names}}'
+$ image: docker images --format '{{.Repository}}:{{.Tag}}' | grep -v 'none:none'

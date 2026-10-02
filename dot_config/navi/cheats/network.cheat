@@ -1,0 +1,31 @@
+% network, ports, http
+
+# Which process is listening on a port
+lsof -nP -iTCP:<port> -sTCP:LISTEN
+
+# Kill whatever is listening on a port
+kill $(lsof -t -iTCP:<port> -sTCP:LISTEN)
+
+# All listening ports
+lsof -nP -iTCP -sTCP:LISTEN
+
+# Response headers only
+curl -sI <url>
+
+# Time a request (DNS, connect, total)
+curl -o /dev/null -s -w 'dns %{time_namelookup}s connect %{time_connect}s total %{time_total}s\n' <url>
+
+# DNS lookup
+dig +short <domain>
+
+# Graph ping times to several hosts
+gping <host1> <host2>
+
+# Bandwidth by process (needs sudo)
+sudo bandwhich
+
+# Public IP address
+curl -s https://ifconfig.me
+
+# Local IP address (Wi-Fi)
+ipconfig getifaddr en0

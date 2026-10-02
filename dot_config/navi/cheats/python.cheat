@@ -1,0 +1,48 @@
+% python, uv, ruff
+
+# New project with uv
+uv init <name>
+
+# Add a dependency
+uv add <package>
+
+# Add a dev dependency
+uv add --dev <package>
+
+# Install the project's dependencies (sync the venv)
+uv sync
+
+# Run a command in the project's environment
+uv run <command>
+
+# Run a script with inline dependencies
+uv run --with <package> <script>
+
+# Run a tool once without installing it (like pipx run)
+uvx <tool>
+
+# Install a CLI tool globally (isolated)
+uv tool install <tool>
+
+# Create a virtualenv in .venv
+uv venv
+
+# Use a specific Python version for this project
+uv python pin <python_version>
+
+# Lint and fix
+ruff check --fix .
+
+# Format
+ruff format .
+
+# Type-check
+basedpyright
+
+# Start a simple HTTP server for this folder
+python3 -m http.server <port>
+
+# Pretty-print JSON
+python3 -m json.tool <file>
+
+$ python_version: echo -e "3.14\n3.13\n3.12"

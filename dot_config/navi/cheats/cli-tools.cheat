@@ -1,0 +1,67 @@
+% cli, tools, dust, hyperfine, watchexec, just
+
+# What's using disk space here (tree)
+dust
+
+# Top level only
+dust -d 1
+
+# Count files instead of size
+dust -f
+
+# Benchmark commands against each other
+hyperfine --warmup 3 '<command1>' '<command2>'
+
+# Benchmark and save a markdown table
+hyperfine --export-markdown bench.md '<command1>'
+
+# Re-run a command when files change
+watchexec -e <extensions> -- <command>
+
+# Restart a long-running command (e.g. a server) on change
+watchexec -r -e <extensions> -- <command>
+
+# List / pick / run just recipes
+just --list
+
+# Pick a recipe interactively
+just --choose
+
+# Run a recipe
+just <recipe>
+
+# Show a recipe's source
+just --show <recipe>
+
+# File manager; quitting leaves the shell in the last folder
+y
+
+# Jump to a frequent directory
+z <query>
+
+# Pick a frequent directory interactively
+zz
+
+# Forget a directory in zoxide
+zoxide remove <path>
+
+# Search shell history (also Ctrl-R)
+atuin search <query>
+
+# Shell usage statistics
+atuin stats
+
+# Long listing with git status, tree view
+lt
+
+# Show a file with syntax highlighting
+bat <file>
+
+# Show hidden characters (tabs, line endings)
+bat -A <file>
+
+# Practical examples for a command
+tldr <command>
+
+$ recipe: just --summary | tr ' ' '\n'
+$ extensions: echo -e "ts,tsx\npy\nrs\ngo\nlua"

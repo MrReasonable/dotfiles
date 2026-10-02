@@ -1,0 +1,48 @@
+% rg, fd, search, cli
+
+# Search for text in this project (respects .gitignore)
+rg '<pattern>'
+
+# Search only in some file types
+rg -t <type> '<pattern>'
+
+# Search including hidden and ignored files
+rg -uu '<pattern>'
+
+# Search a literal string (no regex)
+rg -F '<text>'
+
+# Files containing a match (names only)
+rg -l '<pattern>'
+
+# Count matches per file
+rg -c '<pattern>'
+
+# Show context lines around matches
+rg -C <lines> '<pattern>'
+
+# Find files by name
+fd '<name>'
+
+# Find files by extension
+fd -e <extension>
+
+# Find including hidden/ignored files
+fd -HI '<name>'
+
+# Find and run a command on each result
+fd -e <extension> -x <command> {}
+
+# Find directories only
+fd -t d '<name>'
+
+# Find-and-replace in files (sd: simpler than sed), preview first
+sd -p '<find>' '<replace>' $(rg -l '<find>')
+
+# Find-and-replace in files, for real
+sd '<find>' '<replace>' $(rg -l '<find>')
+
+# Replace a literal string (no regex)
+sd -F '<find>' '<replace>' <file>
+
+$ type: rg --type-list | cut -d: -f1
