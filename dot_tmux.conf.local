@@ -444,6 +444,13 @@ set-hook -g client-light-theme 'run-shell -b "$HOME/.local/bin/appearance tmux-s
 set-hook -g client-dark-theme 'run-shell -b "$HOME/.local/bin/appearance tmux-sync"'
 run-shell -b '$HOME/.local/bin/appearance tmux-sync'
 
+# <prefix> C-g: navi cheatsheets from ANY program in a pane (vim, psql, ssh...):
+# opens navi in a split, then pastes the chosen command into the pane you were
+# in. From navi's docs (docs/widgets/howto/TMUX.md). In zsh, plain Ctrl-G does
+# the same without the split (navi's zsh widget).
+bind-key -N "Open Navi (cheat sheets)" -T prefix C-g split-window \
+  "$SHELL --login -i -c 'navi --print | tmux load-buffer -b tmp - ; tmux paste-buffer -p -t {last} -b tmp -d'"
+
 # <prefix> T: sesh session picker (tmux sessions, zoxide dirs) in an fzf
 # popup; picking one switches to it, or creates it.
 #   ^a all  ^t tmux  ^x zoxide  ^f find dirs  ^d kill tmux session
