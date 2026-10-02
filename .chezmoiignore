@@ -13,3 +13,6 @@ Brewfile.lock.json
 {{- if ne .chezmoi.hostname "G6PYKYXP07"}}
 bin/git-latest-build
 {{- end }}
+
+# Python bytecode caches (e.g. from compile-checking a script)
+**/__pycache__
