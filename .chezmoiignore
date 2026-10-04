@@ -5,6 +5,7 @@ nvim
 .tmux/plugins
 {{ if ne .chezmoi.os "darwin" }}
 Library
+.local/bin/iterm2-default-profile
 Brewfile
 Brewfile.lock.json
 .gnupg/pinentry-auto.sh
