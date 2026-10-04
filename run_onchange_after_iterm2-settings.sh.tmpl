@@ -1,0 +1,15 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/bin/sh
+# iTerm2 settings that live outside its profiles (the profile itself is the
+# dynamic profile in ~/Library/Application Support/iTerm2/DynamicProfiles).
+# chezmoi re-runs this when it changes.
+set -eu
+
+# Don't switch mouse reporting / bracketed paste off when the host changes.
+# Running ssh in a tmux pane counts as a host change, and with these on (the
+# answer once given to iTerm2's "turn it off?" prompt) the mouse stopped
+# working in tmux (scrolling showed iTerm2's own old scrollback, clicks did
+# nothing) until tmux re-enabled it on the next attach.
+defaults write com.googlecode.iterm2 NoSyncTurnOffMouseReportingOnHostChange -bool false
+defaults write com.googlecode.iterm2 NoSyncTurnOffBracketedPasteOnHostChange -bool false
+{{ end -}}
