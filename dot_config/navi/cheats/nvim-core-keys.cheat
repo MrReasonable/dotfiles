@@ -1,0 +1,91 @@
+% nvim, neovim, keymaps, keys, vim
+
+; Built-in Vim keys (no description in your config, so not in the generated
+; keymaps sheet). Lookup only: in Neovim, press the key yourself.
+
+# Jump back to where you were (after gd, a search, a jump)
+Ctrl-O
+
+# Jump forward again
+Ctrl-I
+
+# Change the word under the cursor
+ciw
+
+# Change inside quotes
+ci"
+
+# Delete inside brackets
+di(
+
+# Delete a word and its space
+daw
+
+# Change inside braces
+ci{
+
+# Delete a paragraph
+dap
+
+# Repeat the last change
+.
+
+# Search for the word under the cursor
+*
+
+# Next / previous search match
+n
+
+# Undo / redo
+u
+
+# Redo
+Ctrl-R
+
+# First / last line of the file
+gg
+
+# Last line of the file
+G
+
+# First non-blank / end of line
+^
+
+# End of line
+key $
+
+# Matching bracket
+key %
+
+# Find a character in the line (repeat with ; and ,)
+f
+
+# Select lines / characters / a block (columns)
+V
+
+# Visual block selection
+Ctrl-V
+
+# Reselect the last selection
+gv
+
+# Indent / unindent the selection
+>
+
+# Uppercase the selection
+U
+
+# Jump to the last change
+key `.
+
+# Next / previous changed block in a diff
+]c
+
+# Leave terminal typing mode (Claude, terminals)
+Ctrl-\ Ctrl-N
+
+# Close every other window
+Ctrl-W o
+
+# Make all windows the same size
+Ctrl-W =
