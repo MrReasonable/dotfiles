@@ -40,7 +40,8 @@ if [ "$os" = Darwin ]; then
 else
   say "Installing apt packages (asks for your password)"
   sudo apt-get update -qq
-  sudo apt-get install -y zsh git curl tmux direnv gnupg build-essential unzip python3 procps file
+  # noninteractive: a minimal install (WSL, containers) would stop to ask for a time zone
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y zsh git curl tmux direnv gnupg build-essential unzip python3 procps file
 fi
 
 # --- Homebrew ----------------------------------------------------------------
@@ -57,6 +58,8 @@ if [ -z "$brew_bin" ]; then
   done
 fi
 eval "$("$brew_bin" shellenv)"
+# Homebrew 5 asks "Do you want to proceed?" before each install by default.
+export HOMEBREW_NO_ASK=1
 # On macOS, login shells need brew on PATH before .zshrc runs (.zshrc relies on it).
 if [ "$os" = Darwin ] && ! grep -qs 'brew shellenv' "$HOME/.zprofile"; then
   echo "eval \"\$($brew_bin shellenv)\"" >> "$HOME/.zprofile"
@@ -88,8 +91,9 @@ fi
 
 # --- the dotfiles --------------------------------------------------------------
 if [ -d "$HOME/.local/share/chezmoi/.git" ]; then
+  # No --force: chezmoi asks before overwriting a file you've edited directly.
   say "Dotfiles already here; updating"
-  chezmoi update --force
+  chezmoi update
 else
   say "Applying the dotfiles (asks for your name, GitHub details and GPG key ID)"
   chezmoi init --apply "$REPO" "$@"

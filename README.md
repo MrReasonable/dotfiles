@@ -8,6 +8,26 @@ everywhere, Storm in dark mode and Day in light, following the OS appearance.
 Supported: **macOS**, **Linux** (Ubuntu/Debian; other distros need the
 equivalent packages) and **Windows via WSL2**.
 
+## Quick start
+
+On macOS, Linux (Debian/Ubuntu) or inside WSL2's Ubuntu on Windows:
+
+```sh
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/MrReasonable/dotfiles/main/install.sh)"
+```
+
+[`install.sh`](install.sh) does the steps below for you: system packages,
+Homebrew, Rust's installer, chezmoi and the dotfiles, zsh as your login shell,
+and (macOS) iTerm2 with TokyoNight as its default profile. It asks for your
+password, then chezmoi's questions (name, GitHub username and email, GPG key
+ID). Your SSH and GPG keys aren't automated: it checks for them and lists
+anything left to do at the end. Re-running it is safe; it updates instead.
+
+On Windows, first do [Windows steps 1–3](#windows-wsl2) (WSL, Windows Terminal,
+font), then run the line above inside Ubuntu.
+
+The rest of this README is the same thing step by step.
+
 - [What you get](#what-you-get)
 - [macOS](#macos)
 - [Linux](#linux)
@@ -82,8 +102,8 @@ equivalent packages) and **Windows via WSL2**.
    writes the files and runs the install scripts: Homebrew formulas, proto
    and every pinned tool, the Rust toolchain, and the iTerm2 settings.
 
-6. **iTerm2**: open it and, in **Settings → Profiles**, select
-   **TokyoNight**, then **Other Actions… → Set as Default**.
+6. **iTerm2**: TokyoNight becomes the default profile on `chezmoi apply`
+   (only while iTerm2 is closed; if it was open, quit it and apply again).
 
    - The double-tap-Ctrl hotkey window needs iTerm2 allowed in **System
      Settings → Privacy & Security → Accessibility** (it asks).

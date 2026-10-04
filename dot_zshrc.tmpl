@@ -478,13 +478,18 @@ _proto_update() {
   _proto_outdated_warn
 }
 
+# zi runs plugins' update hooks inside this shell, so a hook's `cp` picks up
+# common-aliases' interactive `cp -i` (and mv/rm) and stops at an "overwrite?"
+# question nobody can answer. Update in a subshell without those aliases.
+_zi_update() { ( unalias cp mv rm 2>/dev/null; zi update -p -a ) }
+
 {{- if eq .chezmoi.os "darwin" }}
-alias update-all="chezmoi update && chezmoi apply && brew update && brew upgrade && brew cleanup && zi cclear && zi update -p -a && zi cclear && zi compinit; _proto_update"
+alias update-all="chezmoi update && chezmoi apply && brew update && brew upgrade && brew cleanup && zi cclear && _zi_update && zi cclear && zi compinit; _proto_update"
 {{- else }}
 alias update-all="chezmoi update && chezmoi apply && which apt-get > /dev/null && sudo apt-get update && sudo apt-get dist-upgrade && sudo apt-get --purge autoremove; \
 which flatpak > /dev/null && flatpak update -y && sudo flatpak update -y;  \
 which snap > /dev/null && sudo snap refresh;\
-zi cclear && zi update -p -a && zi cclear && zi compinit; _proto_update"
+zi cclear && _zi_update && zi cclear && zi compinit; _proto_update"
 {{- end }}
 
 # fzf-tab draws the completion list, so zsh's own menu stays off.
