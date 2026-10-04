@@ -3,6 +3,8 @@
 # updates land straight in this repo.
 nvim
 .tmux/plugins
+# This repo's own docs
+README.md
 {{ if ne .chezmoi.os "darwin" }}
 Library
 .local/bin/iterm2-default-profile
