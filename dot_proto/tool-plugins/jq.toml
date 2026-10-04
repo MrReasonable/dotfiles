@@ -1,0 +1,30 @@
+# proto TOML plugin: jqlang/jq GitHub release binaries (single binary).
+# Registered in ~/.proto/.prototools [plugins] on Linux only (macOS ships
+# /usr/bin/jq); update-all's proto checks need it. Managed by chezmoi.
+#
+# Downloads the raw binary; sha256sum.txt lists every release file's hash.
+# Tags look like "jq-1.8.2".
+name = "jq"
+type = "cli"
+
+[platform.linux]
+download-file = "jq-linux-{arch}"
+checksum-file = "sha256sum.txt"
+exe-path = "jq"
+
+[platform.macos]
+download-file = "jq-macos-{arch}"
+checksum-file = "sha256sum.txt"
+exe-path = "jq"
+
+[install]
+download-url = "https://github.com/jqlang/jq/releases/download/jq-{version}/{download_file}"
+checksum-url = "https://github.com/jqlang/jq/releases/download/jq-{version}/{checksum_file}"
+
+[install.arch]
+aarch64 = "arm64"
+x86_64 = "amd64"
+
+[resolve]
+git-url = "https://github.com/jqlang/jq"
+version-pattern = '^jq-((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'

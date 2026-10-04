@@ -41,6 +41,8 @@ yazi = "26.9.1"
 # from Homebrew.
 btop = "1.4.7"
 git-absorb = "0.9.0"
+# macOS ships /usr/bin/jq; Linux boxes often don't, and update-all needs it
+jq = "~1"
 {{- end }}
 
 [plugins]
@@ -63,4 +65,5 @@ xh = "file://./tool-plugins/xh.toml"
 {{- if ne .chezmoi.os "darwin" }}
 btop = "file://./tool-plugins/btop.toml"
 git-absorb = "file://./tool-plugins/git-absorb.toml"
+jq = "file://./tool-plugins/jq.toml"
 {{- end }}

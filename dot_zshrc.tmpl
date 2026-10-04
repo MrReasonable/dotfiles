@@ -438,6 +438,17 @@ _proto_outdated_warn() {
 # --update` rewrites ranges to exact versions, so install each spec explicitly.
 _proto_update() {
   (( $+commands[proto] )) || return 0
+  # proto itself: the copy in ~/.proto/bin (first on PATH, even on macOS
+  # where Homebrew installs one too) only changes with `proto upgrade`.
+  if [[ ${commands[proto]} == $HOME/.proto/bin/proto ]]; then
+    ( builtin cd ~/.proto && proto upgrade ) || print -P "%F{red}proto: self-upgrade failed%f"
+  fi
+  # jq comes from proto on Linux (macOS has /usr/bin/jq); a box set up before
+  # it was added gets it here.
+  if (( ! $+commands[jq] )); then
+    ( builtin cd ~/.proto && proto install jq >/dev/null 2>&1 )
+    rehash
+  fi
   if (( $+commands[jq] )); then
     (
       builtin cd ~/.proto || exit
