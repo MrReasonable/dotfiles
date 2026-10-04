@@ -4,8 +4,9 @@
 #
 #   bash -c "$(curl -fsSL https://raw.githubusercontent.com/MrReasonable/dotfiles/main/install.sh)"
 #
-# Any arguments are passed to `chezmoi init`, e.g. to answer its prompts
-# without asking:  --promptString name=...,github_username=...
+# Any arguments are passed to `chezmoi init`, e.g. to answer its questions
+# without asking (keys are the questions as chezmoi asks them):
+#   --promptString "Name=...,Github Username=...,Github email address=...,GPG Signing Key=..."
 #
 # It doesn't create SSH or GPG keys (they're secrets); it checks for them and
 # says what's missing at the end. See README.md for the manual steps.
@@ -90,7 +91,9 @@ if ! gpg --list-secret-keys --with-colons 2>/dev/null | grep -q '^sec'; then
 fi
 
 # --- the dotfiles --------------------------------------------------------------
-if [ -d "$HOME/.local/share/chezmoi/.git" ]; then
+# Update only once chezmoi has its config (written by init from your answers); a
+# run that stopped after cloning but before that just runs init again.
+if [ -f "${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi/chezmoi.toml" ]; then
   # No --force: chezmoi asks before overwriting a file you've edited directly.
   say "Dotfiles already here; updating"
   chezmoi update
