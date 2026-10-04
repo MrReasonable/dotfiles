@@ -389,7 +389,10 @@
       "HotKey Window AutoHides": true,
       "HotKey Window Dock Click Action": 0,
       "HotKey Window Floats": true,
-      "HotKey Window Reopens On Activation": false
+      "HotKey Window Reopens On Activation": false,
+      "Window Type": 0,
+      "Width Percentage": 30,
+      "Height Percentage": 96
     }
   ]
 }
