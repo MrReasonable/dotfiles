@@ -16,6 +16,11 @@ defaults write com.googlecode.iterm2 NoSyncTurnOffBracketedPasteOnHostChange -bo
 # The TokyoNight dynamic profile inherits from a plain "Default" profile;
 # recreate it if it's missing. Only possible while iTerm2 is closed.
 # helper: {{ include "private_dot_local/bin/executable_iterm2-default-profile" | sha256sum }}
-"$HOME/.local/bin/iterm2-default-profile" ||
-  echo "Run 'iterm2-default-profile --wait &' and quit iTerm2 to finish." >&2
+if "$HOME/.local/bin/iterm2-default-profile"; then
+  # ...and make TokyoNight the profile new windows use (same constraint).
+  defaults write com.googlecode.iterm2 "Default Bookmark Guid" -string \
+    {{ (index (include "private_Library/private_Application Support/iTerm2/DynamicProfiles/tokyonight.json" | fromJson).Profiles 0).Guid | quote }}
+else
+  echo "Quit iTerm2 and run 'chezmoi apply' again to finish its setup (or 'iterm2-default-profile --wait &', then quit)." >&2
+fi
 {{ end -}}
