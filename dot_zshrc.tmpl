@@ -126,6 +126,10 @@ if [[ ! -f $HOME/.local/bin/mise ]]; then
  curl https://mise.run | sh
 fi
 eval "$(~/.local/bin/mise activate zsh)"
+# proto's tools on PATH from the start, as its installer would set up. `proto
+# activate` (turbo, below) adds these too, but only after zi's has'…' checks
+# for tools like atuin and carapace have already run and skipped them.
+[[ -d $HOME/.proto ]] && path=($HOME/.proto/shims $HOME/.proto/bin $path)
 if (( $+commands[proto] )); then
   # `proto activate` prints static glue (hook functions); cache it per binary.
   _proto_glue=${XDG_CACHE_HOME:-$HOME/.cache}/zsh/proto-activate.zsh

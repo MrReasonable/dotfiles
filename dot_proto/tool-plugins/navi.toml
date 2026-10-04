@@ -1,0 +1,22 @@
+# proto TOML plugin: denisidoro/navi GitHub release binaries (interactive
+# cheatsheets). Registered in ~/.proto/.prototools [plugins] on Linux only;
+# macOS gets navi from Homebrew (no macOS release binaries). Managed by chezmoi.
+# No published checksums (pin exactly). Linux x86_64 only: the arm64 build is
+# glibc-linked and named differently.
+name = "navi"
+type = "cli"
+
+[platform.linux]
+archs = ["x86_64"]
+download-file = "navi-v{version}-{arch}-unknown-linux-musl.tar.gz"
+exe-path = "navi"
+
+[install]
+download-url = "https://github.com/denisidoro/navi/releases/download/v{version}/{download_file}"
+
+[install.arch]
+x86_64 = "x86_64"
+
+[resolve]
+git-url = "https://github.com/denisidoro/navi"
+version-pattern = '^v((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'

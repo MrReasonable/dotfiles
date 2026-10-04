@@ -43,6 +43,8 @@ btop = "1.4.7"
 git-absorb = "0.9.0"
 # macOS ships /usr/bin/jq; Linux boxes often don't, and update-all needs it
 jq = "~1"
+# navi has no macOS release binaries; macOS gets it from Homebrew
+navi = "2.24.0"
 {{- end }}
 
 [plugins]
@@ -66,4 +68,5 @@ xh = "file://./tool-plugins/xh.toml"
 btop = "file://./tool-plugins/btop.toml"
 git-absorb = "file://./tool-plugins/git-absorb.toml"
 jq = "file://./tool-plugins/jq.toml"
+navi = "file://./tool-plugins/navi.toml"
 {{- end }}
