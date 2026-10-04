@@ -429,8 +429,8 @@ bind C-a send-prefix
 # if you don't want Oh my tmux! to alter a binding or a setting, use #!important
 # bind c new-window -c '#{pane_current_path}' #!important
 
-# display a message after toggling mouse support
-bind m run "cut -c3- '#{TMUX_CONF}' | sh -s _toggle_mouse" \; display 'mouse #{?#{mouse},on,off}'
+# <prefix> m toggles mouse mode and says which: Oh my tmux's own binding (an
+# older override here called a _toggle_mouse helper it no longer has).
 
 # move status line to top
 #set -g status-position top
