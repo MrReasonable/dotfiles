@@ -376,7 +376,20 @@
       "Use Separate Colors for Light and Dark Mode": true,
       "Mouse Reporting": true,
       "Mouse Reporting allow mouse wheel": true,
-      "Mouse Reporting allow clicks and drags": true
+      "Mouse Reporting allow clicks and drags": true,
+      "Has Hotkey": true,
+      "HotKey Activated By Modifier": true,
+      "HotKey Modifier Activation": 0,
+      "HotKey Alternate Shortcuts": [],
+      "HotKey Characters": "",
+      "HotKey Characters Ignoring Modifiers": "",
+      "HotKey Key Code": 0,
+      "HotKey Modifier Flags": 0,
+      "HotKey Window Animates": true,
+      "HotKey Window AutoHides": true,
+      "HotKey Window Dock Click Action": 0,
+      "HotKey Window Floats": true,
+      "HotKey Window Reopens On Activation": false
     }
   ]
 }
