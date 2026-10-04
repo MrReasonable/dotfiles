@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+"""Make sure iTerm2 has a plain "Default" profile.
+
+The TokyoNight dynamic profile (~/Library/Application Support/iTerm2/
+DynamicProfiles/tokyonight.json) inherits every setting it doesn't set from
+its parent profile, "Default". If that profile is deleted, the inheritance
+breaks and those settings (mouse reporting, for one) become unpredictable.
+
+This adds a "Default" profile holding nothing but a name and GUID, so every
+setting is iTerm2's own built-in default. TokyoNight stays the profile new
+windows use.
+
+iTerm2 rewrites its preferences while running, so this only edits them while
+it's closed:
+  iterm2-default-profile          add it now if iTerm2 isn't running
+  iterm2-default-profile --wait   wait for iTerm2 to quit, add it, reopen
+                                  iTerm2 (run in the background, then Cmd-Q)
+Managed by chezmoi; run by its iTerm2 settings script.
+"""
+import plistlib, subprocess, sys, time, uuid
+
+DOMAIN = "com.googlecode.iterm2"
+
+
+def running():
+    return subprocess.run(["pgrep", "-x", "iTerm2"], capture_output=True).returncode == 0
+
+
+def ensure_default():
+    raw = subprocess.run(["defaults", "export", DOMAIN, "-"], capture_output=True, check=True).stdout
+    prefs = plistlib.loads(raw)
+    profiles = prefs.setdefault("New Bookmarks", [])
+    if any(p.get("Name") == "Default" and not p.get("Is Dynamic Profile") for p in profiles):
+        print("iTerm2 already has a Default profile")
+        return
+    profiles.append({"Name": "Default", "Guid": str(uuid.uuid4()).upper()})
+    subprocess.run(["defaults", "import", DOMAIN, "-"], input=plistlib.dumps(prefs), check=True)
+    print("Added iTerm2's Default profile (built-in settings)")
+
+
+if __name__ == "__main__":
+    wait = "--wait" in sys.argv[1:]
+    if running():
+        if not wait:
+            print("iTerm2 is running; quit it and re-run (or use --wait)", file=sys.stderr)
+            sys.exit(1)
+        while running():
+            time.sleep(1)
+        time.sleep(2)  # let it finish writing its preferences
+        ensure_default()
+        subprocess.run(["open", "-a", "iTerm"])
+    else:
+        ensure_default()

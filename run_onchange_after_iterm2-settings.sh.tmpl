@@ -12,4 +12,10 @@ set -eu
 # nothing) until tmux re-enabled it on the next attach.
 defaults write com.googlecode.iterm2 NoSyncTurnOffMouseReportingOnHostChange -bool false
 defaults write com.googlecode.iterm2 NoSyncTurnOffBracketedPasteOnHostChange -bool false
+
+# The TokyoNight dynamic profile inherits from a plain "Default" profile;
+# recreate it if it's missing. Only possible while iTerm2 is closed.
+# helper: {{ include "private_dot_local/bin/executable_iterm2-default-profile" | sha256sum }}
+"$HOME/.local/bin/iterm2-default-profile" ||
+  echo "Run 'iterm2-default-profile --wait &' and quit iTerm2 to finish." >&2
 {{ end -}}

@@ -324,6 +324,7 @@
         "Red Component": 0.2156862745098039
       },
       "Guid": "71FD1FB4-494A-55BA-BAD6-40C86CACEB3F",
+      "Dynamic Profile Parent Name": "Default",
       "Link Color (Dark)": {
         "Alpha Component": 1.0,
         "Blue Component": 0.792156862745098,
