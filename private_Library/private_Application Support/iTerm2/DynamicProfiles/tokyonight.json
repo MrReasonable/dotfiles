@@ -372,7 +372,10 @@
         "Red Component": 0.7176470588235294
       },
       "Transparency": 0.08,
-      "Use Separate Colors for Light and Dark Mode": true
+      "Use Separate Colors for Light and Dark Mode": true,
+      "Mouse Reporting": true,
+      "Mouse Reporting allow mouse wheel": true,
+      "Mouse Reporting allow clicks and drags": true
     }
   ]
 }
