@@ -30,12 +30,15 @@ From any picker, `<C-v>`{normal} / `<C-s>`{normal} open the result straight into
 
 These are the same keys whether the next window is a Neovim split OR a tmux
 pane: at the edge of Neovim's splits, `<C-l>`{normal} carries on into the tmux
-pane to the right (smart-splits). From a plain shell pane, use tmux's
-`Ctrl-A` then `h`/`j`/`k`/`l` to come back.
+pane to the right (smart-splits). The same keys work from a plain shell pane
+too, back into Neovim. In a shell they only fall through to their usual job
+when there's no pane that way: `Ctrl-L` clears the screen in the right-most
+pane, `Ctrl-K` deletes to end of line in the top one.
 
  1. Make three splits (`|`{normal} then `\`{normal}) and walk around them with `<C-h>`{normal}/`<C-l>`{normal}/`<C-j>`{normal}/`<C-k>`{normal}.
  2. Widen one with `<C-Right>`{normal} a few times, then even them out with `<C-w>=`{normal}.
- 3. If tmux has a pane beside Neovim, keep pressing `<C-l>`{normal} and you'll cross into it.
+ 3. If tmux has a pane beside Neovim, keep pressing `<C-l>`{normal} and you'll cross into it;
+    `Ctrl-H` in the shell brings you back.
 
 # 2.3 Tab pages
 

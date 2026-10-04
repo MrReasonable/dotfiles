@@ -573,3 +573,21 @@ set -g @plugin 'tmux-plugins/tmux-continuum'
 # "$@"
 # # /!\ do not remove the previous line
 # #     do not write below this line
+
+# Ctrl-h/j/k/l: one set of keys to move between Neovim splits AND tmux panes
+# (Neovim's side is smart-splits.nvim, which marks its pane with @pane-is-vim
+# and hands over to tmux at its edge). In other panes they move to the
+# neighbouring pane; with no pane in that direction, or in fzf/navi (which use
+# ^j/^k for up/down), the key goes to the program as usual, so in a shell
+# ^l still clears the screen (and, as Oh my tmux does, the scrollback) when
+# there's nothing to the right, and ^k still deletes to the end of the line
+# when there's nothing above.
+%hidden pass_keys="#{||:#{==:#{@pane-is-vim},1},#{m/r:^(n?vim|fzf|navi)$,#{pane_current_command}}}"
+bind -n C-h if -F "#{||:$pass_keys,#{pane_at_left}}" "send-keys C-h" "select-pane -L" #!important
+bind -n C-j if -F "#{||:$pass_keys,#{pane_at_bottom}}" "send-keys C-j" "select-pane -D" #!important
+bind -n C-k if -F "#{||:$pass_keys,#{pane_at_top}}" "send-keys C-k" "select-pane -U" #!important
+bind -n C-l if -F "#{||:$pass_keys,#{pane_at_right}}" "if -F '$pass_keys' 'send-keys C-l' 'send-keys C-l ; run \"sleep 0.2\" ; clear-history'" "select-pane -R" #!important
+bind -T copy-mode-vi C-h select-pane -L
+bind -T copy-mode-vi C-j select-pane -D
+bind -T copy-mode-vi C-k select-pane -U
+bind -T copy-mode-vi C-l select-pane -R

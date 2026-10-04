@@ -1,0 +1,144 @@
+# Lesson 8: Editing power tools
+
+Lesson 3 covered motions and text objects. This one adds the tools that make
+everyday edits shorter: wrapping things in quotes and brackets, more text
+objects, splitting and joining lists, find and replace across the project,
+editing folders as text, and getting back anything you've undone.
+
+The exercise lines in this lesson are checked: ✗ until the line is right, ✓
+after. Mess one up? `u`{normal} undoes.
+
+# 8.1 Surround: add, change, delete
+
+  `ys`{normal}{motion}{char}   add          `ysiw"`{normal} wraps the word in "quotes"
+  `yss`{normal}{char}          add around the whole line
+  `cs`{normal}{old}{new}       change       `cs'"`{normal} turns 'this' into "this"
+  `ds`{normal}{char}           delete       `ds(`{normal} removes the brackets round the cursor
+  `gs`{normal}{char}           in visual mode, wrap the selection
+
+The cursor can be anywhere inside. For {char}, `q`{normal} means "whichever quotes" and
+`b`{normal} "whichever brackets", and `t`{normal} is an HTML/JSX tag (it asks for the name).
+`(`{normal} adds spaces inside, `)`{normal} doesn't: `ysiw)`{normal} gives (word).
+
+Put quotes round alice (cursor on alice, `ysiw"`{normal}):
+const name = alice;
+
+Make the single quotes double (cursor inside them, `cs'"`{normal}):
+import { addMoney } from './money';
+
+Drop the needless brackets (cursor inside them, `ds(`{normal}):
+const n = (count);
+
+Turn the brackets into square ones (`csb]`{normal}):
+const ids = (1, 2, 3);
+
+# 8.2 More text objects
+
+Lesson 3's `i"`{normal} and `i(`{normal} need you to say WHICH quote or bracket. These don't:
+
+  `iq`{normal} / `aq`{normal}   inside / around the nearest quotes: "", '' or ``
+  `ib`{normal} / `ab`{normal}   inside / around the nearest brackets: (), [] or {}
+
+And the Treesitter ones, which understand the code:
+
+  `if`{normal} / `af`{normal}   inside / around the function you're in
+  `ia`{normal} / `aa`{normal}   inside / around an argument (`aa`{normal} takes the comma too)
+  `ik`{normal} / `ak`{normal}   inside / around a block
+
+Add `n`{normal} for the NEXT one and `l`{normal} for the LAST (previous) one, so you don't even
+need to move there first: `cinq`{normal} changes inside the next quotes.
+
+Change the text in the backticks to hi (`ciq`{normal} with the cursor inside):
+greet(`good morning`)
+
+From the START of the line, change "old" to "new" in one go (`0`{normal} then `cinq`{normal}):
+const label = "old";
+
+Delete the middle argument and its comma (cursor on 2, `daa`{normal}):
+price(a, 2, "GBP")
+
+`daa`{normal}, `cia`{normal} and `vaf`{normal} are worth making habits in TypeScript: reorder or
+remove arguments, or select a whole function to send to Claude (`<Space>As`{normal}).
+
+# 8.3 Split and join
+
+  `<Space>m`{normal}   toggle between one line and one item per line, for the object,
+              array, argument list or JSX props under the cursor (treesj)
+
+Try it on this line, twice (there's nothing to check here):
+
+    const item = { sku: "TEA-1", qty: 2, price: { pence: 350, currency: "GBP" } };
+
+With the cursor on `sku` it splits the outer object; on `pence` only the inner
+one. It works the same in Rust, Python, Go, Lua and JSON.
+
+# 8.4 Find and replace across the project
+
+  `<Space>ss`{normal}   search and replace in the whole project (grug-far)
+  `<Space>sw`{normal}   the same, starting with the word under the cursor
+  `<Space>sf`{normal}   only in the current file
+
+It opens a buffer with Search, Replace and Files fields at the top; results
+appear live as you type, with the change previewed. Normal Vim editing works
+in every field. In that buffer (`,`{normal} is your local leader):
+
+  `,r`{normal}  replace everywhere   `g?`{normal}  all its keys   `,c`{normal}  close
+  edit a result line and `,s`{normal} writes just those edits back to the files
+
+ 1. `:Practice`{vim}, then on `formatMoney` in src/index.ts press `<Space>sw`{normal}.
+ 2. In Replace, type formatPrice. Look at the preview: index.ts and money.ts.
+ 3. `,r`{normal} to do it, then `,c`{normal}. Language-server rename (`<Space>lr`{normal}, lesson 5) is
+    better for a symbol; grug-far is for text, comments, strings, configs and
+    regexes (it's ripgrep underneath; try `--fixed-strings` in the Flags field
+    when the search has special characters).
+
+# 8.5 Edit a folder like a text file
+
+  `<Space>O`{normal}   open the current file's folder in Oil
+  `-`{normal}          (in Oil) go up a folder     `<CR>`{normal} open a file or folder
+  `g?`{normal}         all of Oil's keys
+
+Each line is a file. Rename one by editing its line, delete with `dd`{normal}, move
+with `dd`{normal} and `p`{normal} in another folder, create with `o`{normal} and a name (end it with /
+for a folder). Nothing happens until `:w`{vim}, which shows what it will do and
+asks to confirm.
+
+ 1. In the practice project, `<Space>O`{normal} from src/cart.ts.
+ 2. Rename money.ts to currency.ts by editing the line (`ciw`{normal} on money), `:w`{vim}, `y`.
+    The language server updates the imports (check index.ts).
+ 3. `u`{normal} works in Oil too: rename it back the same way.
+
+The explorer (`<Space>e`{normal}) is still best for seeing the tree; Oil is best for
+doing several file operations at once.
+
+# 8.6 The undo tree
+
+Vim never throws undo history away: if you undo, then type something new, the
+old changes are on another branch, not gone. `<Space>fu`{normal} shows the tree.
+
+  `<Space>fu`{normal}  open the undo tree    `j`{normal}/`k`{normal} move through it, with a diff below
+  `<CR>`{normal}       go back to that state  `q`{normal} close
+
+ 1. Change this line to "first", undo, then change it to "second" (both with `ciw`{normal}):
+
+    word
+
+ 2. Plain `u`{normal} can't get "first" back now. `<Space>fu`{normal} can: pick that state.
+
+# 8.7 Small helpers you'll just notice
+
+  TypeScript errors are rewritten in plain English (ts-error-translator); hover
+  them with `gl`{normal} as usual.
+  Markdown shows headings, tables, checkboxes and code formatted in the buffer;
+  the raw text appears on the line you're editing.
+  SQL files: `:SqlsExecuteQuery`{vim} runs the query under the cursor once a
+  connection is set up (sqls config in the project).
+
+# Recap
+
+  surround   `ysiw"`  `cs'"`  `ds(`  `csb]`  visual `gs`
+  objects    `iq` `ib`  `if` `ia` `ik`   next `in…`  last `il…`
+  split/join `<Space>m`    find/replace `<Space>ss` `<Space>sw`
+  Oil `<Space>O`    undo tree `<Space>fu`
+
+Search any of these with navi (`Ctrl-G` in the shell): try "surround".

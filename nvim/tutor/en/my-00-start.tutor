@@ -11,6 +11,8 @@ config. Do the lessons in order, one a day is a good pace:
     `:Tutor my-05-fixing`{vim}     errors, quick fixes, rename, format, problems list
     `:Tutor my-06-git-tasks`{vim}  lazygit, hunks, diffs, tasks and tests
     `:Tutor my-07-claude`{vim}     Claude Code inside Neovim
+    `:Tutor my-08-editing`{vim}    surround, more text objects, split/join, project
+                                 find & replace, Oil, undo tree
 
 Before the core ones, do Neovim's own two lessons if you haven't:
 `:Tutor vim-01-beginner`{vim} and `:Tutor vim-02-beginner`{vim}.

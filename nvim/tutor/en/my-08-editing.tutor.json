@@ -1,0 +1,11 @@
+{
+  "expect": {
+    "24": "const name = \"alice\";",
+    "27": "import { addMoney } from \"./money\";",
+    "30": "const n = count;",
+    "33": "const ids = [1, 2, 3];",
+    "52": "greet(`hi`)",
+    "55": "const label = \"new\";",
+    "58": "price(a, \"GBP\")"
+  }
+}

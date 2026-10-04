@@ -67,6 +67,8 @@ block before sending it: press `S`{normal}, then the label on the block you want
   send selection  `<Space>As`   add file  `<Space>Ab`
   accept  `<Space>Aa`   reject  `<Space>Ad`   resume  `<Space>Ar`   continue  `<Space>AC`
 
-That's the series. Run any lesson again with `:Tutor my-`{vim} and `<Tab>`{normal}.
+Next: `:Tutor my-08-editing`{vim}, the editing power tools.
+
+Run any lesson again with `:Tutor my-`{vim} and `<Tab>`{normal}.
 Keep `:Hardtime report`{vim} and `tips nvim` going, and in a couple of weeks
 none of this will need thinking about.

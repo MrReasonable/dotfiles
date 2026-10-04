@@ -1,0 +1,4 @@
+# sqlfluff's defaults for any SQL file whose project has no .sqlfluff of its
+# own (a project's file takes priority). Used by Neovim's SQL linting.
+[sqlfluff]
+dialect = postgres

@@ -89,3 +89,54 @@ Ctrl-W o
 
 # Make all windows the same size
 Ctrl-W =
+
+# Change inside the nearest quotes of any kind (mini.ai)
+ciq
+
+# Change inside the nearest brackets of any kind (mini.ai)
+cib
+
+# Change inside the NEXT quotes on the line (mini.ai)
+cinq
+
+# Change inside the LAST/previous brackets (mini.ai)
+cilb
+
+# Delete a function argument and its comma (Treesitter)
+daa
+
+# Change inside the function body (Treesitter)
+cif
+
+# Select the whole function (Treesitter)
+vaf
+
+# Surround the word with quotes (nvim-surround)
+ysiw"
+
+# Surround the whole line with brackets (nvim-surround)
+yss)
+
+# Change surrounding single quotes to double (nvim-surround)
+cs'"
+
+# Change surrounding brackets to square ones (nvim-surround)
+csb]
+
+# Delete surrounding brackets (nvim-surround)
+ds(
+
+# Delete surrounding quotes of any kind (nvim-surround)
+dsq
+
+# Wrap the visual selection in a tag (nvim-surround, visual mode)
+gst
+
+# In Oil: go up a folder (edit lines to rename/delete/move files, then :w)
+-
+
+# In grug-far (find and replace): replace everywhere
+,r
+
+# In grug-far: write your edits to result lines back to the files
+,s
