@@ -37,8 +37,9 @@ direnv = "2.37.1"
 dust = "1.2.6"
 hyperfine = "1.21.0"
 {{- if or (eq .chezmoi.os "darwin") (eq .chezmoi.arch "amd64") }}
-# jless has no ARM Linux build.
-jless = "0.9.0"
+# jless has no ARM Linux build; it's compiled with cargo there instead (the
+# install script). Version shared via .chezmoidata.toml.
+jless = {{ .pins.jless | quote }}
 {{- end }}
 sd = "1.1.0"
 tailspin = "7.0.0"
@@ -50,8 +51,8 @@ yazi = "26.9.1"
 # from Homebrew.
 btop = "1.4.7"
 {{- if eq .chezmoi.arch "amd64" }}
-# git-absorb has no ARM Linux build (Debian/Ubuntu package it: apt install git-absorb).
-git-absorb = "0.9.0"
+# git-absorb has no ARM Linux build; it's compiled with cargo there instead.
+git-absorb = {{ .pins.git_absorb | quote }}
 {{- end }}
 # macOS ships /usr/bin/jq; Linux boxes often don't, and update-all needs it
 jq = "~1"

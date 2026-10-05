@@ -39,3 +39,27 @@ fi
 # elsewhere use trash-cli (as a uv tool, uv being proto-managed).
 command -v trash-put >/dev/null 2>&1 || uv tool install trash-cli
 {{- end }}
+{{- if and (eq .chezmoi.os "linux") (ne .chezmoi.arch "amd64") }}
+
+# jless and git-absorb publish no ARM Linux builds, so they aren't proto pins
+# here: compile the same versions (.chezmoidata.toml) with cargo, into
+# ~/.cargo/bin. jless always links X11's xcb libraries (clipboard support).
+# A failed build only warns, so it can't stop `chezmoi apply` / update-all.
+if command -v apt-get >/dev/null 2>&1; then
+  missing=""
+  for pkg in libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev; do
+    dpkg -s "$pkg" >/dev/null 2>&1 || missing="$missing $pkg"
+  done
+  if [ -n "$missing" ]; then
+    # shellcheck disable=SC2086
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $missing ||
+      echo "warning: couldn't install$missing; jless may not build" >&2
+  fi
+fi
+for spec in jless@{{ .pins.jless }} git-absorb@{{ .pins.git_absorb }}; do
+  name=${spec%@*} version=${spec#*@}
+  "$HOME/.cargo/bin/cargo" install --list | grep -q "^$name v$version:" && continue
+  "$HOME/.cargo/bin/cargo" install --locked "$spec" ||
+    echo "warning: couldn't build $spec with cargo" >&2
+done
+{{- end }}

@@ -1,0 +1,9 @@
+# Data shared by chezmoi templates.
+
+# Versions of tools installed two ways: as proto pins where the project
+# publishes a build (dot_proto/dot_prototools.tmpl), and compiled with cargo on
+# ARM Linux, where it doesn't (run_onchange_after_install-cli-tools.sh.tmpl).
+# One place, so the two can't drift.
+[pins]
+jless = "0.9.0"
+git_absorb = "0.9.0"
