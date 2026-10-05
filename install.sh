@@ -45,34 +45,39 @@ else
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y zsh git curl tmux gnupg build-essential unzip python3 procps file
 fi
 
-# --- Homebrew ----------------------------------------------------------------
-brew_bin=""
-for b in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew "$HOME/.linuxbrew/bin/brew"; do
-  [ -x "$b" ] && { brew_bin=$b; break; }
-done
-if [ -z "$brew_bin" ]; then
-  say "Installing Homebrew (asks for your password)"
-  sudo -v  # unattended mode won't prompt for sudo itself
-  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  for b in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
+# --- Homebrew (macOS) / chezmoi (Linux) ------------------------------------------
+if [ "$os" = Darwin ]; then
+  brew_bin=""
+  for b in /opt/homebrew/bin/brew /usr/local/bin/brew; do
     [ -x "$b" ] && { brew_bin=$b; break; }
   done
-fi
-eval "$("$brew_bin" shellenv)"
-# Homebrew 5 asks "Do you want to proceed?" before each install by default.
-export HOMEBREW_NO_ASK=1
-# On macOS, login shells need brew on PATH before .zshrc runs (.zshrc relies on it).
-if [ "$os" = Darwin ] && ! grep -qs 'brew shellenv' "$HOME/.zprofile"; then
-  echo "eval \"\$($brew_bin shellenv)\"" >> "$HOME/.zprofile"
-fi
+  if [ -z "$brew_bin" ]; then
+    say "Installing Homebrew (asks for your password)"
+    sudo -v  # unattended mode won't prompt for sudo itself
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    for b in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+      [ -x "$b" ] && { brew_bin=$b; break; }
+    done
+  fi
+  eval "$("$brew_bin" shellenv)"
+  # Homebrew 5 asks "Do you want to proceed?" before each install by default.
+  export HOMEBREW_NO_ASK=1
+  # Login shells need brew on PATH before .zshrc runs (.zshrc relies on it).
+  grep -qs 'brew shellenv' "$HOME/.zprofile" ||
+    echo "eval \"\$($brew_bin shellenv)\"" >> "$HOME/.zprofile"
 
-say "Installing Homebrew packages"
-if [ "$os" = Darwin ]; then
+  say "Installing Homebrew packages"
   brew install chezmoi git gh tmux neovim eza gnupg pinentry-mac lazygit diff-so-fancy
   brew install --cask iterm2 font-fira-code-nerd-font
 else
-  # Ubuntu's own Neovim is too old for AstroNvim.
-  brew install chezmoi neovim lazygit diff-so-fancy gh
+  # No Homebrew on Linux (it sudo-installs into /home/linuxbrew): neovim,
+  # lazygit, gh and diff-so-fancy come from proto with the other tools, and
+  # chezmoi from its own installer, all inside your home folder.
+  export PATH="$HOME/.local/bin:$PATH"
+  if ! command -v chezmoi >/dev/null 2>&1; then
+    say "Installing chezmoi into ~/.local/bin"
+    sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
+  fi
 fi
 
 # --- Rust's installer (proto installs Rust through it) ------------------------

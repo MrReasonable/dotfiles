@@ -1,0 +1,27 @@
+# proto TOML plugin: neovim/neovim GitHub release builds. Registered in
+# ~/.proto/.prototools [plugins] on Linux only (macOS gets Neovim from
+# Homebrew; Ubuntu/Debian's own is too old for AstroNvim). Managed by chezmoi.
+# Releases no longer publish checksums (pin exactly). The archive is a whole
+# install (bin/, lib/, share/nvim/runtime), kept together under proto's tools.
+name = "neovim"
+type = "cli"
+
+[platform.linux]
+archive-prefix = "nvim-linux-{arch}"
+download-file = "nvim-linux-{arch}.tar.gz"
+exe-path = "bin/nvim"
+
+[install]
+download-url = "https://github.com/neovim/neovim/releases/download/v{version}/{download_file}"
+
+[install.arch]
+aarch64 = "arm64"
+x86_64 = "x86_64"
+
+[install.exes.nvim]
+exe-path = "bin/nvim"
+primary = true
+
+[resolve]
+git-url = "https://github.com/neovim/neovim"
+version-pattern = '^v((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'

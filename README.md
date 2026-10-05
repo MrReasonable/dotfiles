@@ -17,7 +17,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/MrReasonable/dotfiles/ma
 ```
 
 [`install.sh`](install.sh) does the steps below for you: system packages,
-Homebrew, Rust's installer, chezmoi and the dotfiles, zsh as your login shell,
+Homebrew (macOS), Rust's installer, chezmoi and the dotfiles, zsh as your login shell,
 and (macOS) iTerm2 with TokyoNight as its default profile. It asks for your
 password, then chezmoi's questions (name, GitHub username and email, GPG key
 ID). Your SSH and GPG keys aren't automated: it checks for them and lists
@@ -128,17 +128,16 @@ names.
    chsh -s "$(command -v zsh)"   # takes effect at next login
    ```
 
-2. **Homebrew for Linux** (for a current Neovim, lazygit and chezmoi; Ubuntu's
-   own Neovim is too old for AstroNvim)
+2. **chezmoi** (its own installer, into `~/.local/bin`; no Homebrew on Linux)
 
    ```sh
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-   brew install chezmoi neovim lazygit diff-so-fancy gh
+   sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin
+   export PATH="$HOME/.local/bin:$PATH"
    ```
 
-   The zsh config finds Homebrew in `/home/linuxbrew/.linuxbrew` or
-   `~/.linuxbrew` by itself.
+   Neovim, lazygit, gh and diff-so-fancy come from proto with the other tools
+   (step 5), so nothing is installed outside your home folder. Distro
+   Neovim is usually too old for AstroNvim.
 
 3. **Rust's installer**
 
@@ -155,7 +154,8 @@ names.
    ```
 
    Same prompts as on macOS. The install script then installs proto (from
-   its official installer), every pinned tool, the Rust toolchain, and
+   its official installer), every pinned tool (Neovim, lazygit and gh
+   included), the Rust toolchain, and
    trash-cli (so `rm` goes to the trash).
 
 6. **Font**: icons in the prompt, eza and Neovim need a Nerd Font in the

@@ -58,6 +58,13 @@ git-absorb = {{ .pins.git_absorb | quote }}
 jq = "~1"
 # navi has no macOS release binaries; macOS gets it from Homebrew
 navi = "2.24.0"
+# Linux only: macOS gets these from Homebrew, and Linux would otherwise need
+# Homebrew (which sudo-installs into /home/linuxbrew) or old distro packages.
+# lazygit and gh publish checksums (ranges); neovim and diff-so-fancy don't.
+lazygit = "~0.66"
+gh = "~2"
+neovim = "0.12.5"
+diff-so-fancy = "1.4.14"
 {{- end }}
 
 [plugins]
@@ -83,4 +90,8 @@ btop = "file://./tool-plugins/btop.toml"
 git-absorb = "file://./tool-plugins/git-absorb.toml"
 jq = "file://./tool-plugins/jq.toml"
 navi = "file://./tool-plugins/navi.toml"
+lazygit = "file://./tool-plugins/lazygit.toml"
+gh = "file://./tool-plugins/gh.toml"
+neovim = "file://./tool-plugins/neovim.toml"
+diff-so-fancy = "file://./tool-plugins/diff-so-fancy.toml"
 {{- end }}
