@@ -22,6 +22,9 @@ and (macOS) iTerm2 with TokyoNight as its default profile. It asks for your
 password, then chezmoi's questions (name, GitHub username and email, GPG key
 ID). Your SSH and GPG keys aren't automated: it checks for them and lists
 anything left to do at the end. Re-running it is safe; it updates instead.
+It also offers to remove leftovers this setup replaces (other chezmoi copies,
+Linux Homebrew, mise, snap Neovim), asking before each; it never removes apt
+packages.
 
 On Windows, first do [Windows steps 1–3](#windows-wsl2) (WSL, Windows Terminal,
 font), then run the line above inside Ubuntu.
@@ -73,9 +76,12 @@ The rest of this README is the same thing step by step.
 2. **Packages**
 
    ```sh
-   brew install chezmoi git gh tmux neovim eza gnupg pinentry-mac \
+   brew install git gh tmux neovim eza gnupg pinentry-mac \
      lazygit diff-so-fancy
    brew install --cask iterm2 font-fira-code-nerd-font
+   # chezmoi from its own installer (same on every OS; update-all upgrades it)
+   sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin
+   export PATH="$HOME/.local/bin:$PATH"
    ```
 
    btop, git-absorb, navi and proto are installed for you in step 5. zsh is
@@ -128,7 +134,8 @@ names.
    chsh -s "$(command -v zsh)"   # takes effect at next login
    ```
 
-2. **chezmoi** (its own installer, into `~/.local/bin`; no Homebrew on Linux)
+2. **chezmoi** (its own installer, into `~/.local/bin`, as on macOS; no
+   Homebrew on Linux)
 
    ```sh
    sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin

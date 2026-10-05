@@ -480,11 +480,11 @@ _proto_update() {
 # question nobody can answer. Update in a subshell without those aliases.
 _zi_update() { ( unalias cp mv rm 2>/dev/null; zi update -p -a ) }
 
+# chezmoi is a plain binary in ~/.local/bin on every OS (install.sh), so it
+# upgrades itself first; non-fatal, so an offline run still does the rest.
 {{- if eq .chezmoi.os "darwin" }}
-alias update-all="chezmoi update && chezmoi apply && brew update && brew upgrade && brew cleanup && zi cclear && _zi_update && zi cclear && zi compinit; _proto_update"
+alias update-all="{ chezmoi upgrade || true; } && chezmoi update && chezmoi apply && brew update && brew upgrade && brew cleanup && zi cclear && _zi_update && zi cclear && zi compinit; _proto_update"
 {{- else }}
-# Linux: chezmoi is a plain binary in ~/.local/bin (install.sh), so it upgrades
-# itself first (macOS gets it from Homebrew). Non-fatal, like the steps after it.
 alias update-all="{ chezmoi upgrade || true; } && chezmoi update && chezmoi apply && which apt-get > /dev/null && sudo apt-get update && sudo apt-get dist-upgrade && sudo apt-get --purge autoremove; \
 which flatpak > /dev/null && flatpak update -y && sudo flatpak update -y;  \
 which snap > /dev/null && sudo snap refresh;\

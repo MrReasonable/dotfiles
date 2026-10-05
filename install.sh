@@ -10,6 +10,10 @@
 #
 # It doesn't create SSH or GPG keys (they're secrets); it checks for them and
 # says what's missing at the end. See README.md for the manual steps.
+#
+# At the end it offers to remove leftovers this setup replaces (other chezmoi
+# copies, Linux Homebrew, mise, snap Neovim), asking before each one.
+# DOTFILES_YES=1 answers yes to all of them (unattended runs).
 set -euo pipefail
 
 REPO=MrReasonable
@@ -45,7 +49,7 @@ else
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y zsh git curl tmux gnupg build-essential unzip python3 procps file
 fi
 
-# --- Homebrew (macOS) / chezmoi (Linux) ------------------------------------------
+# --- Homebrew (macOS only) ---------------------------------------------------------
 if [ "$os" = Darwin ]; then
   brew_bin=""
   for b in /opt/homebrew/bin/brew /usr/local/bin/brew; do
@@ -67,18 +71,21 @@ if [ "$os" = Darwin ]; then
     echo "eval \"\$($brew_bin shellenv)\"" >> "$HOME/.zprofile"
 
   say "Installing Homebrew packages"
-  brew install chezmoi git gh tmux neovim eza gnupg pinentry-mac lazygit diff-so-fancy
+  brew install git gh tmux neovim eza gnupg pinentry-mac lazygit diff-so-fancy
   brew install --cask iterm2 font-fira-code-nerd-font
-else
-  # No Homebrew on Linux (it sudo-installs into /home/linuxbrew): neovim,
-  # lazygit, gh and diff-so-fancy come from proto with the other tools, and
-  # chezmoi from its own installer, all inside your home folder.
-  export PATH="$HOME/.local/bin:$PATH"
-  if ! command -v chezmoi >/dev/null 2>&1; then
-    say "Installing chezmoi into ~/.local/bin"
-    sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
-  fi
 fi
+# No Homebrew on Linux (it sudo-installs into /home/linuxbrew): neovim, lazygit,
+# gh and diff-so-fancy come from proto there, with the other tools.
+
+# --- chezmoi: its own installer, into ~/.local/bin, on every OS -----------------
+# `update-all` keeps it current with `chezmoi upgrade`. Other copies (Homebrew's,
+# an old ~/bin one) are offered for removal at the end.
+export PATH="$HOME/.local/bin:$PATH"
+if [ ! -x "$HOME/.local/bin/chezmoi" ]; then
+  say "Installing chezmoi into ~/.local/bin"
+  sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
+fi
+chezmoi() { "$HOME/.local/bin/chezmoi" "$@"; }
 
 # --- Rust's installer (proto installs Rust through it) ------------------------
 if [ ! -x "$HOME/.cargo/bin/rustup" ]; then
@@ -122,6 +129,69 @@ if [ "${SHELL:-}" != "$zsh_path" ] && [ "$(basename "${SHELL:-}")" != zsh ]; the
   say "Making zsh your login shell"
   grep -qx "$zsh_path" /etc/shells || echo "$zsh_path" | sudo tee -a /etc/shells >/dev/null
   chsh -s "$zsh_path" || todo+=("Couldn't change your shell: run chsh -s $zsh_path")
+fi
+
+# --- leftovers this setup replaces ------------------------------------------------
+# Each is listed and removed only if you say yes (or DOTFILES_YES=1). apt
+# packages are never touched: other software on a server may rely on them.
+confirm() {
+  [ "${DOTFILES_YES:-}" = 1 ] && return 0
+  [ -r /dev/tty ] || return 1
+  local reply
+  printf '%s [y/N] ' "$1" > /dev/tty
+  read -r reply < /dev/tty || return 1
+  [[ $reply == [yY]* ]]
+}
+rm_maybe_sudo() {  # remove a file, with sudo if it isn't ours to remove
+  if [ -w "$(dirname "$1")" ]; then rm -f "$1"; else sudo rm -f "$1"; fi
+}
+
+# Other chezmoi copies. Homebrew's (macOS) is offered as a brew uninstall;
+# anything a system package owns is left alone.
+brew_prefix=""
+[ "$os" = Darwin ] && brew_prefix=$(brew --prefix)
+if [ -n "$brew_prefix" ] && brew list --formula chezmoi >/dev/null 2>&1; then
+  if confirm "Uninstall Homebrew's chezmoi (replaced by ~/.local/bin/chezmoi)?"; then
+    brew uninstall chezmoi
+  fi
+fi
+while IFS= read -r p; do
+  [ "$p" = "$HOME/.local/bin/chezmoi" ] && continue
+  case "$p" in
+    "$brew_prefix"/*|/home/linuxbrew/*|"$HOME"/.linuxbrew/*) continue ;;  # Homebrew's own
+  esac
+  dpkg -S "$p" >/dev/null 2>&1 && continue
+  if confirm "Remove old chezmoi at $p (replaced by ~/.local/bin/chezmoi)?"; then
+    rm_maybe_sudo "$p"
+  fi
+done < <(type -ap chezmoi | awk '!seen[$0]++')
+
+if [ "$os" = Linux ]; then
+  # Linux Homebrew: nothing in this setup uses it any more.
+  for prefix in /home/linuxbrew/.linuxbrew "$HOME/.linuxbrew"; do
+    [ -x "$prefix/bin/brew" ] || continue
+    say "Found Linux Homebrew in $prefix"
+    "$prefix/bin/brew" list --formula 2>/dev/null | tr '\n' ' ' | fold -s -w 76 | sed 's/^/   /'
+    echo
+    if confirm "Remove it all? (only if nothing else on this machine uses these)"; then
+      NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)" -- --path="$prefix" ||
+        warn "Homebrew's uninstaller failed; removing the folder directly"
+      if [ "$prefix" = /home/linuxbrew/.linuxbrew ]; then sudo rm -rf /home/linuxbrew; else rm -rf "$prefix"; fi
+    fi
+  done
+  # Neovim from snap: proto provides it now.
+  if have snap && snap list nvim >/dev/null 2>&1; then
+    if confirm "Remove the snap Neovim (proto provides Neovim now)?"; then
+      sudo snap remove nvim
+    fi
+  fi
+fi
+
+# mise: replaced by proto (.prototools) and direnv (.envrc).
+if [ -x "$HOME/.local/bin/mise" ]; then
+  if confirm "Uninstall mise and everything it installed (proto replaces it)?"; then
+    "$HOME/.local/bin/mise" implode --yes --config
+  fi
 fi
 
 # --- what's left -----------------------------------------------------------------
