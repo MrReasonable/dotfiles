@@ -22,7 +22,7 @@
   untrackedCache = true
   fsmonitor = false
 	editor = vim
-	# delta comes from mise, so apps that don't load the shell (IDEs, GUIs) may
+	# delta comes from proto, so apps that don't load the shell (IDEs, GUIs) may
 	# not find it; fall back to plain less there.
 	pager = "command -v delta >/dev/null 2>&1 && exec delta || exec less -FRX"
 [interactive]

@@ -122,10 +122,6 @@ export PATH="${brew_dir}/opt/findutils/libexec/gnubin:$PATH"
 export PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"
 {{- end }}
 
-if [[ ! -f $HOME/.local/bin/mise ]]; then
- curl https://mise.run | sh
-fi
-eval "$(~/.local/bin/mise activate zsh)"
 # proto's tools on PATH from the start, as its installer would set up. `proto
 # activate` (turbo, below) adds these too, but only after zi's has'…' checks
 # for tools like atuin and carapace have already run and skipped them.
