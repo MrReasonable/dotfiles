@@ -1,0 +1,24 @@
+# proto TOML plugin: direnv/direnv GitHub release binaries (single binary per
+# platform). Registered in ~/.proto/.prototools [plugins]; managed by chezmoi.
+# No published checksums (pin exactly).
+name = "direnv"
+type = "cli"
+
+[platform.macos]
+download-file = "direnv.darwin-{arch}"
+exe-path = "direnv"
+
+[platform.linux]
+download-file = "direnv.linux-{arch}"
+exe-path = "direnv"
+
+[install]
+download-url = "https://github.com/direnv/direnv/releases/download/v{version}/{download_file}"
+
+[install.arch]
+aarch64 = "arm64"
+x86_64 = "amd64"
+
+[resolve]
+git-url = "https://github.com/direnv/direnv"
+version-pattern = '^v((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'

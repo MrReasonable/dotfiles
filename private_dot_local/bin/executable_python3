@@ -1,0 +1,8 @@
+#!/bin/sh
+# python3 → proto's python shim, so `python3` gets the same Python as `python`: the
+# global pin in ~/.proto/.prototools, or a project's own. proto's Python plugin
+# only creates python/pip shims. Falls back to the system python3 if proto's Python
+# isn't installed (e.g. a fresh machine before `proto install`). Managed by chezmoi.
+shim="$HOME/.proto/shims/python"
+[ -x "$shim" ] && exec "$shim" "$@"
+exec /usr/bin/python3 "$@"

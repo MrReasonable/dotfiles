@@ -14,6 +14,11 @@ uv = "~0.12"
 # rust-analyzer, clippy and rustfmt are added as rustup components by the
 # install script and update-all; rustup verifies its own downloads.
 rust = "~1"
+# Go and Python: proto's built-in plugins, checksum-verified (Python is
+# python-build-standalone). These are the global versions; a project's own
+# .prototools still wins inside it.
+go = "~1"
+python = "~3"
 
 # CLI tools from GitHub releases, via the TOML plugins in ./tool-plugins.
 # atuin publishes checksums (verified by its plugin), so it gets a range; the
@@ -28,6 +33,7 @@ sesh = "~2"
 watchexec = "~2"
 delta = "0.19.2"
 difftastic = "0.71.0"
+direnv = "2.37.1"
 dust = "1.2.6"
 hyperfine = "1.20.0"
 jless = "0.9.0"
@@ -51,6 +57,7 @@ navi = "2.24.0"
 atuin = "file://./tool-plugins/atuin.toml"
 carapace = "file://./tool-plugins/carapace.toml"
 delta = "file://./tool-plugins/delta.toml"
+direnv = "file://./tool-plugins/direnv.toml"
 difftastic = "file://./tool-plugins/difftastic.toml"
 dust = "file://./tool-plugins/dust.toml"
 hyperfine = "file://./tool-plugins/hyperfine.toml"

@@ -48,8 +48,8 @@ The rest of this README is the same thing step by step.
 - **Neovim**: AstroNvim with language support for TypeScript, Rust, Python,
   Go, C, Lua, SQL, Terraform, Ansible, shell and more; Claude Code, tests,
   git, and a built-in tutorial series (`:Tutor my-00-start`).
-- **CLI tools** via proto, each pinned in `~/.proto/.prototools`: node, npm,
-  pnpm, uv, rust, atuin, carapace, delta, difftastic, dust, hyperfine, jless,
+- **Languages and CLI tools** via proto, each pinned in
+  `~/.proto/.prototools`: node, npm, pnpm, uv, rust, go, python, direnv, atuin, carapace, delta, difftastic, dust, hyperfine, jless,
   just, micromamba, navi (Linux), sd, sesh, tailspin, tlrc, watchexec, xh,
   yazi, jq (Linux), btop/git-absorb (Linux).
 - **direnv** with micromamba: `cd` into a project and its environment
@@ -73,7 +73,7 @@ The rest of this README is the same thing step by step.
 2. **Packages**
 
    ```sh
-   brew install chezmoi git gh tmux neovim direnv eza gnupg pinentry-mac \
+   brew install chezmoi git gh tmux neovim eza gnupg pinentry-mac \
      lazygit diff-so-fancy
    brew install --cask iterm2 font-fira-code-nerd-font
    ```
@@ -124,7 +124,7 @@ names.
 
    ```sh
    sudo apt update
-   sudo apt install -y zsh git curl tmux direnv gnupg build-essential unzip python3
+   sudo apt install -y zsh git curl tmux gnupg build-essential unzip python3
    chsh -s "$(command -v zsh)"   # takes effect at next login
    ```
 

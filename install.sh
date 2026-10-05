@@ -42,7 +42,7 @@ else
   say "Installing apt packages (asks for your password)"
   sudo apt-get update -qq
   # noninteractive: a minimal install (WSL, containers) would stop to ask for a time zone
-  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y zsh git curl tmux direnv gnupg build-essential unzip python3 procps file
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y zsh git curl tmux gnupg build-essential unzip python3 procps file
 fi
 
 # --- Homebrew ----------------------------------------------------------------
@@ -68,7 +68,7 @@ fi
 
 say "Installing Homebrew packages"
 if [ "$os" = Darwin ]; then
-  brew install chezmoi git gh tmux neovim direnv eza gnupg pinentry-mac lazygit diff-so-fancy
+  brew install chezmoi git gh tmux neovim eza gnupg pinentry-mac lazygit diff-so-fancy
   brew install --cask iterm2 font-fira-code-nerd-font
 else
   # Ubuntu's own Neovim is too old for AstroNvim.
