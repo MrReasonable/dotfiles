@@ -1,0 +1,51 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": [
+    "Bumps the exact version pins in this repo once a release is 7 days old (most compromised releases are caught and pulled within days).",
+    "Patch/minor/digest bumps merge themselves; majors open a PR for review. Fixes for known vulnerabilities skip the wait.",
+    "Pins are found via '# renovate: datasource=... depName=...' comments on the line above each one."
+  ],
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "timezone": "Europe/London",
+  "minimumReleaseAge": "7 days",
+  "internalChecksFilter": "strict",
+  "prHourlyLimit": 0,
+  "prConcurrentLimit": 10,
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "minimumReleaseAge": null,
+    "labels": ["security"]
+  },
+  "packageRules": [
+    {
+      "description": "Low-risk updates merge on their own once the wait is over.",
+      "matchUpdateTypes": ["minor", "patch", "digest", "pin", "pinDigest"],
+      "automerge": true,
+      "automergeType": "branch"
+    },
+    {
+      "description": "Majors (e.g. Node 26 -> 27) wait for a human.",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["major"]
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Exact pins in the proto toolchain and .chezmoidata.toml, each preceded by a '# renovate:' comment.",
+      "managerFilePatterns": [
+        "/(^|/)dot_proto/dot_prototools\\.tmpl$/",
+        "/(^|/)\\.chezmoidata\\.toml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s*\\n[A-Za-z0-9_-]+ = \"(?<currentValue>[^\"]+)\""
+      ],
+      "extractVersionTemplate": "{{#if extractVersion}}{{{extractVersion}}}{{else}}^v?(?<version>.+)${{/if}}"
+    }
+  ]
+}

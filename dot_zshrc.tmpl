@@ -408,87 +408,29 @@ y() {
   command rm -f -- "$tmp"
 }
 
-# Warn (never fail) when proto tools are behind their latest release. The
-# global pins are exact on purpose, so upgrading means bumping them in chezmoi.
-_proto_outdated_warn() {
-  (( $+commands[proto] )) || return 0
-  local json lines
-  # Run from ~/.proto: from ~ itself proto reads only ~/.prototools and skips
-  # the global ~/.proto/.prototools; from here it walks up and reads both.
-  json=$(builtin cd ~/.proto && PROTO_LOG=off proto outdated --json 2>/dev/null) || return 0
-  if (( $+commands[jq] )); then
-    # Compare numerically rather than trusting is_latest, which is also false
-    # when a registry's "latest" tag lags a newer installed release.
-    # Build metadata ("3.14.8+20261003") is ignored, as semver says.
-    lines=$(jq -r 'def v: split("+")[0] | split("-")[0] | split(".") | map(tonumber? // 0);
-      to_entries[] | select((.value.latest_version | v) > (.value.current_version | v))
-      | "  \(.key) \(.value.current_version) -> \(.value.latest_version)  (\(.value.config_source))"' <<<"$json")
-  elif [[ $json == *'"is_latest": false'* ]]; then
-    # No jq (e.g. a bare Linux box): fall back to proto's own table.
-    lines=$(builtin cd ~/.proto && proto outdated 2>/dev/null)
-  fi
-  [[ -n $lines ]] || return 0
-  print -P "%F{yellow}proto: newer versions available:%f"
-  print -r -- "$lines"
-  print -P "%F{yellow}Widen the range or bump the pin in ~/.local/share/chezmoi/dot_proto/dot_prototools.tmpl, then chezmoi apply.%f"
-}
+# Install anything in the proto pins that's missing (normally chezmoi's install
+# script already did, when the pins changed). Updates come from Renovate
+# bumping the pins in the dotfiles repo, never from here.
+_proto_sync() { ( builtin cd ~/.proto && proto install ) }
 
-# Bring every range-pinned proto tool up to the newest release in its range,
-# then warn about whatever is still behind (a new major, or an exact pin).
-# Plain `proto install` keeps the newest *installed* match and `proto outdated
-# --update` rewrites ranges to exact versions, so install each spec explicitly.
-_proto_update() {
-  (( $+commands[proto] )) || return 0
-  # proto itself: the copy in ~/.proto/bin (first on PATH, even on macOS
-  # where Homebrew installs one too) only changes with `proto upgrade`.
-  if [[ ${commands[proto]} == $HOME/.proto/bin/proto ]]; then
-    ( builtin cd ~/.proto && proto upgrade ) || print -P "%F{red}proto: self-upgrade failed%f"
-  fi
-  # jq comes from proto on Linux (macOS has /usr/bin/jq); a box set up before
-  # it was added gets it here.
-  if (( ! $+commands[jq] )); then
-    ( builtin cd ~/.proto && proto install jq >/dev/null 2>&1 )
-    rehash
-  fi
-  if (( $+commands[jq] )); then
-    (
-      builtin cd ~/.proto || exit
-      local tool spec
-      PROTO_LOG=off proto outdated --json 2>/dev/null |
-        jq -r 'to_entries[] | select(.value.config_version | test("^[0-9]+\\.[0-9]+\\.[0-9]+$") | not)
-          | "\(.key)\t\(.value.config_version)"' |
-        while IFS=$'\t' read -r tool spec; do
-          proto install "$tool" "$spec" || print -P "%F{red}proto: failed to update $tool ($spec)%f"
-        done
-      # A new Rust toolchain needs its components; mirror the install script.
-      local rust_bin toolchain
-      rust_bin=$(proto bin rust 2>/dev/null | grep -o '/[^"]*/toolchains/[^/"]*/bin/cargo' | tail -1)
-      if [[ -n $rust_bin && -x $HOME/.cargo/bin/rustup ]]; then
-        toolchain=${${rust_bin:h:h}:t}
-        $HOME/.cargo/bin/rustup default $toolchain >/dev/null &&
-          $HOME/.cargo/bin/rustup component add --toolchain $toolchain rust-analyzer clippy rustfmt
-      fi
-    )
-  else
-    print -P "%F{yellow}proto: jq not found; skipping in-range updates.%f"
-  fi
-  _proto_outdated_warn
-}
+# Neovim plugins at the commits in lazy-lock.json (bumped weekly, 7+ days old,
+# by a GitHub Action). `:Lazy update` would skip that wait.
+_nvim_sync() { (( $+commands[nvim] )) && nvim --headless "+Lazy! restore" +qa >/dev/null 2>&1 }
 
 # zi runs plugins' update hooks inside this shell, so a hook's `cp` picks up
 # common-aliases' interactive `cp -i` (and mv/rm) and stops at an "overwrite?"
 # question nobody can answer. Update in a subshell without those aliases.
 _zi_update() { ( unalias cp mv rm 2>/dev/null; zi update -p -a ) }
 
-# chezmoi is a plain binary in ~/.local/bin on every OS (install.sh), so it
-# upgrades itself first; non-fatal, so an offline run still does the rest.
+# `chezmoi update` pulls the dotfiles (Renovate's pin bumps included) and
+# applies them, which installs the pinned proto tools and chezmoi version.
 {{- if eq .chezmoi.os "darwin" }}
-alias update-all="{ chezmoi upgrade || true; } && chezmoi update && chezmoi apply && brew update && brew upgrade && brew cleanup && zi cclear && _zi_update && zi cclear && zi compinit; _proto_update"
+alias update-all="chezmoi update && brew update && brew upgrade && brew cleanup && zi cclear && _zi_update && zi cclear && zi compinit; _proto_sync; _nvim_sync"
 {{- else }}
-alias update-all="{ chezmoi upgrade || true; } && chezmoi update && chezmoi apply && which apt-get > /dev/null && sudo apt-get update && sudo apt-get dist-upgrade && sudo apt-get --purge autoremove; \
+alias update-all="chezmoi update && which apt-get > /dev/null && sudo apt-get update && sudo apt-get dist-upgrade && sudo apt-get --purge autoremove; \
 which flatpak > /dev/null && flatpak update -y && sudo flatpak update -y;  \
 which snap > /dev/null && sudo snap refresh;\
-zi cclear && _zi_update && zi cclear && zi compinit; _proto_update"
+zi cclear && _zi_update && zi cclear && zi compinit; _proto_sync; _nvim_sync"
 {{- end }}
 
 # fzf-tab draws the completion list, so zsh's own menu stays off.

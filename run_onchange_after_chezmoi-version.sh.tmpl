@@ -1,0 +1,21 @@
+#!/bin/sh
+# Keeps ~/.local/bin/chezmoi at the version pinned in .chezmoidata.toml
+# ({{ .pins.chezmoi }}), on every OS. Renovate bumps that pin once a release
+# is 7 days old; chezmoi re-runs this script whenever it changes.
+#
+# chezmoi is running this script, so the new binary goes into a temporary folder
+# beside the old one and is then renamed over it: a rename is atomic, so the
+# running chezmoi is never left half-written.
+set -eu
+
+want={{ .pins.chezmoi | quote }}
+bin="$HOME/.local/bin"
+have=$("$bin/chezmoi" --version 2>/dev/null | sed -n 's/^chezmoi version v\([^,]*\),.*/\1/p')
+[ "$have" = "$want" ] && exit 0
+
+echo "chezmoi: ${have:-none} -> $want"
+mkdir -p "$bin"
+tmp=$(mktemp -d "$bin/.chezmoi-update.XXXXXX")
+trap 'rm -rf "$tmp"' EXIT
+sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$tmp" -t "v$want"
+mv "$tmp/chezmoi" "$bin/chezmoi"

@@ -1,0 +1,47 @@
+# Weekly Neovim plugin bump: moves nvim/lazy-lock.json to plugin commits that
+# are at least 7 days old (Renovate's rule for everything else; it can't read
+# lazy-lock.json). Your machines pick the new lock up with `chezmoi update`, and
+# Neovim installs it on `:Lazy restore` (or the next `:Lazy sync`).
+name: Neovim plugins
+
+on:
+  schedule:
+    - cron: "17 5 * * 1" # Mondays, 05:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nvim-plugins
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The same Neovim version the dotfiles pin (dot_proto/dot_prototools.tmpl).
+      - name: Install Neovim
+        run: |
+          version=$(sed -n 's/^neovim = "\(.*\)"/\1/p' dot_proto/dot_prototools.tmpl)
+          curl -fsSL "https://github.com/neovim/neovim/releases/download/v${version}/nvim-linux-x86_64.tar.gz" |
+            tar -xz -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/nvim-linux-x86_64/bin" >> "$GITHUB_PATH"
+
+      - name: Bump plugins to commits at least 7 days old
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/nvim-plugins-update.sh | tee "$RUNNER_TEMP/changes.txt"
+
+      - name: Commit
+        run: |
+          git diff --quiet nvim/lazy-lock.json && { echo "No plugin changes."; exit 0; }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add nvim/lazy-lock.json
+          { echo "nvim: plugin bumps (7+ days old)"; echo; grep -E -- '->|added|removed' "$RUNNER_TEMP/changes.txt" || true; } |
+            git commit -F -
+          git push

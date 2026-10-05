@@ -3,9 +3,11 @@
 # updates land straight in this repo.
 nvim
 .tmux/plugins
-# This repo's own docs and bootstrap script
+# This repo's own docs, bootstrap script and automation (Renovate, Actions)
 README.md
 install.sh
+renovate.json
+.github
 {{ if ne .chezmoi.os "darwin" }}
 Library
 .local/bin/iterm2-default-profile

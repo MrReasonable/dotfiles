@@ -1,69 +1,98 @@
 # Global proto toolchain. Managed by chezmoi (dot_proto/dot_prototools.tmpl);
-# edit here rather than with `proto pin --global` / `proto outdated --update`
-# (the latter also rewrites ranges into exact versions).
+# edit here rather than with `proto pin --global` / `proto outdated --update`.
 #
-# Tools whose downloads proto checksum-verifies use a major range ("~26"; for
-# 0.x the minor is the major, "~0.12"); `update-all` installs the newest
-# release inside each range. Tools without published checksums stay pinned
-# exactly, so a new binary only arrives through a reviewed change here.
-node = "~26"
-npm = "~12"
-pnpm = "~12"
-uv = "~0.12"
-# Rust via rustup (proto puts the pinned toolchain's bin first on PATH).
-# rust-analyzer, clippy and rustfmt are added as rustup components by the
-# install script and update-all; rustup verifies its own downloads.
-rust = "~1"
-# Go and Python: proto's built-in plugins, checksum-verified (Python is
-# python-build-standalone). These are the global versions; a project's own
-# .prototools still wins inside it.
-go = "~1"
-python = "~3"
+# Every version is pinned exactly. Renovate (renovate.json) bumps a pin only
+# once that release is 7 days old, which is when most compromised releases
+# have already been caught and pulled; patch/minor bumps merge by themselves,
+# majors wait for review. The `# renovate:` line above each pin says where its
+# releases come from. `chezmoi update` (update-all) then installs whatever the
+# pins say. To bump something now, edit the version here and chezmoi apply.
 
-# CLI tools from GitHub releases, via the TOML plugins in ./tool-plugins.
-# atuin publishes checksums (verified by its plugin), so it gets a range; the
-# rest publish none and stay exact. `update-all` warns when they're behind.
-atuin = "~18"
-# carapace, just, sesh and watchexec publish combined checksum files, and
-# micromamba per-file ones (verified), so ranges.
-carapace = "~1"
-just = "~1"
-micromamba = "~2"
-sesh = "~2"
-watchexec = "~2"
+# proto itself: runs this version whichever copy of proto you call.
+# renovate: datasource=github-releases depName=moonrepo/proto
+proto = "0.62.3"
+
+# renovate: datasource=node-version depName=node
+node = "26.10.0"
+# renovate: datasource=npm depName=npm
+npm = "12.2.0"
+# renovate: datasource=npm depName=pnpm
+pnpm = "12.9.1"
+# renovate: datasource=github-releases depName=astral-sh/uv
+uv = "0.12.23"
+# Rust via rustup (proto puts the pinned toolchain's bin first on PATH);
+# rust-analyzer, clippy and rustfmt are added by the install script.
+# renovate: datasource=github-releases depName=rust-lang/rust
+rust = "1.99.0"
+# Go and Python: proto's built-in plugins (Python is python-build-standalone).
+# Global versions; a project's own .prototools still wins inside it.
+# renovate: datasource=golang-version depName=go
+go = "1.27.1"
+# renovate: datasource=python-version depName=python
+python = "3.14.8"
+
+# CLI tools from GitHub releases, via the TOML plugins in ./tool-plugins (some
+# verify published checksums, the rest can't: see each plugin).
+# renovate: datasource=github-releases depName=atuinsh/atuin
+atuin = "18.23.0"
+# renovate: datasource=github-releases depName=carapace-sh/carapace-bin
+carapace = "1.8.0"
+# renovate: datasource=github-releases depName=dandavison/delta
 delta = "0.20.1"
+# renovate: datasource=github-releases depName=Wilfred/difftastic
 difftastic = "0.71.0"
+# renovate: datasource=github-releases depName=direnv/direnv
 direnv = "2.37.1"
+# renovate: datasource=github-releases depName=bootandy/dust
 dust = "1.2.6"
+# renovate: datasource=github-releases depName=sharkdp/hyperfine
 hyperfine = "1.21.0"
 {{- if or (eq .chezmoi.os "darwin") (eq .chezmoi.arch "amd64") }}
-# jless has no ARM Linux build; it's compiled with cargo there instead (the
-# install script). Version shared via .chezmoidata.toml.
+# jless has no ARM Linux build (compiled with cargo there); its version lives
+# in .chezmoidata.toml, shared with that build.
 jless = {{ .pins.jless | quote }}
 {{- end }}
+# renovate: datasource=github-releases depName=casey/just
+just = "1.58.0"
+# renovate: datasource=github-releases depName=mamba-org/micromamba-releases extractVersion=^(?<version>\d+\.\d+\.\d+)-0$
+micromamba = "2.9.0"
+# renovate: datasource=github-releases depName=chmln/sd
 sd = "1.1.0"
+# renovate: datasource=github-releases depName=joshmedeski/sesh
+sesh = "2.32.0"
+# renovate: datasource=github-releases depName=bensadeh/tailspin
 tailspin = "7.0.0"
+# renovate: datasource=github-releases depName=tldr-pages/tlrc
 tlrc = "1.13.1"
+# renovate: datasource=github-releases depName=watchexec/watchexec
+watchexec = "2.7.4"
+# renovate: datasource=github-releases depName=ducaale/xh
 xh = "0.26.2"
+# renovate: datasource=github-releases depName=sxyazi/yazi
 yazi = "26.9.1"
 {{- if ne .chezmoi.os "darwin" }}
-# btop ships no macOS binaries, git-absorb only x86_64 ones; macOS gets both
-# from Homebrew.
+
+# Linux only. macOS gets these from Homebrew (btop, navi: no macOS release
+# builds); on Linux the alternative would be Homebrew (which sudo-installs into
+# /home/linuxbrew) or old distro packages.
+# renovate: datasource=github-releases depName=aristocratos/btop
 btop = "1.4.7"
 {{- if eq .chezmoi.arch "amd64" }}
-# git-absorb has no ARM Linux build; it's compiled with cargo there instead.
+# git-absorb has no ARM Linux build (compiled with cargo there); version in
+# .chezmoidata.toml.
 git-absorb = {{ .pins.git_absorb | quote }}
 {{- end }}
-# macOS ships /usr/bin/jq; Linux boxes often don't, and update-all needs it
-jq = "~1"
-# navi has no macOS release binaries; macOS gets it from Homebrew
+# renovate: datasource=github-releases depName=jqlang/jq extractVersion=^jq-(?<version>.+)$
+jq = "1.8.2"
+# renovate: datasource=github-releases depName=denisidoro/navi
 navi = "2.24.0"
-# Linux only: macOS gets these from Homebrew, and Linux would otherwise need
-# Homebrew (which sudo-installs into /home/linuxbrew) or old distro packages.
-# lazygit and gh publish checksums (ranges); neovim and diff-so-fancy don't.
-lazygit = "~0.66"
-gh = "~2"
+# renovate: datasource=github-releases depName=jesseduffield/lazygit
+lazygit = "0.66.0"
+# renovate: datasource=github-releases depName=cli/cli
+gh = "2.102.0"
+# renovate: datasource=github-releases depName=neovim/neovim
 neovim = "0.12.5"
+# renovate: datasource=github-releases depName=so-fancy/diff-so-fancy
 diff-so-fancy = "1.4.14"
 {{- end }}
 

@@ -37,6 +37,7 @@ The rest of this README is the same thing step by step.
 - [Windows (WSL2)](#windows-wsl2)
 - [After the install (all platforms)](#after-the-install-all-platforms)
 - [Day to day](#day-to-day)
+- [Updates](#updates)
 - [How it's put together](#how-its-put-together)
 
 ## What you get
@@ -257,7 +258,35 @@ Not stored in this repo.
 | See what would change | `chezmoi diff` |
 | Commit and push changes | `chezmoi cd`, then git as usual |
 | Find a command or key | Ctrl-G (navi), `tips`, `tldr <cmd>` |
-| A newer tool is out | `update-all` warns; bump the version in `dot_proto/dot_prototools.tmpl` |
+| A newer tool is out | Nothing to do: Renovate bumps it after 7 days (see [Updates](#updates)) |
+| Need a version now | Edit its pin (`dot_proto/dot_prototools.tmpl` or `.chezmoidata.toml`), commit, `chezmoi apply` |
+
+## Updates
+
+Every tool version is pinned exactly in this repo, and nothing updates itself
+on your machines. Updates arrive as changes to the pins, and only once a
+release is **7 days old**: most compromised releases are found and pulled
+within days, so the wait keeps them off your machines.
+
+- **Renovate** (`renovate.json`, the free GitHub app) watches the pins in
+  `dot_proto/dot_prototools.tmpl` (proto tools, proto itself) and
+  `.chezmoidata.toml` (chezmoi, plus jless/git-absorb on ARM Linux). Each pin
+  has a `# renovate:` comment saying where its releases come from. Patch and
+  minor bumps merge themselves after the wait; majors open a pull request for
+  you. Fixes for known vulnerabilities skip the wait. Its Dependency
+  Dashboard issue lists what's pending.
+- **Neovim plugins**: `.github/workflows/nvim-plugins.yml` runs every Monday,
+  moving `nvim/lazy-lock.json` to plugin commits at least 7 days old (within
+  what AstroNvim allows). Run it any time from the repo's Actions tab.
+- **Your machines**: `update-all` pulls the repo and installs exactly what
+  the pins say (proto tools, chezmoi, `:Lazy restore` for Neovim), plus the
+  OS packages (Homebrew/apt).
+
+Avoid `:Lazy update`/`:Lazy sync` and `proto install <tool> latest`: they skip
+the wait (and `:Lazy update` would change `lazy-lock.json` in this repo).
+
+One-time setup: install the [Renovate GitHub app](https://github.com/apps/renovate)
+on this repository.
 
 ## How it's put together
 
@@ -275,3 +304,5 @@ Not stored in this repo.
 | `private_dot_local/bin/` | Helper scripts: `appearance` (light/dark), `tips-build`, `navi-cheats-build`, `iterm2-default-profile` |
 | `dot_config/` | direnv (with micromamba), eza themes, navi, and others |
 | `.chezmoiignore` | Files skipped per OS (e.g. `Library` off macOS) |
+| `.chezmoidata.toml` | Versions shared by templates (chezmoi itself; jless/git-absorb) |
+| `renovate.json`, `.github/` | Update automation: Renovate, and the weekly Neovim plugin bump |
