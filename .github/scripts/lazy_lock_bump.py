@@ -39,6 +39,7 @@ import os
 import re
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 
 MIN_AGE_DAYS = 7
@@ -60,16 +61,21 @@ def gh(path):
         return json.load(r)
 
 
+def seg(value):
+    """One URL path segment: escaped, so a branch like '../../x' can't redirect the call."""
+    return urllib.parse.quote(value, safe="")
+
+
 def relation(repo, base, head):
     """GitHub's compare status of head relative to base: ahead/behind/identical/diverged."""
-    return gh(f"/repos/{repo}/compare/{base}...{head}")["status"]
+    return gh(f"/repos/{repo}/compare/{seg(base)}...{seg(head)}")["status"]
 
 
 def valid_lock(lock):
     ok = {}
     for name, e in lock.items():
         if (NAME.match(name) and isinstance(e, dict) and SHA.match(e.get("commit", ""))
-                and BRANCH.match(e.get("branch", ""))):
+                and BRANCH.match(e.get("branch", "")) and ".." not in e["branch"]):
             ok[name] = {"branch": e["branch"], "commit": e["commit"]}
         else:
             print(f"ignoring malformed lock entry: {name!r}")
@@ -86,7 +92,7 @@ def write_lock(path, lock):
 
 def on_branch(repo, branch, base, sha):
     """True if GitHub says sha is on branch, after base (base=None: anywhere)."""
-    head = gh(f"/repos/{repo}/commits/{branch}")["sha"]
+    head = gh(f"/repos/{repo}/commits/{seg(branch)}")["sha"]
     if relation(repo, sha, head) not in ("ahead", "identical"):
         return False  # not reachable from the branch head (fork commit, or gone)
     return base is None or relation(repo, base, sha) == "ahead"
@@ -95,11 +101,14 @@ def on_branch(repo, branch, base, sha):
 def main(old_path, new_path, info_path, cand_path):
     old = valid_lock(json.load(open(old_path)))
     new = valid_lock(json.load(open(new_path)))
-    trusted = {}
+    trusted, spec_branch = {}, {}
     for name, v in json.load(open(info_path)).items():
         m = GITHUB_URL.match(str(v.get("url", ""))) if isinstance(v, dict) else None
-        if NAME.match(name) and m:
+        if NAME.match(name) and m and not {".", ".."} & set(m.group(1).split("/")):
             trusted[name] = m.group(1)
+            b = v.get("branch")
+            if isinstance(b, str) and BRANCH.match(b) and ".." not in b:
+                spec_branch[name] = b
     try:
         cands = json.load(open(cand_path))
     except FileNotFoundError:
@@ -118,9 +127,14 @@ def main(old_path, new_path, info_path, cand_path):
         cur, cand = old.get(name), new.get(name)
         try:
             if cur is None:
-                if cand and on_branch(repo, cand["branch"], None, cand["commit"]):
-                    result[name] = cand
-                    changes.append(f"{name}: added at {cand['commit'][:7]}")
+                # Just added to the config: check lazy's commit against the
+                # branch the (trusted) spec names, else the repo's default as
+                # GitHub reports it; never the branch the untrusted job claims.
+                if cand:
+                    branch = spec_branch.get(name) or gh(f"/repos/{repo}")["default_branch"]
+                    if on_branch(repo, branch, None, cand["commit"]):
+                        result[name] = {"branch": branch, "commit": cand["commit"]}
+                        changes.append(f"{name}: added at {cand['commit'][:7]}")
                 continue
             queue = [c for c in cands.get(name, []) if isinstance(c, dict) and SHA.match(c.get("commit", ""))]
             if cand and cand["commit"] != cur["commit"] and all(c["commit"] != cand["commit"] for c in queue):

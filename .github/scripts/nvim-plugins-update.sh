@@ -31,8 +31,9 @@ case "$mode" in
       local cfg, out = require('lazy.core.config'), {}
       -- enabled plugins, plus ones switched off by a condition here (e.g. one
       -- that needs a tool the CI runner lacks): they're still in the config
-      for name, p in pairs(cfg.plugins) do out[name] = { url = p.url } end
-      for name, p in pairs(cfg.spec.disabled) do out[name] = out[name] or { url = p.url } end
+      -- branch: only when the spec names one (else the repo's default)
+      for name, p in pairs(cfg.plugins) do out[name] = { url = p.url, branch = p.branch } end
+      for name, p in pairs(cfg.spec.disabled) do out[name] = out[name] or { url = p.url, branch = p.branch } end
       vim.fn.writefile({ vim.json.encode(out) }, '$out/info.json')
     " +qa >/dev/null 2>&1
     test -s "$out/info.json"
