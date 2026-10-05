@@ -419,7 +419,8 @@ _proto_outdated_warn() {
   if (( $+commands[jq] )); then
     # Compare numerically rather than trusting is_latest, which is also false
     # when a registry's "latest" tag lags a newer installed release.
-    lines=$(jq -r 'def v: split("-")[0] | split(".") | map(tonumber? // 0);
+    # Build metadata ("3.14.8+20261003") is ignored, as semver says.
+    lines=$(jq -r 'def v: split("+")[0] | split("-")[0] | split(".") | map(tonumber? // 0);
       to_entries[] | select((.value.latest_version | v) > (.value.current_version | v))
       | "  \(.key) \(.value.current_version) -> \(.value.latest_version)  (\(.value.config_source))"' <<<"$json")
   elif [[ $json == *'"is_latest": false'* ]]; then
