@@ -13,3 +13,115 @@ jless = "0.9.0"
 git_absorb = "0.9.0"
 # renovate: datasource=github-releases depName=twpayne/chezmoi
 chezmoi = "2.73.0"
+
+# Git commits, for things that publish no releases: zi itself, zsh plugins,
+# Oh My Zsh's plugin files, Oh my tmux and the navi cheat-sheet repos.
+# Renovate can't age commits safely (a commit's date is whatever its author
+# says), so .github/workflows/git-pins.yml bumps these instead: weekly, to the
+# branch head it first saw 7+ days ago, once GitHub confirms it's on the branch.
+# Applied by run_onchange_after_zi-pins.sh.tmpl (zi), .zshrc (fresh clones,
+# OMZ files) and .chezmoiexternal.toml.tmpl (tmux, cheats).
+
+[git_pins."z-shell/zi"]
+branch = "main"
+commit = "4f2c0a7b7d3f1003620ce6701732db07cecd9b15"
+
+[git_pins."romkatv/powerlevel10k"]
+branch = "master"
+commit = "d05a1b00f9a61f9578bf9dc19b8451942dde8734"
+
+[git_pins."zsh-users/zsh-completions"]
+branch = "master"
+commit = "b5e8e0a22deb05a807bb8655aef809a29f3cffed"
+
+[git_pins."zsh-users/zsh-autosuggestions"]
+branch = "master"
+commit = "85919cd1ffa7d2d5412f6d3fe437ebdbeeec4fc5"
+
+[git_pins."z-shell/F-Sy-H"]
+branch = "main"
+commit = "2762101f64824bc990ee3f63123c7df10d031079"
+
+[git_pins."Aloxaf/fzf-tab"]
+branch = "master"
+commit = "24105b15714bfec37989ed5c5b6e60f572253019"
+
+[git_pins."hlissner/zsh-autopair"]
+branch = "master"
+commit = "449a7c3d095bc8f3d78cf37b9549f8bb4c383f3d"
+
+[git_pins."z-shell/null"]
+branch = "main"
+commit = "f5022035975a6f6822f1bfd6fb3a6300920ff9bc"
+
+[git_pins."wfxr/forgit"]
+branch = "main"
+commit = "af6c459f3f2b2a72372ea6c2044b91e45c893573"
+
+[git_pins."paulirish/git-open"]
+branch = "master"
+commit = "63c0e77aaf18b72c839b1113c1e2f9514413643b"
+
+[git_pins."z-shell/zzcomplete"]
+branch = "main"
+commit = "c3d43d9d29d8b2aea17a743516ebeed8ef7e51b4"
+
+[git_pins."z-shell/ZUI"]
+branch = "main"
+commit = "1e4d308a266fab73033241c47583f5e4c3fda537"
+
+[git_pins."akccakcctw/zsh-better-pnpm-completion"]
+branch = "master"
+commit = "dea7981a28c430923800d02d37b0fae285ebf5a9"
+
+[git_pins."lukechilds/zsh-better-npm-completion"]
+branch = "master"
+commit = "02ca404a9b585b59788b15af53d4f46fac297153"
+
+[git_pins."ryutok/rust-zsh-completions"]
+branch = "master"
+commit = "8a844fdefa57e2d07a8ec3c7a4eb88ed741ecdb2"
+
+[git_pins."zdharma-continuum/zinit-console"]
+branch = "master"
+commit = "237a418b2443b404bb20e49d9176fe52f63db0fb"
+
+[git_pins."MichaelAquilina/zsh-you-should-use"]
+branch = "master"
+commit = "5f3d129864ee4505043d88c3486224f1d75b692e"
+
+[git_pins."laggardkernel/zsh-gpg-agent"]
+branch = "master"
+commit = "a6daea6359b1fc2b70873e7854eba5996e681e11"
+
+[git_pins."greymd/docker-zsh-completion"]
+branch = "master"
+commit = "add6b333fe9c84b21d8353dfd1c1e9c708f2dba9"
+
+[git_pins."z-shell/zsh-eza"]
+branch = "main"
+commit = "5a035af59801a9366290422bd0f41f601d69d04c"
+
+[git_pins."laggardkernel/zsh-iterm2"]
+branch = "master"
+commit = "6f9d8951b3330593ceb66972a71a067793b0981e"
+
+[git_pins."ohmyzsh/ohmyzsh"]
+branch = "master"
+commit = "83a0ec79ee3b1f64c6ae2e80dcb1fb27a55e5952"
+
+[git_pins."gpakosz/.tmux"]
+branch = "master"
+commit = "58a3dcc0d718ec0fa1c0d5a2fddd640a1ad7a5b7"
+
+[git_pins."denisidoro/cheats"]
+branch = "master"
+commit = "1339965e9615ce00174cc308a41279d9c59aa75f"
+
+[git_pins."papanito/cheats"]
+branch = "main"
+commit = "89e8a4b34b8d793c5a18b5b726a6e35ba342f0b9"
+
+[git_pins."cheat/cheatsheets"]
+branch = "master"
+commit = "36bdb99dcfadde210503d8c2dcf94b34ee950e1d"

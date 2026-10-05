@@ -1,0 +1,39 @@
+#!/bin/sh
+# Keeps zi itself (~/.zi/bin) and every git-cloned zi plugin at the commit pinned
+# in .chezmoidata.toml [git_pins] (bumped weekly by .github/workflows/git-pins.yml,
+# to commits first seen 7+ days ago). chezmoi re-runs this whenever a pin
+# changes; each plugin folder's git remote says which pin applies, so plugins
+# loaded under another name (id-as) are covered too. .zshrc pins fresh clones
+# with ver'' the same way. `zi update` isn't needed (or run by update-all): it
+# would move plugins to whatever the running shell's old pins said.
+#
+# pins: {{ .git_pins | toJson | sha256sum }}
+set -eu
+
+pin() {
+  case "$1" in
+{{- range $repo, $p := .git_pins }}
+    {{ $repo | quote }}) echo {{ $p.commit | quote }} ;;
+{{- end }}
+    *) echo "" ;;
+  esac
+}
+
+apply() {
+  dir=$1
+  repo=$(git -C "$dir" remote get-url origin 2>/dev/null |
+    sed -E 's#^(https://github\.com/|git@github\.com:)##; s#\.git$##') || return 0
+  want=$(pin "$repo")
+  [ -n "$want" ] || return 0
+  [ "$(git -C "$dir" rev-parse HEAD)" = "$want" ] && return 0
+  git -C "$dir" cat-file -e "$want^{commit}" 2>/dev/null || git -C "$dir" fetch -q origin "$want"
+  git -C "$dir" -c advice.detachedHead=false checkout -q "$want"
+  echo "zi: $repo -> $(echo "$want" | cut -c1-7)"
+}
+
+# A plugin that can't be pinned (e.g. offline) only warns: never blocks apply.
+for d in "$HOME/.zi/bin/" "$HOME"/.zi/plugins/*/; do
+  [ -d "$d.git" ] || continue
+  apply "${d%/}" || echo "zi: couldn't pin ${d%/}" >&2
+done
+exit 0

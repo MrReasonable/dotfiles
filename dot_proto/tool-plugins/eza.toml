@@ -1,0 +1,21 @@
+# proto TOML plugin: eza-community/eza release binaries (modern ls). Linux only:
+# eza publishes no macOS builds (macOS gets it from Homebrew). The x86_64 build
+# is musl and the arm64 one glibc, so the arch mapping carries the whole target.
+# No published checksum files (pin exactly). Managed by chezmoi.
+name = "eza"
+type = "cli"
+
+[platform.linux]
+download-file = "eza_{arch}.tar.gz"
+exe-path = "eza"
+
+[install]
+download-url = "https://github.com/eza-community/eza/releases/download/v{version}/{download_file}"
+
+[install.arch]
+aarch64 = "aarch64-unknown-linux-gnu"
+x86_64 = "x86_64-unknown-linux-musl"
+
+[resolve]
+git-url = "https://github.com/eza-community/eza"
+version-pattern = '^v((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'

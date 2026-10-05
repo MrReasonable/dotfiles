@@ -104,7 +104,8 @@ test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/bre
 if [[ ! -f $HOME/.zi/bin/zi.zsh ]]; then
   print -P "%F{33}▓▒░ %F{160}Installing (%F{33}z-shell/zi%F{160})…%f"
   command mkdir -p "$HOME/.zi" && command chmod go-rwX "$HOME/.zi"
-  command git clone -q --depth=1 --branch "main" https://github.com/z-shell/zi "$HOME/.zi/bin" && \
+  command git clone -q https://github.com/z-shell/zi "$HOME/.zi/bin" && \
+    command git -C "$HOME/.zi/bin" -c advice.detachedHead=false checkout -q {{ (index .git_pins "z-shell/zi").commit }} && \
     print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
     print -P "%F{160}▓▒░ The clone has failed.%f%b"
 fi
@@ -152,29 +153,43 @@ zstyle ':prezto:module:gpg-agent:auto-start' local
 # id_* keys without an extension (skips id_*.pub), same as the old find -regex.
 () { zstyle :omz:plugins:ssh-agent identities ${@:#*.*} } ~/.ssh/id_*(N:t)
 
+# Pins: zi plugins are pinned to commits in .chezmoidata.toml [git_pins], bumped
+# weekly by .github/workflows/git-pins.yml to commits it first saw 7+ days ago.
+# ver'' pins fresh clones; run_onchange_after_zi-pins.sh moves existing ones.
+# Oh My Zsh plugin files load from URLs at the pinned ohmyzsh commit.
+{{- $pin := .git_pins }}
+{{- $omz := (index .git_pins "ohmyzsh/ohmyzsh").commit }}
+{{- $null := (index .git_pins "z-shell/null").commit }}
 zi wait lucid light-mode for \
-    OMZP::common-aliases \
-    OMZP::iterm2 \
-    OMZP::composer \
-    OMZP::ssh-agent \
-    OMZP::direnv \
+    https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/{{ $omz }}/plugins/common-aliases/common-aliases.plugin.zsh \
+    https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/{{ $omz }}/plugins/iterm2/iterm2.plugin.zsh \
+    https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/{{ $omz }}/plugins/composer/composer.plugin.zsh \
+    https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/{{ $omz }}/plugins/ssh-agent/ssh-agent.plugin.zsh \
+    https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/{{ $omz }}/plugins/direnv/direnv.plugin.zsh \
+    https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/{{ $omz }}/plugins/golang/golang.plugin.zsh \
+    https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/{{ $omz }}/plugins/tmux/tmux.plugin.zsh \
+  ver'{{ (index $pin "z-shell/zzcomplete").commit }}' \
     z-shell/zzcomplete \
+  ver'{{ (index $pin "z-shell/ZUI").commit }}' \
     z-shell/ZUI \
-    OMZP::golang \
-    z-shell/z-a-rust \
-    OMZP::tmux \
+  ver'{{ (index $pin "akccakcctw/zsh-better-pnpm-completion").commit }}' \
     akccakcctw/zsh-better-pnpm-completion \
+  ver'{{ (index $pin "lukechilds/zsh-better-npm-completion").commit }}' \
     lukechilds/zsh-better-npm-completion \
+  ver'{{ (index $pin "ryutok/rust-zsh-completions").commit }}' \
     ryutok/rust-zsh-completions \
+  ver'{{ (index $pin "zdharma-continuum/zinit-console").commit }}' \
     zdharma-continuum/zinit-console \
-  atload'YSU_IGNORED_GLOBAL_ALIASES=(${(k)galiases})' \
+  ver'{{ (index $pin "MichaelAquilina/zsh-you-should-use").commit }}' atload'YSU_IGNORED_GLOBAL_ALIASES=(${(k)galiases})' \
     MichaelAquilina/zsh-you-should-use \
+  ver'{{ (index $pin "laggardkernel/zsh-gpg-agent").commit }}' \
     laggardkernel/zsh-gpg-agent \
+  ver'{{ (index $pin "greymd/docker-zsh-completion").commit }}' \
     greymd/docker-zsh-completion \
-    has'eza' atinit'AUTOCD=1' \
-        z-shell/zsh-eza \
+  ver'{{ (index $pin "z-shell/zsh-eza").commit }}' has'eza' atinit'AUTOCD=1' \
+    z-shell/zsh-eza \
 {{- if eq .chezmoi.os "darwin"}}
-  pick'init.zsh' compile'*.zsh' \
+  ver'{{ (index $pin "laggardkernel/zsh-iterm2").commit }}' pick'init.zsh' compile'*.zsh' \
     laggardkernel/zsh-iterm2 \
 {{- end }}
 
@@ -222,67 +237,60 @@ ZSH_TMUX_FIXTERM=false
 # themes instead, chosen per light/dark mode by ~/.local/bin/appearance.
 zstyle ':zsh-eza:config' user-params '--git --icons --group --group-directories-first --time-style=long-iso'
 
-# @console-tools: zi installs fd/bat/eza/rg only when they're missing. A tool
-# already on PATH from outside zi (e.g. Homebrew) is skipped; otherwise the
-# annex prints its "Loading … consisting of" notice on every login, because it
-# checks for the plugin dir on disk and ignores the recipe's if'' guard.
-# eza's zi recipe only ships a linux-x86_64 binary, and the annex refuses the
-# whole group if eza is absent elsewhere, so skip it there (use brew instead).
-local -a _ct_skip
-local _ct_tool _ct_cmd
-for _ct_tool _ct_cmd in fd fd bat bat eza eza ripgrep rg; do
-  if [[ -n ${commands[$_ct_cmd]} && ${commands[$_ct_cmd]} != ${ZI[PLUGINS_DIR]}/* ]] ||
-     [[ $_ct_tool == eza && $OSTYPE/$CPUTYPE != linux*/x86_64 && -z ${commands[eza]} ]]; then
-    _ct_skip+=( $_ct_tool )
-  fi
-done
-
-# Only the annexes (needed to install recipes) and the prompt load before the
-# first prompt; the rest loads in turbo right after it's drawn.
-# Turbo order matters: fzf-tab must load after compinit (run by the label's
-# zsh-completions) but before autosuggestions/F-Sy-H wrap the completion
-# widgets, so those two are skipped from @zsh-users+fast and loaded after it.
+# Only the prompt loads before the first prompt; the rest loads in turbo right
+# after it's drawn. Binary tools (fzf, fd, bat, rg, eza, zoxide) come from proto.
+# Turbo order matters: fzf-tab must load after compinit (zsh-completions'
+# atload) but before autosuggestions/F-Sy-H wrap the completion widgets.
 # proto-activate goes first: it puts proto's tools (atuin, delta, ...) on PATH
 # for everything after it.
-# atuin owns Ctrl-R (after fzf's) but not Up, which stays prefix search.
+# fzf: key bindings and completion from `fzf --zsh` (Ctrl-T files, Alt-C
+# directories); atuin owns Ctrl-R (loaded after) but not Up, which stays
+# prefix search.
 # navi's own widget owns Ctrl-G (was list-expand): pick a cheatsheet command,
 # fill in its <blanks>, and it lands on the prompt (also see tmux prefix C-g).
 # micromamba (proto-installed) gets its `micromamba activate` shell hook here
 # rather than via `micromamba shell init`, which would write into ~/.zshrc
 # (chezmoi-managed). Not cached: the hook embeds the versioned binary path.
 # zoxide: --no-cmd because its default `zi` command would shadow zi itself, so
-# `z` jumps and `zz` picks interactively; init is cached at install/update.
-zi light-mode for z-shell/z-a-meta-plugins \
-  @annexes \
-  @romkatv
+# `z` jumps and `zz` picks interactively.
+zi light-mode for \
+  ver'{{ (index $pin "romkatv/powerlevel10k").commit }}' \
+    romkatv/powerlevel10k
 
 zi wait lucid light-mode for \
-  id-as'proto-activate' atload'(( $+functions[proto_activate] )) && proto_activate' \
+  ver'{{ $null }}' id-as'proto-activate' atload'(( $+functions[proto_activate] )) && proto_activate' \
     z-shell/null \
-  @fuzzy \
-  skip"${_ct_skip[*]}" @console-tools \
-  @ext-git \
-  skip'zsh-autosuggestions F-Sy-H' @zsh-users+fast \
-  has'carapace' id-as'carapace-init' atload'_carapace_init' \
+  ver'{{ $null }}' has'fzf' id-as'fzf-init' atload'_cached_init fzf --zsh' \
     z-shell/null \
-  Aloxaf/fzf-tab \
-  hlissner/zsh-autopair \
-  has'atuin' id-as'atuin-init' atload'_cached_init atuin init zsh --disable-up-arrow' \
+  ver'{{ (index $pin "paulirish/git-open").commit }}' as'program' pick'git-open' \
+    paulirish/git-open \
+  ver'{{ (index $pin "wfxr/forgit").commit }}' as'program' pick'bin/git-forgit' src'forgit.plugin.zsh' \
+  atinit'export FORGIT_NO_ALIASES=${FORGIT_NO_ALIASES-1}' \
+    wfxr/forgit \
+  ver'{{ (index $pin "zsh-users/zsh-completions").commit }}' atpull'zi creinstall $PWD' pick'/dev/null' \
+  atload'zicompinit; zicdreplay' \
+    zsh-users/zsh-completions \
+  ver'{{ $null }}' has'carapace' id-as'carapace-init' atload'_carapace_init' \
     z-shell/null \
-  has'navi' id-as'navi-widget' atload'_cached_init navi widget zsh' \
+  ver'{{ (index $pin "Aloxaf/fzf-tab").commit }}' \
+    Aloxaf/fzf-tab \
+  ver'{{ (index $pin "hlissner/zsh-autopair").commit }}' \
+    hlissner/zsh-autopair \
+  ver'{{ $null }}' has'atuin' id-as'atuin-init' atload'_cached_init atuin init zsh --disable-up-arrow' \
     z-shell/null \
-  atload'!_zsh_autosuggest_start' \
+  ver'{{ $null }}' has'navi' id-as'navi-widget' atload'_cached_init navi widget zsh' \
+    z-shell/null \
+  ver'{{ (index $pin "zsh-users/zsh-autosuggestions").commit }}' atload'!_zsh_autosuggest_start' \
     zsh-users/zsh-autosuggestions \
+  ver'{{ (index $pin "z-shell/F-Sy-H").commit }}' \
     z-shell/F-Sy-H \
-  has'micromamba' id-as'micromamba-init' atload'eval "$(micromamba shell hook --shell zsh)"' \
+  ver'{{ $null }}' has'micromamba' id-as'micromamba-init' atload'eval "$(micromamba shell hook --shell zsh)"' \
     z-shell/null \
-  id-as'tips-refresh' atload'_tips_refresh' \
+  ver'{{ $null }}' id-as'tips-refresh' atload'_tips_refresh' \
     z-shell/null \
-  from'gh-r' as'program' pick'zoxide' \
-  atclone'./zoxide init zsh --no-cmd >| init.zsh' atpull'%atclone' src'init.zsh' \
-  atload"alias z=__zoxide_z zz=__zoxide_zi; compdef _z_zoxide_complete __zoxide_z" \
-    ajeetdsouza/zoxide
-unset _ct_skip _ct_tool _ct_cmd
+  ver'{{ $null }}' has'zoxide' id-as'zoxide-init' \
+  atload'_cached_init zoxide init zsh --no-cmd; alias z=__zoxide_z zz=__zoxide_zi; compdef _z_zoxide_complete __zoxide_z' \
+    z-shell/null
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 if [[ "$TERM_PROGRAM" != "vscode" ]]; then
@@ -417,20 +425,18 @@ _proto_sync() { ( builtin cd ~/.proto && proto install ) }
 # by a GitHub Action). `:Lazy update` would skip that wait.
 _nvim_sync() { (( $+commands[nvim] )) && nvim --headless "+Lazy! restore" +qa >/dev/null 2>&1 }
 
-# zi runs plugins' update hooks inside this shell, so a hook's `cp` picks up
-# common-aliases' interactive `cp -i` (and mv/rm) and stops at an "overwrite?"
-# question nobody can answer. Update in a subshell without those aliases.
-_zi_update() { ( unalias cp mv rm 2>/dev/null; zi update -p -a ) }
+# zsh plugins aren't updated here: their commits are pinned in the dotfiles
+# (see .chezmoidata.toml), and `chezmoi update` moves them when a pin changes.
 
 # `chezmoi update` pulls the dotfiles (Renovate's pin bumps included) and
 # applies them, which installs the pinned proto tools and chezmoi version.
 {{- if eq .chezmoi.os "darwin" }}
-alias update-all="chezmoi update && brew update && brew upgrade && brew cleanup && zi cclear && _zi_update && zi cclear && zi compinit; _proto_sync; _nvim_sync"
+alias update-all="chezmoi update && brew update && brew upgrade && brew cleanup && zi compinit; _proto_sync; _nvim_sync"
 {{- else }}
 alias update-all="chezmoi update && which apt-get > /dev/null && sudo apt-get update && sudo apt-get dist-upgrade && sudo apt-get --purge autoremove; \
 which flatpak > /dev/null && flatpak update -y && sudo flatpak update -y;  \
 which snap > /dev/null && sudo snap refresh;\
-zi cclear && _zi_update && zi cclear && zi compinit; _proto_sync; _nvim_sync"
+zi compinit; _proto_sync; _nvim_sync"
 {{- end }}
 
 # fzf-tab draws the completion list, so zsh's own menu stays off.

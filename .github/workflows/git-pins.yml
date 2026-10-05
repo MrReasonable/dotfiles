@@ -1,0 +1,49 @@
+# Weekly bump of the [git_pins] commits in .chezmoidata.toml (zi, zsh plugins,
+# Oh My Zsh files, Oh my tmux, navi cheat sheets): to branch heads this workflow
+# first saw at least 7 days ago, once GitHub confirms they're on the branch.
+# It only queries GitHub's API (never runs code from those repos), so one job.
+# Machines pick changes up with `update-all` (chezmoi update).
+name: Git pins
+
+on:
+  schedule:
+    - cron: "37 5 * * 1" # Mondays, 05:37 UTC
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: git-pins
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Apply the 7-day rule
+        shell: bash # -eo pipefail: a script failure isn't hidden by tee
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python3 .github/scripts/git_pins_bump.py .chezmoidata.toml .github/git-pin-candidates.json |
+            tee "$RUNNER_TEMP/changes.txt"
+
+      - name: Commit
+        run: |
+          [ -z "$(git status --porcelain -- .chezmoidata.toml .github/git-pin-candidates.json)" ] &&
+            { echo "Nothing to commit."; exit 0; }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .chezmoidata.toml .github/git-pin-candidates.json
+          if git diff --cached --quiet -- .chezmoidata.toml; then
+            subject="git pins: record updates waiting out 7 days"
+          else
+            subject="git pins: bumps (first seen 7+ days ago)"
+          fi
+          { echo "$subject"; echo; cat "$RUNNER_TEMP/changes.txt"; } | git commit -F -
+          git push

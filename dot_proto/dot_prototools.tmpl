@@ -37,6 +37,8 @@ python = "3.14.8"
 atuin = "18.23.0"
 # renovate: datasource=github-releases depName=carapace-sh/carapace-bin
 carapace = "1.8.0"
+# renovate: datasource=github-releases depName=sharkdp/bat
+bat = "0.26.1"
 # renovate: datasource=github-releases depName=dandavison/delta
 delta = "0.20.1"
 # renovate: datasource=github-releases depName=Wilfred/difftastic
@@ -45,6 +47,10 @@ difftastic = "0.71.0"
 direnv = "2.37.1"
 # renovate: datasource=github-releases depName=bootandy/dust
 dust = "1.2.6"
+# renovate: datasource=github-releases depName=sharkdp/fd
+fd = "10.5.0"
+# renovate: datasource=github-releases depName=junegunn/fzf
+fzf = "0.74.4"
 # renovate: datasource=github-releases depName=sharkdp/hyperfine
 hyperfine = "1.21.0"
 {{- if or (eq .chezmoi.os "darwin") (eq .chezmoi.arch "amd64") }}
@@ -56,6 +62,8 @@ jless = {{ .pins.jless | quote }}
 just = "1.58.0"
 # renovate: datasource=github-releases depName=mamba-org/micromamba-releases extractVersion=^(?<version>\d+\.\d+\.\d+)-0$
 micromamba = "2.9.0"
+# renovate: datasource=github-releases depName=BurntSushi/ripgrep
+ripgrep = "15.2.0"
 # renovate: datasource=github-releases depName=chmln/sd
 sd = "1.1.0"
 # renovate: datasource=github-releases depName=joshmedeski/sesh
@@ -70,6 +78,8 @@ watchexec = "2.7.4"
 xh = "0.26.2"
 # renovate: datasource=github-releases depName=sxyazi/yazi
 yazi = "26.9.1"
+# renovate: datasource=github-releases depName=ajeetdsouza/zoxide
+zoxide = "0.10.0"
 {{- if ne .chezmoi.os "darwin" }}
 
 # Linux only. macOS gets these from Homebrew (btop, navi: no macOS release
@@ -82,6 +92,9 @@ btop = "1.4.7"
 # .chezmoidata.toml.
 git-absorb = {{ .pins.git_absorb | quote }}
 {{- end }}
+# renovate: datasource=github-releases depName=eza-community/eza
+# eza: no macOS builds (macOS gets it from Homebrew)
+eza = "0.23.5"
 # renovate: datasource=github-releases depName=jqlang/jq extractVersion=^jq-(?<version>.+)$
 jq = "1.8.2"
 # renovate: datasource=github-releases depName=denisidoro/navi
@@ -98,15 +111,19 @@ diff-so-fancy = "1.4.14"
 
 [plugins]
 atuin = "file://./tool-plugins/atuin.toml"
+bat = "file://./tool-plugins/bat.toml"
 carapace = "file://./tool-plugins/carapace.toml"
 delta = "file://./tool-plugins/delta.toml"
 direnv = "file://./tool-plugins/direnv.toml"
 difftastic = "file://./tool-plugins/difftastic.toml"
 dust = "file://./tool-plugins/dust.toml"
+fd = "file://./tool-plugins/fd.toml"
+fzf = "file://./tool-plugins/fzf.toml"
 hyperfine = "file://./tool-plugins/hyperfine.toml"
 jless = "file://./tool-plugins/jless.toml"
 just = "file://./tool-plugins/just.toml"
 micromamba = "file://./tool-plugins/micromamba.toml"
+ripgrep = "file://./tool-plugins/ripgrep.toml"
 sd = "file://./tool-plugins/sd.toml"
 sesh = "file://./tool-plugins/sesh.toml"
 tailspin = "file://./tool-plugins/tailspin.toml"
@@ -114,8 +131,10 @@ tlrc = "file://./tool-plugins/tlrc.toml"
 watchexec = "file://./tool-plugins/watchexec.toml"
 yazi = "file://./tool-plugins/yazi.toml"
 xh = "file://./tool-plugins/xh.toml"
+zoxide = "file://./tool-plugins/zoxide.toml"
 {{- if ne .chezmoi.os "darwin" }}
 btop = "file://./tool-plugins/btop.toml"
+eza = "file://./tool-plugins/eza.toml"
 git-absorb = "file://./tool-plugins/git-absorb.toml"
 jq = "file://./tool-plugins/jq.toml"
 navi = "file://./tool-plugins/navi.toml"

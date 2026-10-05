@@ -1,0 +1,24 @@
+# proto TOML plugin: ajeetdsouza/zoxide release binaries (smarter cd). No
+# published checksums (pin exactly). Registered in ~/.proto/.prototools
+# [plugins]; managed by chezmoi. Shell init comes from `zoxide init` (.zshrc).
+name = "zoxide"
+type = "cli"
+
+[platform.macos]
+download-file = "zoxide-{version}-{arch}-apple-darwin.tar.gz"
+exe-path = "zoxide"
+
+[platform.linux]
+download-file = "zoxide-{version}-{arch}-unknown-linux-musl.tar.gz"
+exe-path = "zoxide"
+
+[install]
+download-url = "https://github.com/ajeetdsouza/zoxide/releases/download/v{version}/{download_file}"
+
+[install.arch]
+aarch64 = "aarch64"
+x86_64 = "x86_64"
+
+[resolve]
+git-url = "https://github.com/ajeetdsouza/zoxide"
+version-pattern = '^v((?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+))$'
