@@ -5,8 +5,9 @@
 # micromamba-*.tar.bz2.sha256 actually holds the BINARY's hash, so verifying
 # the archive against it always fails. The raw binary matches its .sha256.
 # Tags carry a build suffix ("2.9.0-0"): versions resolve from "-0" builds and
-# the suffix is added back in the URL. macOS uses arm64/64, Linux aarch64/64;
-# proto maps arch once for all platforms, so Linux is x86_64 only here.
+# the suffix is added back in the URL. macOS names its builds arm64/64 and Linux
+# aarch64/64, but proto maps arch once for all platforms, so this file is a
+# chezmoi template that writes the mapping for the OS it's applied on.
 name = "micromamba"
 type = "cli"
 
@@ -16,7 +17,6 @@ checksum-file = "micromamba-osx-{arch}.sha256"
 exe-path = "micromamba"
 
 [platform.linux]
-archs = ["x86_64"]
 download-file = "micromamba-linux-{arch}"
 checksum-file = "micromamba-linux-{arch}.sha256"
 exe-path = "micromamba"
@@ -26,7 +26,7 @@ download-url = "https://github.com/mamba-org/micromamba-releases/releases/downlo
 checksum-url = "https://github.com/mamba-org/micromamba-releases/releases/download/{version}-0/{checksum_file}"
 
 [install.arch]
-aarch64 = "arm64"
+aarch64 = "{{ if eq .chezmoi.os "darwin" }}arm64{{ else }}aarch64{{ end }}"
 x86_64 = "64"
 
 [resolve]

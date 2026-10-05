@@ -2,7 +2,7 @@
 # Installs the global proto toolchain after `chezmoi apply`. chezmoi re-runs
 # this whenever its rendered content changes, i.e. when any config below does:
 #   .prototools: {{ include "dot_proto/dot_prototools.tmpl" | sha256sum }}
-{{- range (joinPath .chezmoi.sourceDir "dot_proto/tool-plugins/*.toml" | glob) }}
+{{- range (joinPath .chezmoi.sourceDir "dot_proto/tool-plugins/*.toml*" | glob) }}
 #   {{ base . }}: {{ include . | sha256sum }}
 {{- end }}
 set -eu

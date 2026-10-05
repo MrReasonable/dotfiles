@@ -36,7 +36,10 @@ difftastic = "0.71.0"
 direnv = "2.37.1"
 dust = "1.2.6"
 hyperfine = "1.21.0"
+{{- if or (eq .chezmoi.os "darwin") (eq .chezmoi.arch "amd64") }}
+# jless has no ARM Linux build.
 jless = "0.9.0"
+{{- end }}
 sd = "1.1.0"
 tailspin = "7.0.0"
 tlrc = "1.13.1"
@@ -46,7 +49,10 @@ yazi = "26.9.1"
 # btop ships no macOS binaries, git-absorb only x86_64 ones; macOS gets both
 # from Homebrew.
 btop = "1.4.7"
+{{- if eq .chezmoi.arch "amd64" }}
+# git-absorb has no ARM Linux build (Debian/Ubuntu package it: apt install git-absorb).
 git-absorb = "0.9.0"
+{{- end }}
 # macOS ships /usr/bin/jq; Linux boxes often don't, and update-all needs it
 jq = "~1"
 # navi has no macOS release binaries; macOS gets it from Homebrew
