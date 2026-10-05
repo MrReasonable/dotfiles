@@ -10,8 +10,9 @@
 #   resolve  runs `:Lazy! update` (the UPDATED plugins' code) with read-only
 #            access and no token; only its proposed commits are used
 #   bump     never runs plugin code: applies the 7-day rule, checking each
-#            commit against GitHub itself (lazy_lock_bump.py), and commits;
-#            the only job that can push
+#            commit against GitHub itself and each plugin's repo against the
+#            one pinned in .github/nvim-plugin-repos.json (lazy_lock_bump.py),
+#            and commits; the only job that can push
 name: Neovim plugins
 
 on:
@@ -115,16 +116,16 @@ jobs:
         run: |
           python3 .github/scripts/lazy_lock_bump.py nvim/lazy-lock.json \
             "$RUNNER_TEMP/resolved/lazy-lock.json" "$RUNNER_TEMP/trusted/info.json" \
-            .github/nvim-plugin-candidates.json | tee "$RUNNER_TEMP/changes.txt"
+            .github/nvim-plugin-candidates.json .github/nvim-plugin-repos.json |
+            tee "$RUNNER_TEMP/changes.txt"
 
       - name: Commit
         run: |
-          git diff --quiet -- nvim/lazy-lock.json .github/nvim-plugin-candidates.json &&
-            [ -z "$(git status --porcelain -- .github/nvim-plugin-candidates.json)" ] &&
+          [ -z "$(git status --porcelain -- nvim/lazy-lock.json .github/nvim-plugin-candidates.json .github/nvim-plugin-repos.json)" ] &&
             { echo "Nothing to commit."; exit 0; }
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add nvim/lazy-lock.json .github/nvim-plugin-candidates.json
+          git add nvim/lazy-lock.json .github/nvim-plugin-candidates.json .github/nvim-plugin-repos.json
           if git diff --cached --quiet -- nvim/lazy-lock.json; then
             subject="nvim: record plugin updates waiting out 7 days"
           else

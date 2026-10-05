@@ -25,11 +25,16 @@ keeps the current commit.
 
 Plugins in the trusted list but not the lock (just added to the config) take
 lazy's choice straight away, once GitHub confirms it's on the branch: without
-an entry, Neovim would install the newest commit anyway. Lock entries are
-removed only for plugins missing from the trusted list (removed from the
-config), never because the untrusted lock left them out.
+an entry, Neovim would install the newest commit anyway.
 
-Usage: lazy_lock_bump.py OLD_LOCK NEW_LOCK TRUSTED_INFO_JSON CANDIDATES_JSON
+Two more guards, because a plugin you've just added has no locked commit, so
+the trusted job runs its latest code too and could tamper with the list:
+  - each plugin's repo is pinned in URLS_JSON the first time it's seen; if the
+    list later names a different repo, that plugin is left alone (and reported)
+  - lock entries are never removed (a stale entry is harmless: lazy ignores
+    entries for plugins that aren't in the config)
+
+Usage: lazy_lock_bump.py OLD_LOCK NEW_LOCK TRUSTED_INFO_JSON CANDIDATES_JSON URLS_JSON
 Rewrites OLD_LOCK and CANDIDATES_JSON; prints a summary. Needs GITHUB_TOKEN
 (read access to public repos is enough).
 """
@@ -47,8 +52,6 @@ API = "https://api.github.com"
 SHA = re.compile(r"^[0-9a-f]{40}$")
 NAME = re.compile(r"^[A-Za-z0-9._-]+$")
 BRANCH = re.compile(r"^[A-Za-z0-9._/-]+$")
-# Plugins locked but not declared as specs (lazy.nvim bootstraps itself).
-TRUSTED_EXTRA = {"lazy.nvim"}
 GITHUB_URL = re.compile(r"^https://github\.com/([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?)(?:\.git)?/?$")
 
 
@@ -98,7 +101,7 @@ def on_branch(repo, branch, base, sha):
     return base is None or relation(repo, base, sha) == "ahead"
 
 
-def main(old_path, new_path, info_path, cand_path):
+def main(old_path, new_path, info_path, cand_path, urls_path):
     old = valid_lock(json.load(open(old_path)))
     new = valid_lock(json.load(open(new_path)))
     trusted, spec_branch = {}, {}
@@ -113,17 +116,18 @@ def main(old_path, new_path, info_path, cand_path):
         cands = json.load(open(cand_path))
     except FileNotFoundError:
         cands = {}
+    try:
+        pinned_repo = json.load(open(urls_path))
+    except FileNotFoundError:
+        pinned_repo = {}
     today = dt.date.today()
     cutoff = (today - dt.timedelta(days=MIN_AGE_DAYS)).isoformat()
 
-    result, changes = {}, []
-    for name in sorted(old):
-        if name not in trusted and name not in TRUSTED_EXTRA:
-            changes.append(f"{name}: removed (no longer in the config)")
-            cands.pop(name, None)
-        else:
-            result[name] = old[name]
+    result, changes = dict(old), []  # never removes an entry
     for name, repo in sorted(trusted.items()):
+        if pinned_repo.setdefault(name, repo) != repo:
+            changes.append(f"WARNING {name}: config says {repo}, pinned {pinned_repo[name]}; left alone")
+            continue
         cur, cand = old.get(name), new.get(name)
         try:
             if cur is None:
@@ -155,6 +159,9 @@ def main(old_path, new_path, info_path, cand_path):
             print(f"skip {name}: {e}")
 
     write_lock(old_path, result)
+    with open(urls_path, "w") as f:
+        json.dump(dict(sorted(pinned_repo.items())), f, indent=1)
+        f.write("\n")
     with open(cand_path, "w") as f:
         json.dump(dict(sorted(cands.items())), f, indent=1)
         f.write("\n")
@@ -164,4 +171,4 @@ def main(old_path, new_path, info_path, cand_path):
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:5])
+    main(*sys.argv[1:6])
