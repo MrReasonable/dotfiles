@@ -28,8 +28,11 @@ timeout 900 nvim --headless "+Lazy! restore" +qa >/dev/null 2>&1 || true
 case "$mode" in
   trusted)
     timeout 120 nvim --headless "+lua
-      local out = {}
-      for name, p in pairs(require('lazy.core.config').plugins) do out[name] = { url = p.url } end
+      local cfg, out = require('lazy.core.config'), {}
+      -- enabled plugins, plus ones switched off by a condition here (e.g. one
+      -- that needs a tool the CI runner lacks): they're still in the config
+      for name, p in pairs(cfg.plugins) do out[name] = { url = p.url } end
+      for name, p in pairs(cfg.spec.disabled) do out[name] = out[name] or { url = p.url } end
       vim.fn.writefile({ vim.json.encode(out) }, '$out/info.json')
     " +qa >/dev/null 2>&1
     test -s "$out/info.json"
