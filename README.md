@@ -275,15 +275,22 @@ within days, so the wait keeps them off your machines.
   minor bumps merge themselves after the wait; majors open a pull request for
   you. Fixes for known vulnerabilities skip the wait. Its Dependency
   Dashboard issue lists what's pending.
+- **Things without releases** (zsh plugins, zi itself, Oh My Zsh's plugin
+  files, Oh my tmux, the navi cheat-sheet repos) are pinned to commits in
+  `.chezmoidata.toml` `[git_pins]`. `.github/workflows/git-pins.yml` bumps them
+  every Monday to branch heads it first saw 7+ days ago (Renovate can't: a
+  commit's date is whatever its author says), checking with GitHub that each
+  is really on the branch. It never runs code from those repos.
 - **Neovim plugins**: `.github/workflows/nvim-plugins.yml` runs every Monday,
   moving `nvim/lazy-lock.json` to plugin commits at least 7 days old (within
   what AstroNvim allows). Run it any time from the repo's Actions tab.
 - **Your machines**: `update-all` pulls the repo and installs exactly what
-  the pins say (proto tools, chezmoi, `:Lazy restore` for Neovim), plus the
-  OS packages (Homebrew/apt).
+  the pins say (proto tools, chezmoi, zsh plugins, `:Lazy restore` for
+  Neovim), plus the OS packages (Homebrew/apt).
 
-Avoid `:Lazy update`/`:Lazy sync` and `proto install <tool> latest`: they skip
-the wait (and `:Lazy update` would change `lazy-lock.json` in this repo).
+Avoid `:Lazy update`/`:Lazy sync`, `zi update` and `proto install <tool>
+latest`: they skip the wait (and `:Lazy update` would change `lazy-lock.json`
+in this repo).
 
 One-time setup: install the [Renovate GitHub app](https://github.com/apps/renovate)
 on this repository.
@@ -295,7 +302,7 @@ on this repository.
 | `dot_zshrc.tmpl` | zsh config (a chezmoi template: differs per OS) |
 | `dot_p10k.zsh` | Powerlevel10k prompt (lean style) |
 | `dot_tmux.conf.local` | Oh my tmux! settings, theme, key bindings |
-| `.chezmoiexternal.toml` | Oh my tmux! itself and the public navi cheat sheets |
+| `.chezmoiexternal.toml.tmpl` | Oh my tmux! and the public navi cheat sheets, at pinned commits |
 | `nvim/` | The Neovim config; `~/.config/nvim` is a symlink to it |
 | `dot_proto/` | proto's tool pins (`dot_prototools.tmpl`) and plugins for tools proto doesn't know (`tool-plugins/`) |
 | `run_onchange_after_install-cli-tools.sh.tmpl` | Installs proto and the pinned tools; re-runs when the pins change |
@@ -304,5 +311,5 @@ on this repository.
 | `private_dot_local/bin/` | Helper scripts: `appearance` (light/dark), `tips-build`, `navi-cheats-build`, `iterm2-default-profile` |
 | `dot_config/` | direnv (with micromamba), eza themes, navi, and others |
 | `.chezmoiignore` | Files skipped per OS (e.g. `Library` off macOS) |
-| `.chezmoidata.toml` | Versions shared by templates (chezmoi itself; jless/git-absorb) |
+| `.chezmoidata.toml` | Versions shared by templates (chezmoi; jless/git-absorb) and the `[git_pins]` commits |
 | `renovate.json`, `.github/` | Update automation: Renovate, and the weekly Neovim plugin bump |
