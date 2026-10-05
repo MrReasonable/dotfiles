@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
-# Update nvim/lazy-lock.json to plugin commits at least 7 days old (run weekly by
-# .github/workflows/nvim-plugins.yml; also runnable locally from the repo root).
+# Resolve Neovim plugin updates (step 1 of .github/workflows/nvim-plugins.yml).
 #
-# Runs the repo's Neovim config headlessly in throwaway XDG folders, so nothing
-# of yours is touched: lazy installs from the current lock, `:Lazy! update`
-# picks the newest versions the plugin specs allow, and lazy_lock_bump.py keeps
-# only what's old enough. Needs nvim on PATH and GITHUB_TOKEN.
+#   nvim-plugins-update.sh OUT_DIR
+#
+# Runs the repo's Neovim config headlessly in throwaway XDG folders: lazy
+# installs from the current lock, then `:Lazy! update` picks the newest versions
+# the plugin specs allow. Writes OUT_DIR/lazy-lock.json (lazy's result) and
+# OUT_DIR/info.json (each plugin's URL). This step runs plugins' own code
+# (install/build hooks), so the workflow gives it no token and no write access;
+# lazy_lock_bump.py (step 2) decides what the repo's lock actually becomes.
 set -euo pipefail
 
+out=$(cd "$1" && pwd)
 repo=$(cd "$(dirname "$0")/../.." && pwd)
 work=$(mktemp -d)
 trap 'rm -rf "$work" 2>/dev/null || true' EXIT
@@ -22,17 +26,9 @@ cp -R "$repo/nvim" "$XDG_CONFIG_HOME/nvim"
 timeout 900 nvim --headless "+Lazy! restore" +qa >/dev/null 2>&1 || true
 timeout 900 nvim --headless "+Lazy! update" +qa >/dev/null 2>&1 || true
 
-# Each plugin's URL, and whether it follows a release tag (vs a branch).
 timeout 120 nvim --headless "+lua
-  local cfg = require('lazy.core.config')
   local out = {}
-  for name, p in pairs(cfg.plugins) do
-    local v = p.version
-    if v == nil then v = cfg.options.defaults.version end
-    out[name] = { url = p.url, versioned = (v ~= nil and v ~= false) or p.tag ~= nil or p.commit ~= nil }
-  end
-  vim.fn.writefile({ vim.json.encode(out) }, '$work/info.json')
+  for name, p in pairs(require('lazy.core.config').plugins) do out[name] = { url = p.url } end
+  vim.fn.writefile({ vim.json.encode(out) }, '$out/info.json')
 " +qa >/dev/null 2>&1
-
-python3 "$repo/.github/scripts/lazy_lock_bump.py" \
-  "$repo/nvim/lazy-lock.json" "$XDG_CONFIG_HOME/nvim/lazy-lock.json" "$work/info.json"
+cp "$XDG_CONFIG_HOME/nvim/lazy-lock.json" "$out/lazy-lock.json"
