@@ -136,7 +136,10 @@ fi
 # packages are never touched: other software on a server may rely on them.
 confirm() {
   [ "${DOTFILES_YES:-}" = 1 ] && return 0
-  [ -r /dev/tty ] || return 1
+  if ! { : < /dev/tty; } 2>/dev/null; then  # no terminal to ask on
+    todo+=("Left in place (couldn't ask): ${1%%\?*}. Re-run in a terminal, or with DOTFILES_YES=1.")
+    return 1
+  fi
   local reply
   printf '%s [y/N] ' "$1" > /dev/tty
   read -r reply < /dev/tty || return 1
@@ -148,9 +151,9 @@ rm_maybe_sudo() {  # remove a file, with sudo if it isn't ours to remove
 
 # Other chezmoi copies. Homebrew's (macOS) is offered as a brew uninstall;
 # anything a system package owns is left alone.
-brew_prefix=""
+brew_prefix=/nonexistent  # never empty: "$brew_prefix"/* would then match every path
 [ "$os" = Darwin ] && brew_prefix=$(brew --prefix)
-if [ -n "$brew_prefix" ] && brew list --formula chezmoi >/dev/null 2>&1; then
+if [ "$os" = Darwin ] && brew list --formula chezmoi >/dev/null 2>&1; then
   if confirm "Uninstall Homebrew's chezmoi (replaced by ~/.local/bin/chezmoi)?"; then
     brew uninstall chezmoi
   fi
@@ -164,7 +167,7 @@ while IFS= read -r p; do
   if confirm "Remove old chezmoi at $p (replaced by ~/.local/bin/chezmoi)?"; then
     rm_maybe_sudo "$p"
   fi
-done < <(type -ap chezmoi | awk '!seen[$0]++')
+done < <(type -aP chezmoi | awk '!seen[$0]++')
 
 if [ "$os" = Linux ]; then
   # Linux Homebrew: nothing in this setup uses it any more.
