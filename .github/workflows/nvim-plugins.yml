@@ -26,7 +26,7 @@ jobs:
       # The same Neovim version the dotfiles pin (dot_proto/dot_prototools.tmpl).
       - name: Install Neovim
         run: |
-          version=$(sed -n 's/^neovim = "\(.*\)"/\1/p' dot_proto/dot_prototools.tmpl)
+          version=$(sed -n 's/^neovim = "\([0-9][0-9.]*\)"/\1/p' dot_proto/dot_prototools.tmpl)
           curl -fsSL "https://github.com/neovim/neovim/releases/download/v${version}/nvim-linux-x86_64.tar.gz" |
             tar -xz -C "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/nvim-linux-x86_64/bin" >> "$GITHUB_PATH"
