@@ -7,25 +7,31 @@ commit dates: whoever makes a commit sets its date, so a malicious commit can
 claim to be a month old. Instead it keeps its own record of when it first saw
 each candidate commit (CANDIDATES_JSON, committed alongside the lock):
 
-  old   the lock in the repo
-  new   the lock after a headless `:Lazy! update` (in a separate, read-only job),
-        i.e. what the plugin specs allow today (AstroNvim pins many plugins to
-        tested releases)
-  info  each plugin's GitHub URL
+  old   the lock in the repo (trusted)
+  info  each plugin's name and GitHub URL, read from the config at the locked
+        commits by a job that runs before any plugin is updated (trusted: it
+        decides which plugins exist and where they live)
+  new   the lock after a headless `:Lazy! update` (untrusted: that job ran the
+        updated plugins' own code). Only its commits are used, and only as
+        candidates; its plugin names and branches are ignored.
 
 For each plugin, lazy's choice joins that plugin's candidate list with today's
 date (if it's new). The lock then moves to the newest candidate first seen at
-least MIN_AGE_DAYS ago, provided it's newer than the current commit and is
-still on the branch lazy now tracks (checked with GitHub's compare API, so a
-force-pushed-away commit is never adopted). Nothing ever moves backwards.
+least MIN_AGE_DAYS ago, but only if GitHub itself confirms it sits on the
+plugin's branch (in the trusted repo, between the current commit and the
+branch's head right now): so neither an injected fork commit nor a
+force-pushed-away one is ever adopted, and nothing moves backwards. Any error
+keeps the current commit.
 
-A plugin with no lock entry yet (just added to the config) takes lazy's choice
-straight away: without an entry, Neovim would install the newest commit anyway.
+Plugins in the trusted list but not the lock (just added to the config) take
+lazy's choice straight away, once GitHub confirms it's on the branch: without
+an entry, Neovim would install the newest commit anyway. Lock entries are
+removed only for plugins missing from the trusted list (removed from the
+config), never because the untrusted lock left them out.
 
-Usage: lazy_lock_bump.py OLD_LOCK NEW_LOCK PLUGIN_INFO_JSON CANDIDATES_JSON
+Usage: lazy_lock_bump.py OLD_LOCK NEW_LOCK TRUSTED_INFO_JSON CANDIDATES_JSON
 Rewrites OLD_LOCK and CANDIDATES_JSON; prints a summary. Needs GITHUB_TOKEN
-(read access to public repos is enough). NEW_LOCK and PLUGIN_INFO_JSON come from
-the job that ran plugin code, so they're validated before use.
+(read access to public repos is enough).
 """
 import datetime as dt
 import json
@@ -40,6 +46,8 @@ API = "https://api.github.com"
 SHA = re.compile(r"^[0-9a-f]{40}$")
 NAME = re.compile(r"^[A-Za-z0-9._-]+$")
 BRANCH = re.compile(r"^[A-Za-z0-9._/-]+$")
+# Plugins locked but not declared as specs (lazy.nvim bootstraps itself).
+TRUSTED_EXTRA = {"lazy.nvim"}
 GITHUB_URL = re.compile(r"^https://github\.com/([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?)(?:\.git)?/?$")
 
 
@@ -76,10 +84,22 @@ def write_lock(path, lock):
         f.write("{\n" + ",\n".join(lines) + "\n}\n")
 
 
+def on_branch(repo, branch, base, sha):
+    """True if GitHub says sha is on branch, after base (base=None: anywhere)."""
+    head = gh(f"/repos/{repo}/commits/{branch}")["sha"]
+    if relation(repo, sha, head) not in ("ahead", "identical"):
+        return False  # not reachable from the branch head (fork commit, or gone)
+    return base is None or relation(repo, base, sha) == "ahead"
+
+
 def main(old_path, new_path, info_path, cand_path):
     old = valid_lock(json.load(open(old_path)))
     new = valid_lock(json.load(open(new_path)))
-    info = json.load(open(info_path))
+    trusted = {}
+    for name, v in json.load(open(info_path)).items():
+        m = GITHUB_URL.match(str(v.get("url", ""))) if isinstance(v, dict) else None
+        if NAME.match(name) and m:
+            trusted[name] = m.group(1)
     try:
         cands = json.load(open(cand_path))
     except FileNotFoundError:
@@ -88,41 +108,37 @@ def main(old_path, new_path, info_path, cand_path):
     cutoff = (today - dt.timedelta(days=MIN_AGE_DAYS)).isoformat()
 
     result, changes = {}, []
-    for name in sorted(set(old) | set(new)):
-        cur, cand = old.get(name), new.get(name)
-        if cand is None:  # dropped from the config
-            changes.append(f"{name}: removed")
+    for name in sorted(old):
+        if name not in trusted and name not in TRUSTED_EXTRA:
+            changes.append(f"{name}: removed (no longer in the config)")
             cands.pop(name, None)
-            continue
-        if cur is None:  # just added to the config
-            result[name] = cand
-            changes.append(f"{name}: added at {cand['commit'][:7]}")
-            continue
-        result[name] = cur
-        # Record lazy's choice as a candidate, dated the first time we see it.
-        queue = [c for c in cands.get(name, []) if SHA.match(c.get("commit", ""))]
-        if cand["commit"] != cur["commit"] and all(c["commit"] != cand["commit"] for c in queue):
-            queue.append({"commit": cand["commit"], "branch": cand["branch"], "seen": today.isoformat()})
-        m = GITHUB_URL.match(str(info.get(name, {}).get("url", "")))
-        ripe = [c for c in queue if c["seen"] <= cutoff]
-        if ripe and m:
-            repo, pick = m.group(1), ripe[-1]
-            try:
-                # newer than what we have, and still on the branch lazy tracks
-                if (relation(repo, cur["commit"], pick["commit"]) == "ahead"
-                        and relation(repo, pick["commit"], cand["commit"]) in ("ahead", "identical")):
-                    result[name] = {"branch": pick["branch"], "commit": pick["commit"]}
-                    changes.append(f"{name}: {cur['commit'][:7]} -> {pick['commit'][:7]} (seen {pick['seen']})")
-            except urllib.error.HTTPError as e:  # e.g. a commit force-pushed away
-                print(f"skip {name}: {e}")
-        # Keep only candidates newer than what's now locked.
-        locked = result[name]["commit"]
-        idx = next((i for i, c in enumerate(queue) if c["commit"] == locked), None)
-        queue = queue[idx + 1:] if idx is not None else [c for c in queue if c["commit"] != locked]
-        if queue:
-            cands[name] = queue
         else:
-            cands.pop(name, None)
+            result[name] = old[name]
+    for name, repo in sorted(trusted.items()):
+        cur, cand = old.get(name), new.get(name)
+        try:
+            if cur is None:
+                if cand and on_branch(repo, cand["branch"], None, cand["commit"]):
+                    result[name] = cand
+                    changes.append(f"{name}: added at {cand['commit'][:7]}")
+                continue
+            queue = [c for c in cands.get(name, []) if isinstance(c, dict) and SHA.match(c.get("commit", ""))]
+            if cand and cand["commit"] != cur["commit"] and all(c["commit"] != cand["commit"] for c in queue):
+                queue.append({"commit": cand["commit"], "seen": today.isoformat()})
+            ripe = [c for c in queue if str(c.get("seen", "9999")) <= cutoff]
+            if ripe and on_branch(repo, cur["branch"], cur["commit"], ripe[-1]["commit"]):
+                pick = ripe[-1]
+                result[name] = {"branch": cur["branch"], "commit": pick["commit"]}
+                changes.append(f"{name}: {cur['commit'][:7]} -> {pick['commit'][:7]} (seen {pick['seen']})")
+            locked = result[name]["commit"]
+            idx = next((i for i, c in enumerate(queue) if c["commit"] == locked), None)
+            queue = queue[idx + 1:] if idx is not None else queue
+            if queue:
+                cands[name] = queue
+            else:
+                cands.pop(name, None)
+        except Exception as e:  # fail closed: keep the current commit
+            print(f"skip {name}: {e}")
 
     write_lock(old_path, result)
     with open(cand_path, "w") as f:
