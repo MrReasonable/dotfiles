@@ -78,9 +78,6 @@ commit = "dea7981a28c430923800d02d37b0fae285ebf5a9"
 branch = "master"
 commit = "02ca404a9b585b59788b15af53d4f46fac297153"
 
-[git_pins."ryutok/rust-zsh-completions"]
-branch = "master"
-commit = "8a844fdefa57e2d07a8ec3c7a4eb88ed741ecdb2"
 
 [git_pins."zdharma-continuum/zinit-console"]
 branch = "master"

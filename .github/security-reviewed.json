@@ -1,0 +1,127 @@
+{
+ "_about": [
+  "Security advisories reviewed and accepted, per repo. The weekly audit",
+  "(.github/scripts/advisory_check.py) hides these IDs from its REVIEW list, so only",
+  "new advisories show up. An advisory whose range covers a pinned version still",
+  "BLOCKs regardless. Add IDs here only after reading them."
+ ],
+ "advisories": {
+  "astral-sh/uv": {
+   "reviewed": "2026-10-06",
+   "note": "All for versions older than the pinned uv; the audit checks pinned versions separately.",
+   "ids": [
+    "GHSA-2cv4-cqwr-gwf7",
+    "GHSA-4gg8-gxpx-9rph",
+    "GHSA-7j9j-68r2-f35q",
+    "GHSA-8qf3-x8v5-2pj8",
+    "GHSA-pjjw-68hj-v9mw",
+    "GHSA-pqhf-p39g-3x64",
+    "GHSA-w476-p2h3-79g9"
+   ]
+  },
+  "cli/cli": {
+   "reviewed": "2026-10-06",
+   "note": "All fixed before the pinned gh (each gives its fixed version); the audit checks pinned versions separately.",
+   "ids": [
+    "GHSA-2m9h-r57g-45pj",
+    "GHSA-39wj-f2f4-978v",
+    "GHSA-3m3g-3wcr-px46",
+    "GHSA-4fjg-2h4q-fwg3",
+    "GHSA-4mq3-hpgx-9cx8",
+    "GHSA-8cg3-r6g9-fpg2",
+    "GHSA-8xvp-7hj6-mcj9",
+    "GHSA-cg6r-mpgc-h9mm",
+    "GHSA-crc3-h8v6-qh57",
+    "GHSA-fgw4-v983-mgp8",
+    "GHSA-fqfh-778m-2v32",
+    "GHSA-jwcm-9g39-pmcw",
+    "GHSA-mm27-mwq9-fr5g",
+    "GHSA-p2h2-3vg9-4p87",
+    "GHSA-qcwj-mr2r-2cx7",
+    "GHSA-vfhh-p7hm-pxfh",
+    "GHSA-wjmr-j3rp-mh2g"
+   ]
+  },
+  "eza-community/eza": {
+   "reviewed": "2026-10-06",
+   "note": "For an older eza; the audit checks pinned versions separately.",
+   "ids": [
+    "GHSA-3qx3-6hxr-j2ch"
+   ]
+  },
+  "jqlang/jq": {
+   "reviewed": "2026-10-06",
+   "note": "Ranged ones are fixed before the pinned jq. GHSA-p7rr-28xf-3m5w (no range, no fix): fuzz-harness memory bug; jq only processes local data you pass it, low risk.",
+   "ids": [
+    "GHSA-29gj-222p-j7vx",
+    "GHSA-2hhh-px8h-355p",
+    "GHSA-2q6r-344g-cx46",
+    "GHSA-32cx-cvvh-2wj9",
+    "GHSA-3pgx-frr7-3jxp",
+    "GHSA-4jm8-m363-4539",
+    "GHSA-5v7p-2r57-2g4g",
+    "GHSA-686w-5m7m-54vc",
+    "GHSA-6gc3-3g9p-xx28",
+    "GHSA-7hmr-442f-qc8j",
+    "GHSA-7q7g-mrq3-phxr",
+    "GHSA-cfh2-vwfq-qfmm",
+    "GHSA-f946-j5j2-4w5m",
+    "GHSA-gf4g-95wj-4q4r",
+    "GHSA-ggc9-rpv2-xgpm",
+    "GHSA-gvwx-xj9r-3frq",
+    "GHSA-hj52-j2c9-r8r4",
+    "GHSA-mg96-6h3q-g846",
+    "GHSA-p7rr-28xf-3m5w",
+    "GHSA-q3h9-m34w-h76f",
+    "GHSA-r7m6-x9c7-h69j",
+    "GHSA-rmjp-cr27-wpg2",
+    "GHSA-rmpv-jgvr-wpr9",
+    "GHSA-vf2h-chrj-q3fg",
+    "GHSA-wwj8-gxm6-jc29",
+    "GHSA-x6c3-qv5r-7q22",
+    "GHSA-xwrw-4f8h-rjvg"
+   ]
+  },
+  "neovim/neovim": {
+   "reviewed": "2026-10-06",
+   "note": "For an older Neovim; the audit checks pinned versions separately.",
+   "ids": [
+    "GHSA-6f9m-hj8h-xjgj"
+   ]
+  },
+  "rust-lang/rust": {
+   "reviewed": "2026-10-06",
+   "note": "For older Rust toolchains; the audit checks pinned versions separately.",
+   "ids": [
+    "GHSA-2xg3-7mm6-98jj",
+    "GHSA-phjm-8x66-qw4r",
+    "GHSA-q455-m56c-85mh",
+    "GHSA-r9cc-f5pr-p3j2",
+    "GHSA-rcv6-wg5m-24v6",
+    "GHSA-rv9c-3mvf-cw9h"
+   ]
+  },
+  "sxyazi/yazi": {
+   "reviewed": "2026-10-06",
+   "note": "For an older yazi; the audit checks pinned versions separately.",
+   "ids": [
+    "GHSA-9g7f-j48q-ppp9"
+   ]
+  },
+  "z-shell/F-Sy-H": {
+   "reviewed": "2026-10-06",
+   "note": "Fixed in 1.67.1; the pinned commit is 65 commits past it (remote theme download removed), and no machine had a stale downloaded theme.",
+   "ids": [
+    "GHSA-33c2-cgpq-8gpc"
+   ]
+  },
+  "ohmyzsh/ohmyzsh": {
+   "reviewed": "2026-10-06",
+   "note": "dotenv plugin and themes only; neither is loaded (direnv plugin and Powerlevel10k instead), and the pinned commit is past both fixes.",
+   "ids": [
+    "GHSA-3rgh-p3mg-rjqg",
+    "GHSA-x96c-8w82-wf96"
+   ]
+  }
+ }
+}

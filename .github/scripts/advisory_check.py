@@ -37,6 +37,7 @@ import urllib.request
 PROTOTOOLS = "dot_proto/dot_prototools.tmpl"
 DATA = ".chezmoidata.toml"
 NVIM_REPOS = ".github/nvim-plugin-repos.json"
+REVIEWED = ".github/security-reviewed.json"
 # Exactly Renovate's pattern (renovate.json customManagers), so the check sees
 # every pin Renovate can change; changed mode also fails closed on any changed
 # pin line it didn't account for.
@@ -144,6 +145,17 @@ def advisories_for(ds, dep, version):
     return found
 
 
+def reviewed_ids(repo):
+    """Advisory IDs a person has reviewed and accepted for this repo."""
+    try:
+        return set(json.load(open(REVIEWED))["advisories"].get(repo, {}).get("ids", []))
+    except FileNotFoundError:
+        return set()
+
+
+HIDDEN = [0]  # reviewed findings left out of the report
+
+
 def repo_health(repo):
     """(level, message) problems for a GitHub repo, or []."""
     try:
@@ -160,6 +172,9 @@ def repo_health(repo):
     if info.get("archived"):
         out.append(("REVIEW", "archived (no longer maintained)"))
     advs = gh_all(f"/repos/{repo}/security-advisories?state=published")
+    seen = reviewed_ids(repo)
+    HIDDEN[0] += sum(1 for a in advs if a["ghsa_id"] in seen)
+    advs = [a for a in advs if a["ghsa_id"] not in seen]
     if advs:
         out.append(("REVIEW", f"has {len(advs)} published security advisor{'y' if len(advs) == 1 else 'ies'}: "
                     + ", ".join(a["ghsa_id"] for a in advs[:5]) + (", ..." if len(advs) > 5 else "")))
@@ -198,6 +213,8 @@ def main(mode, base=None):
                     # while a fresh, unbounded advisory is open against it.
                     findings.append(("BLOCK", f"{dep} {ver}",
                                      f"{adv_id} (published {str(certain)[:10]}) gives no version range: {url}"))
+                elif adv_id in reviewed_ids(dep):
+                    HIDDEN[0] += 1
                 else:
                     findings.append(("REVIEW", f"{dep} {ver}",
                                      f"{adv_id} gives no version range, so may apply: {url}"))
@@ -219,7 +236,8 @@ def main(mode, base=None):
 
     blocks = [f for f in findings if f[0] == "BLOCK"]
     checked = f"{len(targets)} pinned version(s)" + (" and their repos" if mode == "all" else "")
-    lines = [f"Checked {checked}: {len(blocks)} blocking, {len(findings) - len(blocks)} to review.", ""]
+    hidden = f" ({HIDDEN[0]} already-reviewed advisories hidden: {REVIEWED})" if HIDDEN[0] else ""
+    lines = [f"Checked {checked}: {len(blocks)} blocking, {len(findings) - len(blocks)} to review.{hidden}", ""]
     for level, what, msg in findings:
         lines.append(f"- **{level}** `{what}`: {msg}")
     report = "\n".join(lines)
