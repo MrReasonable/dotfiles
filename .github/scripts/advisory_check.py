@@ -36,8 +36,13 @@ import urllib.request
 PROTOTOOLS = "dot_proto/dot_prototools.tmpl"
 DATA = ".chezmoidata.toml"
 NVIM_REPOS = ".github/nvim-plugin-repos.json"
-PIN = re.compile(r"# renovate: datasource=(?P<ds>[a-z-]+) depName=(?P<dep>\S+)[^\n]*\n"
+# Exactly Renovate's pattern (renovate.json customManagers), so the check sees
+# every pin Renovate can change; changed mode also fails closed on any changed
+# pin line it didn't account for.
+PIN = re.compile(r"# renovate: datasource=(?P<ds>[a-z-]+) depName=(?P<dep>\S+)"
+                 r"(?: extractVersion=(?P<ev>\S+))?\s*\n"
                  r"(?P<key>[A-Za-z0-9_-]+) = \"(?P<ver>[^\"]+)\"")
+VERSION_LINE = re.compile(r'^[+-](?P<key>[A-Za-z0-9_-]+) = "(?P<ver>[^"]+)"\s*$')
 REPO = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 
 
@@ -164,6 +169,16 @@ def main(mode, base=None):
     if mode == "changed":
         old, new = pins_at(base), pins_at()
         targets = {d: v for d, v in new.items() if old.get(d) != v}
+        # Every changed `name = "version"` line in the pin files must be one of
+        # the pins checked above; anything else blocks (fail closed).
+        diff = subprocess.run(["git", "diff", "-U0", base, "--", PROTOTOOLS, DATA],
+                              capture_output=True, text=True, check=True).stdout
+        checked = {ver for _, ver in targets.values()}
+        for line in diff.splitlines():
+            m = VERSION_LINE.match(line)
+            if m and line.startswith("+") and m["ver"] not in checked:
+                findings.append(("BLOCK", f'{m["key"]} {m["ver"]}',
+                                 "changed pin line this check couldn't match to a '# renovate:' pin"))
     else:
         targets = pins_at()
     for dep, (ds, ver) in sorted(targets.items()):
