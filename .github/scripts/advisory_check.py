@@ -106,7 +106,9 @@ def pins_at(ref=None):
 
 
 def advisories_for(ds, dep, version):
-    """Advisories affecting this exact version: list of (id, summary/url)."""
+    """Advisories for this exact version: list of (id, url, certain). certain is
+    False when the advisory gives no version range at all (e.g. 'master'): a
+    person has to judge those, and blocking on them would block every update."""
     found = []
     if ds == "github-releases" and REPO.match(dep):
         if not vtuple(version):
@@ -116,6 +118,9 @@ def advisories_for(ds, dep, version):
                 rng = vuln.get("vulnerable_version_range") or ""
                 if not rng:
                     continue
+                if not re.search(r"\d", rng):
+                    found.append((adv["ghsa_id"], adv.get("html_url", ""), False))
+                    break
                 # Some ranges are open-ended ('>= v2.28.0') with the fix given
                 # separately ('v2.98.0'): only then does the fix bound the range.
                 # A range with its own upper bound is taken as written.
@@ -123,11 +128,11 @@ def advisories_for(ds, dep, version):
                 if fixed and not re.search(r"<", rng) and vtuple(version) >= min(fixed):
                     continue
                 if in_range(version, rng):
-                    found.append((adv["ghsa_id"], adv.get("html_url", "")))
+                    found.append((adv["ghsa_id"], adv.get("html_url", ""), True))
                     break
     elif ds in ("npm", "golang-version"):
         pkg = {"name": dep, "ecosystem": "npm"} if ds == "npm" else {"name": "stdlib", "ecosystem": "Go"}
-        found += [(v["id"], f"https://osv.dev/vulnerability/{v['id']}") for v in osv_all(pkg, version)]
+        found += [(v["id"], f"https://osv.dev/vulnerability/{v['id']}", True) for v in osv_all(pkg, version)]
     return found
 
 
@@ -163,8 +168,12 @@ def main(mode, base=None):
         targets = pins_at()
     for dep, (ds, ver) in sorted(targets.items()):
         try:
-            for adv_id, url in advisories_for(ds, dep, ver):
-                findings.append(("BLOCK", f"{dep} {ver}", f"affected by {adv_id} {url}"))
+            for adv_id, url, certain in advisories_for(ds, dep, ver):
+                if certain:
+                    findings.append(("BLOCK", f"{dep} {ver}", f"affected by {adv_id} {url}"))
+                else:
+                    findings.append(("REVIEW", f"{dep} {ver}",
+                                     f"{adv_id} gives no version range, so may apply: {url}"))
         except Exception as e:  # an update we can't check doesn't merge (fail closed)
             findings.append(("BLOCK" if mode == "changed" else "REVIEW", f"{dep} {ver}",
                              f"couldn't check advisories: {e}"))
