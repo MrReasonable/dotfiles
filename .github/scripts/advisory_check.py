@@ -24,6 +24,7 @@ In `all` mode, repos pinned to commits (.chezmoidata.toml [git_pins], and
 Writes a Markdown report to $REPORT (if set); exits 1 if anything BLOCKs.
 Needs GITHUB_TOKEN.
 """
+import datetime as dt
 import json
 import os
 import re
@@ -99,7 +100,7 @@ def in_range(version, spec):
 
 
 def release_pins(text):
-    return {m["dep"]: (m["ds"], m["ver"]) for m in PIN.finditer(text)}
+    return {m["dep"]: (m["ds"], m["ver"], m["key"]) for m in PIN.finditer(text)}
 
 
 def pins_at(ref=None):
@@ -112,8 +113,10 @@ def pins_at(ref=None):
 
 def advisories_for(ds, dep, version):
     """Advisories for this exact version: list of (id, url, certain). certain is
-    False when the advisory gives no version range at all (e.g. 'master'): a
-    person has to judge those, and blocking on them would block every update."""
+    True when the advisory's range covers the version, or the advisory's
+    publication date when it gives no version range at all (e.g. 'master'):
+    old ones are for a person to judge (blocking would block every update),
+    but a recent one blocks updates."""
     found = []
     if ds == "github-releases" and REPO.match(dep):
         if not vtuple(version):
@@ -124,7 +127,7 @@ def advisories_for(ds, dep, version):
                 if not rng:
                     continue
                 if not re.search(r"\d", rng):
-                    found.append((adv["ghsa_id"], adv.get("html_url", ""), False))
+                    found.append((adv["ghsa_id"], adv.get("html_url", ""), adv.get("published_at") or ""))
                     break
                 # Some ranges are open-ended ('>= v2.28.0') with the fix given
                 # separately ('v2.98.0'): only then does the fix bound the range.
@@ -167,25 +170,34 @@ def main(mode, base=None):
     findings = []  # (level, what, message)
 
     if mode == "changed":
+        # Compare with where this branch left main, not main's latest commit.
+        base = subprocess.run(["git", "merge-base", base, "HEAD"],
+                              capture_output=True, text=True, check=True).stdout.strip()
         old, new = pins_at(base), pins_at()
         targets = {d: v for d, v in new.items() if old.get(d) != v}
         # Every changed `name = "version"` line in the pin files must be one of
         # the pins checked above; anything else blocks (fail closed).
         diff = subprocess.run(["git", "diff", "-U0", base, "--", PROTOTOOLS, DATA],
                               capture_output=True, text=True, check=True).stdout
-        checked = {ver for _, ver in targets.values()}
+        checked = {(key, ver) for _, ver, key in targets.values()}
         for line in diff.splitlines():
             m = VERSION_LINE.match(line)
-            if m and line.startswith("+") and m["ver"] not in checked:
+            if m and line.startswith("+") and (m["key"], m["ver"]) not in checked:
                 findings.append(("BLOCK", f'{m["key"]} {m["ver"]}',
                                  "changed pin line this check couldn't match to a '# renovate:' pin"))
     else:
         targets = pins_at()
-    for dep, (ds, ver) in sorted(targets.items()):
+    recent = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=90)).isoformat()
+    for dep, (ds, ver, _) in sorted(targets.items()):
         try:
             for adv_id, url, certain in advisories_for(ds, dep, ver):
-                if certain:
+                if certain is True:
                     findings.append(("BLOCK", f"{dep} {ver}", f"affected by {adv_id} {url}"))
+                elif mode == "changed" and str(certain) >= recent:
+                    # No version range, but new: don't adopt a fresh release
+                    # while a fresh, unbounded advisory is open against it.
+                    findings.append(("BLOCK", f"{dep} {ver}",
+                                     f"{adv_id} (published {str(certain)[:10]}) gives no version range: {url}"))
                 else:
                     findings.append(("REVIEW", f"{dep} {ver}",
                                      f"{adv_id} gives no version range, so may apply: {url}"))
@@ -194,7 +206,7 @@ def main(mode, base=None):
                              f"couldn't check advisories: {e}"))
 
     if mode == "all":
-        repos = {d for d, (ds, _) in targets.items() if ds == "github-releases"}
+        repos = {d for d, (ds, _, _) in targets.items() if ds == "github-releases"}
         repos |= set(tomllib.load(open(DATA, "rb")).get("git_pins", {}))
         if os.path.exists(NVIM_REPOS):
             repos |= set(json.load(open(NVIM_REPOS)).values())
