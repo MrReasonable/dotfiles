@@ -52,6 +52,29 @@ def http(url, data=None, github=False):
         return json.load(r)
 
 
+def gh_all(path):
+    """Every page of a GitHub list endpoint (an advisory on page 2 still counts)."""
+    out, page = [], 1
+    while True:
+        sep = "&" if "?" in path else "?"
+        batch = http(f"https://api.github.com{path}{sep}per_page=100&page={page}", github=True)
+        out += batch
+        if len(batch) < 100:
+            return out
+        page += 1
+
+
+def osv_all(pkg, version):
+    vulns, token = [], None
+    while True:
+        res = http("https://api.osv.dev/v1/query",
+                   {"package": pkg, "version": version} | ({"page_token": token} if token else {}))
+        vulns += res.get("vulns", [])
+        token = res.get("next_page_token")
+        if not token:
+            return vulns
+
+
 def vtuple(v):
     return tuple(int(x) for x in re.findall(r"\d+", v.split("+")[0].split("-")[0])[:4])
 
@@ -62,6 +85,8 @@ def in_range(version, spec):
     for part in filter(None, (p.strip() for p in spec.split(","))):
         m = re.match(r"(>=|<=|>|<|=)?\s*v?(.+)", part)
         op, bound = m.group(1) or "=", vtuple(m.group(2))
+        if not bound:
+            return True  # can't read this bound: assume affected (fail closed)
         if not {">=": v >= bound, "<=": v <= bound, ">": v > bound,
                 "<": v < bound, "=": v == bound}[op]:
             return False
@@ -84,22 +109,25 @@ def advisories_for(ds, dep, version):
     """Advisories affecting this exact version: list of (id, summary/url)."""
     found = []
     if ds == "github-releases" and REPO.match(dep):
-        for adv in http(f"https://api.github.com/repos/{dep}/security-advisories?state=published&per_page=100",
-                        github=True):
+        if not vtuple(version):
+            raise ValueError(f"can't read version {version!r}")
+        for adv in gh_all(f"/repos/{dep}/security-advisories?state=published"):
             for vuln in adv.get("vulnerabilities") or []:
                 rng = vuln.get("vulnerable_version_range") or ""
-                # Ranges are often open-ended ('>= v2.28.0') with the fix given
-                # separately ('v2.98.0'): at or past the fix isn't affected.
-                fixed = [vtuple(p) for p in re.split(r"[,\s]+", vuln.get("patched_versions") or "") if vtuple(p)]
-                if fixed and vtuple(version) >= min(fixed):
+                if not rng:
                     continue
-                if rng and in_range(version, rng):
+                # Some ranges are open-ended ('>= v2.28.0') with the fix given
+                # separately ('v2.98.0'): only then does the fix bound the range.
+                # A range with its own upper bound is taken as written.
+                fixed = [vtuple(p) for p in re.split(r"[,\s]+", vuln.get("patched_versions") or "") if vtuple(p)]
+                if fixed and not re.search(r"<", rng) and vtuple(version) >= min(fixed):
+                    continue
+                if in_range(version, rng):
                     found.append((adv["ghsa_id"], adv.get("html_url", "")))
                     break
     elif ds in ("npm", "golang-version"):
         pkg = {"name": dep, "ecosystem": "npm"} if ds == "npm" else {"name": "stdlib", "ecosystem": "Go"}
-        res = http("https://api.osv.dev/v1/query", {"package": pkg, "version": version})
-        found += [(v["id"], f"https://osv.dev/vulnerability/{v['id']}") for v in res.get("vulns", [])]
+        found += [(v["id"], f"https://osv.dev/vulnerability/{v['id']}") for v in osv_all(pkg, version)]
     return found
 
 
@@ -118,11 +146,10 @@ def repo_health(repo):
                     " different person deserves a look before trusting new commits"))
     if info.get("archived"):
         out.append(("REVIEW", "archived (no longer maintained)"))
-    advs = http(f"https://api.github.com/repos/{repo}/security-advisories?state=published&per_page=5",
-                github=True)
+    advs = gh_all(f"/repos/{repo}/security-advisories?state=published")
     if advs:
-        out.append(("REVIEW", "has published security advisories: "
-                    + ", ".join(a["ghsa_id"] for a in advs)))
+        out.append(("REVIEW", f"has {len(advs)} published security advisor{'y' if len(advs) == 1 else 'ies'}: "
+                    + ", ".join(a["ghsa_id"] for a in advs[:5]) + (", ..." if len(advs) > 5 else "")))
     return out
 
 
