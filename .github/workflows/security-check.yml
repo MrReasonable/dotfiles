@@ -1,0 +1,91 @@
+# Security checks for pinned dependencies (.github/scripts/advisory_check.py).
+#
+#   update  On every Renovate update branch, before it can merge: checks the
+#           versions it changes against GitHub security advisories and OSV. A
+#           failure stops Renovate merging, and opens an issue saying why.
+#   audit   Mondays (and on demand): every pin, plus repo health for the repos
+#           pinned to commits (moved/transferred, archived, gone, advisories).
+#           Keeps one "Dependency security audit" issue up to date, and closes
+#           it when nothing needs attention.
+name: Security check
+
+on:
+  push:
+    branches: ["renovate/**"]
+  schedule:
+    - cron: "57 5 * * 1" # Mondays, 05:57 UTC
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  update:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check the versions this update changes
+        id: check
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REPORT: ${{ runner.temp }}/report.md
+        run: python3 .github/scripts/advisory_check.py changed origin/main
+
+      - name: Open an issue for a blocked update
+        if: failure() && steps.check.conclusion == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          { echo "Renovate's update on \`$BRANCH\` was **not merged**: the new version has a"
+            echo "known security advisory (or couldn't be checked). Renovate retries on its"
+            echo "next run and merges once this check passes."
+            echo; cat "$RUNNER_TEMP/report.md"; } > "$RUNNER_TEMP/body.md"
+          gh issue create --repo "$GITHUB_REPOSITORY" \
+            --title "Blocked update: $BRANCH" --body-file "$RUNNER_TEMP/body.md"
+
+  audit:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Audit every pin
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REPORT: ${{ runner.temp }}/report.md
+        run: python3 .github/scripts/advisory_check.py all || true
+
+      - name: Update the audit issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Dependency security audit"
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"$title\" in:title" \
+            --json number,title --jq ".[] | select(.title == \"$title\") | .number" | head -1)
+          if grep -q -E '^- \*\*(BLOCK|REVIEW)\*\*' "$RUNNER_TEMP/report.md"; then
+            { echo "Weekly check of every pinned dependency (\`.github/scripts/advisory_check.py\`)."
+              echo "**BLOCK** needs action; **REVIEW** is for a person to judge. Updated $(date -u +%F)."
+              echo; cat "$RUNNER_TEMP/report.md"; } > "$RUNNER_TEMP/body.md"
+            if [ -n "$existing" ]; then
+              gh issue edit "$existing" --repo "$GITHUB_REPOSITORY" --body-file "$RUNNER_TEMP/body.md"
+            else
+              gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file "$RUNNER_TEMP/body.md"
+            fi
+          elif [ -n "$existing" ]; then
+            gh issue close "$existing" --repo "$GITHUB_REPOSITORY" --comment "All clear as of $(date -u +%F)."
+          fi
