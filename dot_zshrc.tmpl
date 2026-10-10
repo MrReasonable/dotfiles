@@ -228,7 +228,10 @@ _claude_completion() {
   (( $+commands[claude] && $+commands[claude-zsh-completion] )) || return 0
   local dir=${XDG_CACHE_HOME:-$HOME/.cache}/zsh/completions bin=${commands[claude]:A}
   local stamp=$dir/.claude-binary
-  if [[ ! -s $dir/_claude || "$(<$stamp 2>/dev/null)" != $bin ]]; then
+  # Regenerate when claude changes (a new versioned binary) or the generator
+  # itself is newer than the cached completion.
+  if [[ ! -s $dir/_claude || "$(<$stamp 2>/dev/null)" != $bin ||
+        $commands[claude-zsh-completion] -nt $dir/_claude ]]; then
     mkdir -p $dir
     { claude-zsh-completion >| $dir/_claude.new 2>/dev/null &&
         mv -f $dir/_claude.new $dir/_claude && print -r -- $bin >| $stamp } &!
