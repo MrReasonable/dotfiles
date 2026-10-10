@@ -1,0 +1,189 @@
+#!/usr/bin/env python3
+"""Generate a zsh completion function for Claude Code from its own --help.
+
+  claude-zsh-completion > _claude
+
+Reads `claude --help`, then each subcommand's `--help` (two levels deep:
+`claude mcp`, `claude mcp add`, ...), and writes `_claude` for zsh's
+completion system: every option and subcommand with its description, value
+completion where the help says what's expected (files/directories, the listed
+`choices:`, model names), and aliases (`plugin|plugins`).
+
+Generated from the installed binary, so it always matches your version; .zshrc
+regenerates it in the background whenever the `claude` binary changes (each
+update installs a new versioned binary). Managed by chezmoi.
+"""
+import os
+import re
+import subprocess
+import sys
+
+MAX_DEPTH = 2  # claude <cmd> <subcmd>
+MODELS = ["opus", "sonnet", "haiku", "fable", "opusplan"]
+
+OPT_LINE = re.compile(r"^  (?P<flags>-{1,2}[\w?-]+(?:, -{1,2}[\w?-]+)*)(?P<arg> [<\[][^>\]]+[>\]])?(?:\s{2,}(?P<desc>\S.*))?$")
+CMD_LINE = re.compile(r"^  (?P<names>[a-z][\w-]*(?:\|[a-z][\w-]*)*)(?P<args>(?: [<\[][^>\]]+[>\]])*)(?:\s{2,}(?P<desc>\S.*))?$")
+CONT_LINE = re.compile(r"^ {4,}(?P<text>\S.*)$")  # long flags push the text to the next line
+
+
+def help_text(argv):
+    env = dict(os.environ, NO_COLOR="1", FORCE_COLOR="0", CLAUDE_CODE_DISABLE_AUTOUPDATER="1")
+    try:
+        res = subprocess.run(["claude", *argv, "--help"], capture_output=True, text=True,
+                             timeout=30, env=env, stdin=subprocess.DEVNULL)
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    return res.stdout
+
+
+def sections(text):
+    """{'Options': [lines], 'Commands': [lines], ...} from Commander-style help."""
+    out, current = {}, None
+    for line in text.splitlines():
+        m = re.match(r"^(\w[\w ]*):\s*$", line)
+        if m and not line.startswith(" "):
+            current = m.group(1)
+            out[current] = []
+        elif current:
+            out[current].append(line)
+    return out
+
+
+def parse_entries(lines, pattern):
+    """Entries of a section, joining wrapped description lines. A description
+    stops at a blank line, so examples inside it aren't swallowed."""
+    entries, cur = [], None
+    for line in lines:
+        m = pattern.match(line)
+        if m:
+            cur = {k: (v or "") for k, v in m.groupdict().items()}
+            entries.append(cur)
+            continue
+        c = CONT_LINE.match(line)
+        if cur is not None and c and not cur.get("_closed"):
+            cur["desc"] = (cur["desc"] + " " + c.group("text")).strip()
+        elif cur is not None and not line.strip():
+            cur["_closed"] = True
+    return entries
+
+
+def short_desc(desc):
+    """First sentence, without '(choices: ...)' / '(default: ...)' asides."""
+    d = re.sub(r"\s*\((?:choices|default|env|preset)[^)]*\)", "", desc).strip()
+    d = re.split(r"(?<!e\.g)(?<!i\.e)(?<=[a-z0-9)])\. ", d)[0].rstrip(".")
+    return d[:100] + ("…" if len(d) > 100 else "")
+
+
+def zq(s):
+    """Quote for inside a single-quoted zsh word."""
+    return s.replace("'", "'\\''")
+
+
+def spec_text(s):
+    """Escape for an _arguments [description] or a _describe 'name:desc'."""
+    return s.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]").replace(":", "\\:")
+
+
+def value_action(arg, desc):
+    name = arg.strip(" <>[].").lower()
+    choices = re.search(r"\(choices: ([^)]*)\)", desc)
+    if choices:
+        vals = re.findall(r'"([^"]*)"', choices.group(1))
+        return f"({' '.join(v for v in vals if v)})"
+    if "dir" in name:
+        return "_directories"
+    if name in ("model", "fallback-model") or "model" in name:
+        return f"({' '.join(MODELS)})"
+    if any(k in name for k in ("file", "path", "settings", "config", "json-or-file")):
+        return "_files"
+    return " "  # free text: zsh shows the argument name as a hint
+
+
+def option_spec(entry):
+    flags = [f.strip() for f in entry["flags"].split(",")]
+    arg, desc = entry["arg"].strip(), entry["desc"]
+    text = spec_text(short_desc(desc)) or flags[-1]
+    repeat = "*" if arg.endswith("...>") or arg.endswith("...]") else ""
+    excl = "" if repeat else f"({' '.join(flags)})"
+    value = ""
+    if arg:
+        optional = arg.startswith("[")
+        value = ":" + (":" if optional else "") + spec_text(arg.strip(" <>[]").rstrip(".")) + ":" + value_action(arg, desc)
+    if len(flags) == 1:
+        return f"'{zq(repeat + excl + flags[0] + '[' + text + ']' + value)}'"
+    flag_group = "{" + ",".join(flags) + "}"
+    return f"'{zq(repeat + excl)}'{flag_group}'{zq('[' + text + ']' + value)}'"
+
+
+def positional_specs(args):
+    specs, n = [], 1
+    for a in re.findall(r"[<\[][^>\]]+[>\]]", args):
+        name = a.strip("<>[]")
+        action = value_action(a, "")
+        if name.endswith("..."):
+            specs.append(f"'*:{zq(spec_text(name.rstrip('.')))}:{action}'")
+            break
+        specs.append(f"'{n}:{zq(spec_text(name))}:{action}'")
+        n += 1
+    return specs
+
+
+def fn_name(path):
+    return "_claude" + "".join("_" + re.sub(r"\W", "_", p) for p in path)
+
+
+def generate(path, depth, out, usage_args=""):
+    text = help_text(path)
+    sec = sections(text)
+    opts = [option_spec(e) for e in parse_entries(sec.get("Options", []), OPT_LINE)]
+    cmds = parse_entries(sec.get("Commands", []), CMD_LINE) if depth < MAX_DEPTH else []
+    cmds = [c for c in cmds if c["names"] != "help"]
+
+    body = [f"{fn_name(path)}() {{", '  local curcontext="$curcontext" state line ret=1', "  typeset -A opt_args"]
+    args = ["_arguments -C -s -S"] + opts
+    if cmds:
+        args += ["'1: :->cmds'", "'*:: :->args'"]
+    else:
+        args += positional_specs(usage_args) or ["'*::argument:_default'"]
+    body.append("  " + " \\\n    ".join(args) + " && ret=0")
+    if cmds:
+        described = []
+        for c in cmds:
+            for name in c["names"].split("|"):
+                described.append(f"'{zq(spec_text(name) + ':' + spec_text(short_desc(c['desc'])))}'")
+        body.append("  case $state in")
+        body.append("    cmds)")
+        body.append("      local -a cmds=(\n        " + "\n        ".join(described) + "\n      )")
+        body.append("      _describe -t commands 'claude command' cmds && ret=0 ;;")
+        body.append("    args)")
+        body.append("      case $words[1] in")
+        for c in cmds:
+            names = c["names"]
+            first = names.split("|")[0]
+            body.append(f"        {names}) {fn_name(path + [first])} && ret=0 ;;")
+        body.append("      esac ;;")
+        body.append("  esac")
+    body.append("  return ret")
+    body.append("}")
+    out.append("\n".join(body))
+    for c in cmds:
+        first = c["names"].split("|")[0]
+        generate(path + [first], depth + 1, out, c["args"])
+
+
+def main():
+    version = subprocess.run(["claude", "--version"], capture_output=True, text=True,
+                             stdin=subprocess.DEVNULL).stdout.strip()
+    out = []
+    generate([], 0, out)
+    if not out or "_arguments" not in out[0] or out[0].count("[") < 20:
+        sys.exit("claude-zsh-completion: couldn't read `claude --help`")
+    print("#compdef claude")
+    print(f"# Generated by claude-zsh-completion from `claude --help` ({version}).")
+    print("# Regenerated automatically when claude updates; don't edit.\n")
+    print("\n\n".join(out))
+    print('\n_claude "$@"')
+
+
+if __name__ == "__main__":
+    main()

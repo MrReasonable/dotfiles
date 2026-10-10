@@ -219,6 +219,26 @@ _carapace_init() {
   for cmd in ${(k)native}; do _comps[$cmd]=$native[$cmd]; done
 }
 
+# Claude Code has no completion of its own: claude-zsh-completion (in
+# ~/.local/bin) generates one from the installed CLI's --help, so it always
+# matches your version. Regenerated in the background (startup never waits)
+# whenever the claude binary changes, i.e. on every update; until the first
+# generation finishes, Tab just has nothing to offer for claude.
+_claude_completion() {
+  (( $+commands[claude] && $+commands[claude-zsh-completion] )) || return 0
+  local dir=${XDG_CACHE_HOME:-$HOME/.cache}/zsh/completions bin=${commands[claude]:A}
+  local stamp=$dir/.claude-binary
+  if [[ ! -s $dir/_claude || "$(<$stamp 2>/dev/null)" != $bin ]]; then
+    mkdir -p $dir
+    { claude-zsh-completion >| $dir/_claude.new 2>/dev/null &&
+        mv -f $dir/_claude.new $dir/_claude && print -r -- $bin >| $stamp } &!
+  fi
+  [[ -s $dir/_claude ]] || return 0
+  fpath=($dir $fpath)
+  unfunction _claude 2>/dev/null; autoload -Uz _claude
+  compdef _claude claude
+}
+
 # OMZP::tmux (Oh My Zsh's tmux plugin, loaded in turbo below): a bare `tmux`
 # attaches to the session "main" or creates it; with arguments it's plain
 # tmux. Also adds tl (list), ta (attach), ts (new named), to (create-or-attach
@@ -269,6 +289,8 @@ zi wait lucid light-mode for \
   atload'zicompinit; zicdreplay' \
     zsh-users/zsh-completions \
   ver'{{ $null }}' has'carapace' id-as'carapace-init' atload'_carapace_init' \
+    z-shell/null \
+  ver'{{ $null }}' has'claude' id-as'claude-completion' atload'_claude_completion' \
     z-shell/null \
   ver'{{ (index $pin "Aloxaf/fzf-tab").commit }}' \
     Aloxaf/fzf-tab \
