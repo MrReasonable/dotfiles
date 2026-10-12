@@ -1,9 +1,38 @@
 {
+ "astrocommunity": [
+  {
+   "commit": "41ae4db2581b22d192c96c7400fda3ef8825dcf7",
+   "seen": "2026-10-12"
+  }
+ ],
  "nvim-lsp-file-operations": [
   {
-   "commit": "7bc390a69e4ebe28d46e03cee61831e0dce8fac2",
-   "branch": "master",
-   "seen": "2026-10-05"
+   "commit": "ba0c27cd0dbee7b421ba7b31a4cb68770032b9fd",
+   "seen": "2026-10-12"
+  }
+ ],
+ "oil.nvim": [
+  {
+   "commit": "d3733d933833a0e59b813ecec99341527adf0c28",
+   "seen": "2026-10-12"
+  }
+ ],
+ "precognition.nvim": [
+  {
+   "commit": "add3cc30e6d68e977bbb76927c11b45b80c3a209",
+   "seen": "2026-10-12"
+  }
+ ],
+ "render-markdown.nvim": [
+  {
+   "commit": "8e8795368391036643b622875a6da6a51bcd33f4",
+   "seen": "2026-10-12"
+  }
+ ],
+ "schemastore.nvim": [
+  {
+   "commit": "a470cbcd112e717a8955efee3929bd59f7473c7b",
+   "seen": "2026-10-12"
   }
  ]
 }
