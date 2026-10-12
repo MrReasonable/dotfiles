@@ -105,7 +105,7 @@ commit = "6f9d8951b3330593ceb66972a71a067793b0981e"
 
 [git_pins."ohmyzsh/ohmyzsh"]
 branch = "master"
-commit = "83a0ec79ee3b1f64c6ae2e80dcb1fb27a55e5952"
+commit = "d745fbf3bd49a5038e089d7d343ca89db0cbaaff"
 
 [git_pins."gpakosz/.tmux"]
 branch = "master"

@@ -1,8 +1,38 @@
 {
+ "greymd/docker-zsh-completion": [
+  {
+   "commit": "129d9aff977f66209827c71c95cb8aad7b347f34",
+   "seen": "2026-10-12"
+  }
+ ],
  "ohmyzsh/ohmyzsh": [
   {
-   "commit": "d745fbf3bd49a5038e089d7d343ca89db0cbaaff",
-   "seen": "2026-10-05"
+   "commit": "083c339e0622bfc144b66ebf1a2e8dbe7d2ada0d",
+   "seen": "2026-10-12"
+  }
+ ],
+ "z-shell/F-Sy-H": [
+  {
+   "commit": "6bd1e63037501d9512a419dddec7e124c683a62a",
+   "seen": "2026-10-12"
+  }
+ ],
+ "z-shell/zi": [
+  {
+   "commit": "990985b585b99c8483670b03dd2c5068b3fcbeed",
+   "seen": "2026-10-12"
+  }
+ ],
+ "z-shell/zsh-eza": [
+  {
+   "commit": "6b39f73ea60a130a640431f5e873093d52cce5c6",
+   "seen": "2026-10-12"
+  }
+ ],
+ "zsh-users/zsh-completions": [
+  {
+   "commit": "6661b4b68173784ba31ef10ce4b5cb1c9ecfdcac",
+   "seen": "2026-10-12"
   }
  ]
 }
