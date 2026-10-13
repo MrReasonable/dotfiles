@@ -3,8 +3,11 @@
 # updates land straight in this repo.
 nvim
 .tmux/plugins
-# This repo's own docs, bootstrap script and automation (Renovate, Actions)
+# This repo's own docs, bootstrap script and automation (Renovate, Actions).
+# CLAUDE.md is guidance for Claude Code in this repo; deployed as ~/CLAUDE.md it
+# would load into every Claude session started from the home folder.
 README.md
+CLAUDE.md
 install.sh
 renovate.json
 .github
