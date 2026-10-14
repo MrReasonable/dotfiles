@@ -15,8 +15,8 @@ chezmoi edit ~/.proto/.prototools
 # Which tools have newer versions
 proto outdated
 
-# Bring range-pinned global tools up to date (what update-all does)
-_proto_update
+# Install the global pins after a bump (what update-all does)
+_proto_sync
 
 # Status of the tools configured here
 proto status
@@ -39,8 +39,10 @@ proto clean
 # Rebuild shims and bins (after changing a plugin)
 proto regen --bin
 
-# Upgrade proto itself
-proto upgrade
+; Not `proto upgrade`: that skips the 7-day wait. Renovate bumps proto's pin
+; (`proto = "..."`) once a release is 7 days old; this is for wanting it sooner.
+# Upgrade proto itself now: bump its pin, then apply
+chezmoi edit --apply ~/.proto/.prototools
 
 # Diagnose PATH / setup problems
 proto diagnose

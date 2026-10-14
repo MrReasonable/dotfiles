@@ -8,7 +8,7 @@ A [chezmoi](https://www.chezmoi.io) source directory (`~/.local/share/chezmoi`, 
 
 ## The rule everything is built around: pinned, and 7 days old
 
-Every external dependency is pinned exactly, and moves only once a release or commit is **7+ days old**. Three separate mechanisms do the moving. Don't bypass them: no `:Lazy update`/`:Lazy sync`, no `zi update`, no `proto install <tool> latest` or `proto pin --global`, and no hand-editing a pin to a newer version unless the user explicitly asks.
+Every external dependency is pinned exactly, and moves only once a release or commit is **7+ days old**. Three separate mechanisms do the moving. Don't bypass them: no `:Lazy update`/`:Lazy sync`, no `zi update`, no `proto upgrade`, `proto install <tool> latest` or `proto pin --global`, and no hand-editing a pin to a newer version unless the user explicitly asks.
 
 | What | Pinned in | Moved by |
 | --- | --- | --- |

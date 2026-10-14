@@ -288,9 +288,10 @@ within days, so the wait keeps them off your machines.
   the pins say (proto tools, chezmoi, zsh plugins, `:Lazy restore` for
   Neovim), plus the OS packages (Homebrew/apt).
 
-Avoid `:Lazy update`/`:Lazy sync`, `zi update` and `proto install <tool>
-latest`: they skip the wait (and `:Lazy update` would change `lazy-lock.json`
-in this repo).
+Avoid `:Lazy update`/`:Lazy sync`, `zi update`, `proto install <tool>
+latest` and `proto upgrade`: they skip the wait (and `:Lazy update` would
+change `lazy-lock.json` in this repo). proto updates itself like any other
+tool, through its pin in `dot_proto/dot_prototools.tmpl`.
 
 One-time setup: install the [Renovate GitHub app](https://github.com/apps/renovate)
 on this repository.
