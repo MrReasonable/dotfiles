@@ -19,6 +19,9 @@ local function practice()
   vim.system({ "cp", "-R", src, dst }):wait()
   run { "git", "init", "-q", "-b", "main" }
   run { "git", "add", "-A" }
+  -- Kept on two lines by hand: one argument per line would split the
+  -- `-c key=value` pairs.
+  -- stylua: ignore
   run {
     "git", "-c", "user.name=Practice", "-c", "user.email=practice@example.invalid",
     "-c", "commit.gpgSign=false", "commit", "-q", "-m", "Practice project",

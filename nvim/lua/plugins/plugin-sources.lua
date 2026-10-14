@@ -15,5 +15,9 @@
 return {
   { "p00f/clangd_extensions.nvim", optional = true, url = "https://github.com/dchinmay2/clangd_extensions.nvim.git" },
   { "echasnovski/mini.ai", optional = true, url = "https://github.com/nvim-mini/mini.ai.git" },
-  { "mrjones2014/smart-splits.nvim", optional = true, url = "https://github.com/smart-splits-nvim/smart-splits.nvim.git" },
+  {
+    "mrjones2014/smart-splits.nvim",
+    optional = true,
+    url = "https://github.com/smart-splits-nvim/smart-splits.nvim.git",
+  },
 }
