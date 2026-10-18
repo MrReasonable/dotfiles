@@ -9,14 +9,58 @@ set -eu
 
 {{ if eq .chezmoi.os "darwin" -}}
 # btop and navi publish no macOS binaries and git-absorb only x86_64 ones, so
-# they (and proto itself) come from Homebrew.
-for formula in btop git-absorb navi proto; do
+# they come from Homebrew.
+for formula in btop git-absorb navi; do
   brew list --formula "$formula" >/dev/null 2>&1 || brew install "$formula"
 done
-{{- else -}}
-command -v proto >/dev/null 2>&1 || [ -x "$HOME/.proto/bin/proto" ] ||
-  curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes --no-profile
-{{- end }}
+{{ end -}}
+
+# proto itself, on every OS: the prebuilt binary from its GitHub release, at
+# the `proto = ` pin in .prototools, checked against the release's .sha256.
+# After this first copy, proto keeps itself at that pin (whichever copy you
+# run). It used to come from Homebrew on macOS, which has no Intel bottle,
+# so the iMac compiled LLVM and Rust from source just to build it
+# (2026-10-18); and on Linux from the official installer (curl | bash),
+# which takes the newest release, skipping the 7-day wait, and checks
+# nothing. The checksum comes from the same release, so it catches a broken
+# download, not a tampered release.
+{{- $proto := include "dot_proto/dot_prototools.tmpl" | regexFind "(?m)^proto = \"[^\"]+\"" | trimPrefix "proto = " | trimAll "\"" }}
+{{- if not $proto }}{{ fail "install-cli-tools: no `proto = \"...\"` pin in dot_proto/dot_prototools.tmpl" }}{{ end }}
+if [ ! -x "$HOME/.proto/bin/proto" ]; then
+  case "$(uname -s) $(uname -m)" in
+    "Darwin x86_64") target=x86_64-apple-darwin ;;
+    "Darwin arm64") target=aarch64-apple-darwin ;;
+    "Linux x86_64" | "Linux aarch64" | "Linux arm64")
+      arch=$(uname -m)
+      [ "$arch" = arm64 ] && arch=aarch64
+      # Same check as the official installer: musl builds for Alpine & co.
+      libc=gnu
+      ldd --version 2>&1 | grep -qi musl && libc=musl
+      target=$arch-unknown-linux-$libc ;;
+    *)
+      echo "proto: no prebuilt release for $(uname -s) $(uname -m)" >&2
+      exit 1 ;;
+  esac
+  url=https://github.com/moonrepo/proto/releases/download/v{{ $proto }}/proto_cli-$target.tar.xz
+  tmp=$(mktemp -d)
+  trap 'rm -rf "$tmp"' EXIT
+  curl -fsSL -o "$tmp/proto.tar.xz" "$url"
+  curl -fsSL -o "$tmp/proto.tar.xz.sha256" "$url.sha256"
+  # The .sha256 file reads "<hash> *<file name>".
+  expected=$(cut -d' ' -f1 "$tmp/proto.tar.xz.sha256")
+  if command -v sha256sum >/dev/null 2>&1; then
+    actual=$(sha256sum "$tmp/proto.tar.xz" | cut -d' ' -f1)
+  else
+    actual=$(shasum -a 256 "$tmp/proto.tar.xz" | cut -d' ' -f1)
+  fi
+  if [ -z "$expected" ] || [ "$actual" != "$expected" ]; then
+    echo "proto: checksum mismatch for $url (expected '$expected', got '$actual')" >&2
+    exit 1
+  fi
+  tar -xJf "$tmp/proto.tar.xz" -C "$tmp"
+  mkdir -p "$HOME/.proto/bin"
+  install -m 755 "$tmp/proto_cli-$target/proto" "$tmp/proto_cli-$target/proto-shim" "$HOME/.proto/bin/"
+fi
 
 # Install everything pinned in ~/.proto/.prototools that's missing.
 export PATH="$HOME/.proto/bin:$HOME/.proto/shims:$PATH"

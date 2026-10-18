@@ -158,6 +158,14 @@ if [ "$os" = Darwin ] && brew list --formula chezmoi >/dev/null 2>&1; then
     brew uninstall chezmoi
   fi
 fi
+# Homebrew's proto: the install script now fetches proto's own release binary
+# (Homebrew has no Intel bottle, so it compiled LLVM and Rust to build it), and
+# proto keeps itself at its pin from there. Brew's copy is only a stale extra.
+if [ "$os" = Darwin ] && brew list --formula proto >/dev/null 2>&1; then
+  if confirm "Uninstall Homebrew's proto (replaced by ~/.proto/bin/proto)?"; then
+    brew uninstall proto
+  fi
+fi
 while IFS= read -r p; do
   [ "$p" = "$HOME/.local/bin/chezmoi" ] && continue
   case "$p" in
