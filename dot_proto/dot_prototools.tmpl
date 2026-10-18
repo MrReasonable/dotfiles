@@ -39,8 +39,11 @@ atuin = "18.23.0"
 carapace = "1.8.0"
 # renovate: datasource=github-releases depName=sharkdp/bat
 bat = "0.26.1"
-# renovate: datasource=github-releases depName=dandavison/delta
-delta = "0.20.1"
+{{- if not (and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "amd64")) }}
+# delta has no Intel macOS build since 0.20 (compiled with cargo there);
+# version in .chezmoidata.toml.
+delta = {{ .pins.delta | quote }}
+{{- end }}
 # renovate: datasource=github-releases depName=Wilfred/difftastic
 difftastic = "0.71.0"
 # renovate: datasource=github-releases depName=direnv/direnv

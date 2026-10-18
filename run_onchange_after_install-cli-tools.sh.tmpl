@@ -107,3 +107,14 @@ for spec in jless@{{ .pins.jless }} git-absorb@{{ .pins.git_absorb }}; do
     echo "warning: couldn't build $spec with cargo" >&2
 done
 {{- end }}
+{{- if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "amd64") }}
+
+# delta stopped publishing Intel macOS builds with 0.20, so it isn't a proto
+# pin here: compile the same version (.chezmoidata.toml) with cargo, into
+# ~/.cargo/bin (the crate is git-delta, the binary delta). Not Homebrew: it
+# has no Intel bottles either, and would build its own Rust (and LLVM) first.
+# A failed build only warns, so it can't stop `chezmoi apply` / update-all.
+"$HOME/.cargo/bin/cargo" install --list | grep -q "^git-delta v{{ .pins.delta }}:" ||
+  "$HOME/.cargo/bin/cargo" install --locked "git-delta@{{ .pins.delta }}" ||
+  echo "warning: couldn't build git-delta@{{ .pins.delta }} with cargo" >&2
+{{- end }}

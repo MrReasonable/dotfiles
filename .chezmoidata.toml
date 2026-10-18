@@ -1,8 +1,9 @@
 # Data shared by chezmoi templates.
 
 # Versions of tools installed two ways: as proto pins where the project
-# publishes a build (dot_proto/dot_prototools.tmpl), and compiled with cargo on
-# ARM Linux, where it doesn't (run_onchange_after_install-cli-tools.sh.tmpl).
+# publishes a build (dot_proto/dot_prototools.tmpl), and compiled with cargo
+# where it doesn't: jless and git-absorb on ARM Linux, delta on Intel macOS
+# (run_onchange_after_install-cli-tools.sh.tmpl).
 # One place, so the two can't drift. Plus chezmoi's own version, kept by
 # run_onchange_after_chezmoi-version.sh.tmpl. Renovate bumps these (see the
 # `# renovate:` lines) after a 7-day wait, like the proto pins.
@@ -11,6 +12,8 @@
 jless = "0.9.0"
 # renovate: datasource=github-releases depName=tummychow/git-absorb
 git_absorb = "0.9.0"
+# renovate: datasource=github-releases depName=dandavison/delta
+delta = "0.20.1"
 # renovate: datasource=github-releases depName=twpayne/chezmoi
 chezmoi = "2.73.0"
 
