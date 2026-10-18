@@ -109,14 +109,17 @@ The rest of this README is the same thing step by step.
    writes the files and runs the install scripts: Homebrew formulas, proto
    and every pinned tool, the Rust toolchain, and the iTerm2 settings.
 
-6. **iTerm2**: TokyoNight becomes the default profile on `chezmoi apply`
-   (only while iTerm2 is closed; if it was open, quit it and apply again).
+6. **iTerm2**: TokyoNight becomes the default profile on `chezmoi apply`.
+   iTerm2 has to be closed for that, so if it's open, quit it (Cmd-Q) once:
+   a background process finishes the setup and reopens it.
 
    - The double-tap-Ctrl hotkey window needs iTerm2 allowed in **System
      Settings → Privacy & Security → Accessibility** (it asks).
-   - TokyoNight builds on iTerm2's "Default" profile, which iTerm2 creates on
-     first launch. If it's ever deleted, quit iTerm2 and run
-     `iterm2-default-profile` to recreate it.
+   - TokyoNight builds on a plain "Default" profile. Every `chezmoi apply`
+     checks it's there and recreates it if not (deleted, or never made
+     because iTerm2 first started with TokyoNight already in place), the
+     same way: straight away if iTerm2 is closed, or when it next quits.
+     `iterm2-default-profile --ensure` does that check by hand.
    - The profile is read-only in iTerm2's settings: change it in
      `private_Library/…/DynamicProfiles/tokyonight.json` and `chezmoi apply`.
 
@@ -307,7 +310,7 @@ on this repository.
 | `nvim/` | The Neovim config; `~/.config/nvim` is a symlink to it |
 | `dot_proto/` | proto's tool pins (`dot_prototools.tmpl`) and plugins for tools proto doesn't know (`tool-plugins/`) |
 | `run_onchange_after_install-cli-tools.sh.tmpl` | Installs proto and the pinned tools; re-runs when the pins change |
-| `run_onchange_after_iterm2-settings.sh.tmpl` | iTerm2 preferences outside its profiles (macOS) |
+| `run_after_iterm2-settings.sh.tmpl` | iTerm2 preferences outside its profiles, and its Default profile (macOS; every apply) |
 | `private_Library/…/DynamicProfiles/tokyonight.json` | The iTerm2 profile (macOS) |
 | `private_dot_local/bin/` | Helper scripts: `appearance` (light/dark), `tips-build`, `navi-cheats-build`, `iterm2-default-profile` |
 | `dot_config/` | direnv (with micromamba), eza themes, navi, and others |

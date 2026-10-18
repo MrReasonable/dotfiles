@@ -1,53 +1,149 @@
 #!/usr/bin/env python3
-"""Make sure iTerm2 has a plain "Default" profile.
+"""Make sure iTerm2 has a plain "Default" profile, and uses TokyoNight.
 
 The TokyoNight dynamic profile (~/Library/Application Support/iTerm2/
 DynamicProfiles/tokyonight.json) inherits every setting it doesn't set from
-its parent profile, "Default". If that profile is deleted, the inheritance
-breaks and those settings (mouse reporting, for one) become unpredictable.
+its parent profile, "Default". If that profile is missing (deleted, or never
+created because the dynamic profile was there before iTerm2's first launch),
+iTerm2 warns about the missing parent on every start and the unset settings
+(mouse reporting, for one) become unpredictable.
 
 This adds a "Default" profile holding nothing but a name and GUID, so every
-setting is iTerm2's own built-in default. TokyoNight stays the profile new
-windows use.
+setting is iTerm2's own built-in default. It also makes TokyoNight the profile
+new windows use, unless you've picked some other profile yourself: it only
+takes over when no default is set, the default points at a profile that no
+longer exists, or it points at the plain Default (which is only there to be
+inherited from).
 
-iTerm2 rewrites its preferences while running, so this only edits them while
-it's closed:
-  iterm2-default-profile          add it now if iTerm2 isn't running
-  iterm2-default-profile --wait   wait for iTerm2 to quit, add it, reopen
-                                  iTerm2 (run in the background, then Cmd-Q)
+iTerm2 rewrites its preferences from memory while running, so edits made
+then are lost; this only edits them while it's closed:
+  iterm2-default-profile           fix it now; fails if iTerm2 is running
+  iterm2-default-profile --wait    wait for iTerm2 to quit, fix it, reopen
+                                   iTerm2 (run in the background, then Cmd-Q)
+  iterm2-default-profile --ensure  what chezmoi runs on every apply: nothing
+                                   if it's all set up; fix it now if iTerm2 is
+                                   closed; otherwise start a detached --wait
+                                   so it's fixed the next time iTerm2 quits
 Managed by chezmoi; run by its iTerm2 settings script.
 """
-import plistlib, subprocess, sys, time, uuid
+import fcntl, json, os, plistlib, subprocess, sys, time, traceback, uuid
 
 DOMAIN = "com.googlecode.iterm2"
+TOKYONIGHT = os.path.expanduser("~/Library/Application Support/iTerm2/DynamicProfiles/tokyonight.json")
+# Held by the one waiting process, so repeated applies don't stack up waiters.
+LOCK = os.path.expanduser("~/Library/Caches/iterm2-default-profile.lock")
+LOG = os.path.expanduser("~/Library/Logs/iterm2-default-profile.log")
 
 
 def running():
     return subprocess.run(["pgrep", "-x", "iTerm2"], capture_output=True).returncode == 0
 
 
-def ensure_default():
+def read_prefs():
+    # A domain that doesn't exist yet (iTerm2 never launched) exports as an
+    # empty dict, which is fine: iTerm2 keeps the profiles it finds on first
+    # launch instead of creating its own.
     raw = subprocess.run(["defaults", "export", DOMAIN, "-"], capture_output=True, check=True).stdout
-    prefs = plistlib.loads(raw)
+    return plistlib.loads(raw)
+
+
+def is_dynamic(profile):
+    # iTerm2 keeps copies of dynamic profiles in "New Bookmarks". Older
+    # versions (3.6 on the iMac) mark them only with "Dynamic Profile
+    # Filename", newer ones also with "Is Dynamic Profile".
+    return bool(profile.get("Is Dynamic Profile") or profile.get("Dynamic Profile Filename"))
+
+
+def plan(prefs, tokyonight_guid):
+    """Edit prefs in place; return what changed (empty if nothing needed)."""
+    changes = []
     profiles = prefs.setdefault("New Bookmarks", [])
-    if any(p.get("Name") == "Default" and not p.get("Is Dynamic Profile") for p in profiles):
-        print("iTerm2 already has a Default profile")
-        return
-    profiles.append({"Name": "Default", "Guid": str(uuid.uuid4()).upper()})
-    subprocess.run(["defaults", "import", DOMAIN, "-"], input=plistlib.dumps(prefs), check=True)
-    print("Added iTerm2's Default profile (built-in settings)")
+    default = next((p for p in profiles if p.get("Name") == "Default" and not is_dynamic(p)), None)
+    if default is None:
+        default = {"Name": "Default", "Guid": str(uuid.uuid4()).upper()}
+        profiles.append(default)
+        changes.append("added the Default profile (built-in settings)")
+    # The dynamic profile may not be in "New Bookmarks" yet (iTerm2 hasn't
+    # loaded it), so its GUID counts as known regardless.
+    known = {p.get("Guid") for p in profiles} | {tokyonight_guid}
+    current = prefs.get("Default Bookmark Guid")
+    if tokyonight_guid and current != tokyonight_guid and (current not in known or current == default["Guid"]):
+        prefs["Default Bookmark Guid"] = tokyonight_guid
+        changes.append("made TokyoNight the default profile")
+    return changes
+
+
+def tokyonight_guid():
+    try:
+        with open(TOKYONIGHT) as f:
+            return json.load(f)["Profiles"][0]["Guid"]
+    except (OSError, ValueError, KeyError, IndexError):
+        return None  # not deployed yet: only the Default profile matters then
+
+
+def fix():
+    prefs = read_prefs()
+    changes = plan(prefs, tokyonight_guid())
+    if changes:
+        subprocess.run(["defaults", "import", DOMAIN, "-"], input=plistlib.dumps(prefs), check=True)
+        print("iTerm2: " + "; ".join(changes))
+    else:
+        print("iTerm2: Default profile and default already set up")
+
+
+def wait_then_fix():
+    while running():
+        time.sleep(1)
+    time.sleep(2)  # let it finish writing its preferences
+    fix()
+    subprocess.run(["open", "-a", "iTerm"])
+
+
+def detach_waiter():
+    """Start --wait in its own session, so it outlives chezmoi, the shell and
+    the iTerm2 tab it was started from (closing them sends SIGHUP). Returns
+    False if one is already waiting."""
+    lock = open(LOCK, "w")
+    try:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        return False
+    if os.fork():
+        return True  # parent: the child carries on (and keeps the lock)
+    os.setsid()
+    if os.fork():
+        os._exit(0)
+    log = os.open(LOG, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o644)
+    null = os.open(os.devnull, os.O_RDONLY)
+    os.dup2(null, 0)
+    os.dup2(log, 1)
+    os.dup2(log, 2)
+    try:
+        print(time.strftime("%Y-%m-%d %H:%M:%S"), "waiting for iTerm2 to quit", flush=True)
+        wait_then_fix()
+    except BaseException:
+        traceback.print_exc()  # into the log: nobody's watching this process
+    finally:
+        sys.stdout.flush()
+        os._exit(0)
 
 
 if __name__ == "__main__":
-    wait = "--wait" in sys.argv[1:]
-    if running():
-        if not wait:
+    args = sys.argv[1:]
+    if "--ensure" in args:
+        if not plan(read_prefs(), tokyonight_guid()):
+            sys.exit(0)  # the usual case: nothing to do, say nothing
+        if not running():
+            fix()
+        elif detach_waiter():
+            print("iTerm2 is open: its Default profile (TokyoNight's parent) gets added the next time"
+                  " you quit it (Cmd-Q); it reopens by itself. Until then it may warn about the missing parent.")
+        else:
+            print("iTerm2: still waiting for it to quit (Cmd-Q) to add its Default profile")
+    elif running():
+        if "--wait" not in args:
             print("iTerm2 is running; quit it and re-run (or use --wait)", file=sys.stderr)
             sys.exit(1)
-        while running():
-            time.sleep(1)
-        time.sleep(2)  # let it finish writing its preferences
-        ensure_default()
-        subprocess.run(["open", "-a", "iTerm"])
+        wait_then_fix()
     else:
-        ensure_default()
+        fix()

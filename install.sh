@@ -199,7 +199,12 @@ fi
 
 # --- what's left -----------------------------------------------------------------
 if [ "$os" = Darwin ]; then
-  todo+=("iTerm2: if it was already open, quit it and run chezmoi apply to make TokyoNight its default profile.")
+  # The iTerm2 settings script can only finish (add the Default profile
+  # TokyoNight inherits from, make TokyoNight the default) while iTerm2 is
+  # closed; if it's open, a background process does it when iTerm2 quits.
+  if pgrep -x iTerm2 >/dev/null; then
+    todo+=("iTerm2: quit it (Cmd-Q) to finish its setup; it reopens with TokyoNight as the default profile.")
+  fi
   todo+=("iTerm2: allow it in System Settings → Privacy & Security → Accessibility for the double-tap-Ctrl hotkey window (it asks).")
 elif $wsl; then
   todo+=("Windows Terminal: install FiraCode Nerd Font on Windows and set it as the Ubuntu profile's font (README.md, Windows step 3).")

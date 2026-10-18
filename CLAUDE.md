@@ -40,7 +40,7 @@ Details that matter when editing this machinery:
   - `install-cli-tools`: proto and all pinned tools, the Rust toolchain and components; on macOS also brew formulas.
   - `zi-pins`: checks out zi plugins at their `[git_pins]` commits.
   - `chezmoi-version`: atomically replaces `~/.local/bin/chezmoi` with the pinned version.
-  - `iterm2-settings`: macOS only.
+- `run_after_iterm2-settings.sh.tmpl` (macOS) runs on *every* apply, on purpose. iTerm2 overwrites its prefs while running, so the profile fix (`iterm2-default-profile --ensure`) can only happen while it's closed, and apply usually runs inside it. As a run_onchange script it exited 0 without finishing, so chezmoi never re-ran it. It's a no-op once set up; if iTerm2 is open, it leaves a detached waiter that fixes things when iTerm2 quits. A run_onchange script must exit non-zero if it didn't do its job.
 - `.chezmoiexternal.toml.tmpl` pulls Oh my tmux! and the navi cheat sheets as archives at `[git_pins]` commits.
 - **Adding a proto tool proto doesn't know natively:**
   1. Write a TOML plugin in `dot_proto/tool-plugins/<tool>.toml`, with checksum verification where the release publishes checksums. See `sesh.toml`.

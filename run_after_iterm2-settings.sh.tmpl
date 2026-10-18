@@ -1,0 +1,25 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/bin/sh
+# iTerm2 settings that live outside its profiles (the profile itself is the
+# dynamic profile in ~/Library/Application Support/iTerm2/DynamicProfiles).
+#
+# Runs on every apply, not just when it changes: it used to be a run_onchange
+# script that, with iTerm2 open (it usually is: apply runs in it), told you to
+# quit and apply again, but still exited 0, so chezmoi recorded it as done and
+# never ran it again. The iMac was left without TokyoNight's parent profile
+# that way. Everything here is cheap and does nothing once it's set up.
+set -eu
+
+# Don't switch mouse reporting / bracketed paste off when the host changes.
+# Running ssh in a tmux pane counts as a host change, and with these on (the
+# answer once given to iTerm2's "turn it off?" prompt) the mouse stopped
+# working in tmux (scrolling showed iTerm2's own old scrollback, clicks did
+# nothing) until tmux re-enabled it on the next attach.
+defaults write com.googlecode.iterm2 NoSyncTurnOffMouseReportingOnHostChange -bool false
+defaults write com.googlecode.iterm2 NoSyncTurnOffBracketedPasteOnHostChange -bool false
+
+# TokyoNight inherits from a plain "Default" profile: add it if it's missing,
+# and make TokyoNight the default profile. iTerm2 must be closed for that, so
+# if it's open this leaves a background process to do it when iTerm2 quits.
+"$HOME/.local/bin/iterm2-default-profile" --ensure
+{{ end -}}
