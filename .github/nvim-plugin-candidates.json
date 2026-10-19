@@ -1,38 +1,56 @@
 {
- "astrocommunity": [
+ "AstroNvim": [
   {
-   "commit": "41ae4db2581b22d192c96c7400fda3ef8825dcf7",
-   "seen": "2026-10-12"
+   "commit": "fc95d5d331b897b1c6b46cbfa4e0251d8d9be6b7",
+   "seen": "2026-10-19"
+  }
+ ],
+ "astrocore": [
+  {
+   "commit": "f1ebf1d5b0bf4d92ab8c276a222fb39e02aad63e",
+   "seen": "2026-10-19"
+  }
+ ],
+ "astrolsp": [
+  {
+   "commit": "41810aa99789c5fcd2480a0e4ba27d3038afdd61",
+   "seen": "2026-10-19"
+  }
+ ],
+ "astrotheme": [
+  {
+   "commit": "83c077c29195882f9583b45ea41154b2fb8935fb",
+   "seen": "2026-10-19"
+  }
+ ],
+ "grug-far.nvim": [
+  {
+   "commit": "bbde8ef5ae46ceee2c3bd8b21fc048c5f8ffbfc0",
+   "seen": "2026-10-19"
+  }
+ ],
+ "mini.ai": [
+  {
+   "commit": "d0c4987a1ead2bcf4eb22cc9815c662d76677c08",
+   "seen": "2026-10-19"
   }
  ],
  "nvim-lsp-file-operations": [
   {
-   "commit": "ba0c27cd0dbee7b421ba7b31a4cb68770032b9fd",
-   "seen": "2026-10-12"
-  }
- ],
- "oil.nvim": [
-  {
-   "commit": "d3733d933833a0e59b813ecec99341527adf0c28",
-   "seen": "2026-10-12"
+   "commit": "8b150305362e971db0c40cee89ea4576a64e86cd",
+   "seen": "2026-10-19"
   }
  ],
  "precognition.nvim": [
   {
-   "commit": "add3cc30e6d68e977bbb76927c11b45b80c3a209",
-   "seen": "2026-10-12"
-  }
- ],
- "render-markdown.nvim": [
-  {
-   "commit": "8e8795368391036643b622875a6da6a51bcd33f4",
-   "seen": "2026-10-12"
+   "commit": "af99323ea0942aac39b65dca2bac7bb1174c010f",
+   "seen": "2026-10-19"
   }
  ],
  "schemastore.nvim": [
   {
-   "commit": "a470cbcd112e717a8955efee3929bd59f7473c7b",
-   "seen": "2026-10-12"
+   "commit": "7fca30f2890a6acf9d21d194876c6ac960d92070",
+   "seen": "2026-10-19"
   }
  ]
 }
