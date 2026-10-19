@@ -1,38 +1,44 @@
 {
  "greymd/docker-zsh-completion": [
   {
-   "commit": "129d9aff977f66209827c71c95cb8aad7b347f34",
-   "seen": "2026-10-12"
+   "commit": "cafa0d65fd9a7f88738a62a78a709fb887fa48dd",
+   "seen": "2026-10-19"
   }
  ],
  "ohmyzsh/ohmyzsh": [
   {
-   "commit": "083c339e0622bfc144b66ebf1a2e8dbe7d2ada0d",
-   "seen": "2026-10-12"
+   "commit": "964ddf789b022b6958b27d02d7fa54f552de21e9",
+   "seen": "2026-10-19"
+  }
+ ],
+ "wfxr/forgit": [
+  {
+   "commit": "4a9c0f5576e31beaf7e54e1aa134ddcc1dc4ef08",
+   "seen": "2026-10-19"
   }
  ],
  "z-shell/F-Sy-H": [
   {
-   "commit": "6bd1e63037501d9512a419dddec7e124c683a62a",
-   "seen": "2026-10-12"
+   "commit": "1e36df594883b39177afa56f8b932688f3bce8ca",
+   "seen": "2026-10-19"
   }
  ],
  "z-shell/zi": [
   {
-   "commit": "990985b585b99c8483670b03dd2c5068b3fcbeed",
-   "seen": "2026-10-12"
+   "commit": "926ba50fa8da5f75ba6d2edbcfa2e0439e83161c",
+   "seen": "2026-10-19"
   }
  ],
  "z-shell/zsh-eza": [
   {
-   "commit": "6b39f73ea60a130a640431f5e873093d52cce5c6",
-   "seen": "2026-10-12"
+   "commit": "e172f4ac99592e8733894dce862c435a58387fae",
+   "seen": "2026-10-19"
   }
  ],
  "zsh-users/zsh-completions": [
   {
-   "commit": "6661b4b68173784ba31ef10ce4b5cb1c9ecfdcac",
-   "seen": "2026-10-12"
+   "commit": "989b23277ab33e8d5e82df6aed936e846db9d8b8",
+   "seen": "2026-10-19"
   }
  ]
 }
