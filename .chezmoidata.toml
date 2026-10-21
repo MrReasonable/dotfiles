@@ -15,7 +15,7 @@ git_absorb = "0.9.0"
 # renovate: datasource=github-releases depName=dandavison/delta
 delta = "0.20.1"
 # renovate: datasource=github-releases depName=twpayne/chezmoi
-chezmoi = "2.73.0"
+chezmoi = "2.73.1"
 
 # Git commits, for things that publish no releases: zi itself, zsh plugins,
 # Oh My Zsh's plugin files, Oh my tmux and the navi cheat-sheet repos.
