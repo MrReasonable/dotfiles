@@ -2,7 +2,8 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "description": [
     "Bumps the exact version pins in this repo once a release is 7 days old (most compromised releases are caught and pulled within days).",
-    "Patch/minor/digest bumps merge themselves; majors open a PR for review. Fixes for known vulnerabilities skip the wait.",
+    "Patch/minor/digest bumps merge themselves; majors open a PR for review.",
+    "Known-vulnerability fixes (OSV for npm/pypi/etc.) skip the age wait and pick the newest patched release — see vulnerabilityAlerts.internalChecksFilter.",
     "Pins are found via '# renovate: datasource=... depName=...' comments on the line above each one."
   ],
   "extends": [
@@ -15,10 +16,15 @@
   "internalChecksFilter": "strict",
   "prHourlyLimit": 0,
   "prConcurrentLimit": 10,
+  "osvVulnerabilityAlerts": true,
   "vulnerabilityAlerts": {
     "enabled": true,
     "minimumReleaseAge": null,
-    "labels": ["security"]
+    "internalChecksFilter": "none",
+    "vulnerabilityFixStrategy": "highest",
+    "labels": ["security"],
+    "automerge": true,
+    "automergeType": "pr"
   },
   "packageRules": [
     {
@@ -43,7 +49,7 @@
         "/(^|/)\\.chezmoidata\\.toml$/"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s*\\n[A-Za-z0-9_-]+ = \"(?<currentValue>[^\"]+)\""
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)(?: packageName=(?<packageName>\\S+))?(?: extractVersion=(?<extractVersion>\\S+))?\\s*\\n[A-Za-z0-9_-]+ = \"(?<currentValue>[^\"]+)\""
       ],
       "extractVersionTemplate": "{{#if extractVersion}}{{{extractVersion}}}{{else}}^v?(?<version>.+)${{/if}}"
     }

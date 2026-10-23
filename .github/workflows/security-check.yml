@@ -39,18 +39,28 @@ jobs:
           REPORT: ${{ runner.temp }}/report.md
         run: python3 .github/scripts/advisory_check.py changed origin/main
 
-      - name: Open an issue for a blocked update
+      - name: Open or update an issue for a blocked update
         if: failure() && steps.check.conclusion == 'failure'
         env:
           GH_TOKEN: ${{ github.token }}
           BRANCH: ${{ github.ref_name }}
         run: |
+          title="Blocked update: $BRANCH"
           { echo "Renovate's update on \`$BRANCH\` was **not merged**: the new version has a"
             echo "known security advisory (or couldn't be checked). Renovate retries on its"
             echo "next run and merges once this check passes."
-            echo; cat "$RUNNER_TEMP/report.md"; } > "$RUNNER_TEMP/body.md"
-          gh issue create --repo "$GITHUB_REPOSITORY" \
-            --title "Blocked update: $BRANCH" --body-file "$RUNNER_TEMP/body.md"
+            echo; cat "$RUNNER_TEMP/report.md"
+            echo; echo "_Updated $(date -u +%Y-%m-%dT%H:%M:%SZ)._"
+          } > "$RUNNER_TEMP/body.md"
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open \
+            --search "\"$title\" in:title" --json number,title \
+            --jq ".[] | select(.title == \"$title\") | .number" | head -1)
+          if [ -n "$existing" ]; then
+            gh issue edit "$existing" --repo "$GITHUB_REPOSITORY" --body-file "$RUNNER_TEMP/body.md"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" \
+              --title "$title" --body-file "$RUNNER_TEMP/body.md"
+          fi
 
   audit:
     if: github.event_name != 'push'
