@@ -591,3 +591,14 @@ bind -T copy-mode-vi C-h select-pane -L
 bind -T copy-mode-vi C-j select-pane -D
 bind -T copy-mode-vi C-k select-pane -U
 bind -T copy-mode-vi C-l select-pane -R
+
+# Jump between commands in copy mode (prefix [): [ and ] to the previous/next
+# prompt, ( and ) to the start of the previous/next command's output, e.g.
+# ( v ] k to select a command's output. Needs the shell to mark prompts
+# (OSC 133): p10k's POWERLEVEL9K_TERM_SHELL_INTEGRATION in ~/.p10k.zsh. tmux
+# binds these only in emacs copy mode (C-M-Up/Down); copy mode is vi here
+# (EDITOR=nvim), and [ ] ( ) are unbound in it.
+bind -T copy-mode-vi [ send -X previous-prompt
+bind -T copy-mode-vi ] send -X next-prompt
+bind -T copy-mode-vi ( send -X previous-prompt -o
+bind -T copy-mode-vi ) send -X next-prompt -o

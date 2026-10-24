@@ -47,8 +47,10 @@ The rest of this README is the same thing step by step.
   highlighting, atuin history (Ctrl-R), zoxide (`z`), navi cheat sheets
   (Ctrl-G), a "did you know" tip at startup (`tips` for more).
 - **tmux**: Oh my tmux! with a TokyoNight status bar, prefix `Ctrl-A`, a sesh
-  session picker (`prefix T`), navi from any pane (`prefix Ctrl-G`), and
-  Ctrl-h/j/k/l moving between tmux panes and Neovim splits alike.
+  session picker (`prefix T`), navi from any pane (`prefix Ctrl-G`),
+  Ctrl-h/j/k/l moving between tmux panes and Neovim splits alike, a picker
+  for the URLs on screen (`prefix U`), and in copy mode (`prefix [`), `[`/`]`
+  to jump between commands and `(`/`)` to the start of their output.
 - **Neovim**: AstroNvim with language support for TypeScript, Rust, Python,
   Go, C, Lua, SQL, Terraform, Ansible, shell and more; Claude Code, tests,
   git, and a built-in tutorial series (`:Tutor my-00-start`).
@@ -273,11 +275,11 @@ within days, so the wait keeps them off your machines.
 
 - **Renovate** (`renovate.json`, the free GitHub app) watches the pins in
   `dot_proto/dot_prototools.tmpl` (proto tools, proto itself) and
-  `.chezmoidata.toml` (chezmoi, plus jless/git-absorb on ARM Linux). Each pin
-  has a `# renovate:` comment saying where its releases come from. Patch and
-  minor bumps merge themselves after the wait; majors open a pull request for
-  you. Fixes for known vulnerabilities skip the wait. Its Dependency
-  Dashboard issue lists what's pending.
+  `.chezmoidata.toml` (chezmoi, urlscan, plus jless/git-absorb on ARM
+  Linux). Each pin has a `# renovate:` comment saying where its releases come
+  from. Patch and minor bumps merge themselves after the wait; majors open a
+  pull request for you. Fixes for known vulnerabilities skip the wait. Its
+  Dependency Dashboard issue lists what's pending.
 - **Things without releases** (zsh plugins, zi itself, Oh My Zsh's plugin
   files, Oh my tmux, the navi cheat-sheet repos) are pinned to commits in
   `.chezmoidata.toml` `[git_pins]`. `.github/workflows/git-pins.yml` bumps them
@@ -315,5 +317,5 @@ on this repository.
 | `private_dot_local/bin/` | Helper scripts: `appearance` (light/dark), `tips-build`, `navi-cheats-build`, `iterm2-default-profile` |
 | `dot_config/` | direnv (with micromamba), eza themes, navi, and others |
 | `.chezmoiignore` | Files skipped per OS (e.g. `Library` off macOS) |
-| `.chezmoidata.toml` | Versions shared by templates (chezmoi; jless/git-absorb) and the `[git_pins]` commits |
+| `.chezmoidata.toml` | Versions shared by templates (chezmoi, urlscan; jless/git-absorb) and the `[git_pins]` commits |
 | `renovate.json`, `.github/` | Update automation: Renovate, and the weekly Neovim plugin bump |

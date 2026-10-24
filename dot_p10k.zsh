@@ -1708,6 +1708,14 @@
   # really need it.
   typeset -g POWERLEVEL9K_DISABLE_HOT_RELOAD=true
 
+  # Mark where each prompt and each command's output start (OSC 133), so tmux's
+  # copy mode can jump between commands (prefix [ then [ / ] for prompts,
+  # ( / ) for output; see .tmux.conf.local) and iTerm2 can too
+  # (Cmd-Shift-Up/Down).
+  # zsh-iterm2 tries to do this, but p10k rebuilds PS1 after its precmd hook
+  # and drops its prompt marks (checked 2026-10-24: tmux found no prompts).
+  typeset -g POWERLEVEL9K_TERM_SHELL_INTEGRATION=true
+
   # If p10k is already loaded, reload configuration.
   # This works even with POWERLEVEL9K_DISABLE_HOT_RELOAD=true.
   (( ! $+functions[p10k] )) || p10k reload
