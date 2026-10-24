@@ -89,7 +89,14 @@ command -v trash-put >/dev/null 2>&1 || uv tool install trash-cli
 # to releases 7+ days old, like everything else here. uv does nothing if
 # that version is already installed. A failure only warns: the picker is a
 # convenience, not worth stopping `chezmoi apply` / update-all.
-uv tool install --quiet --exclude-newer '7 days' "urlscan=={{ .pins.urlscan }}" ||
+# On proto's Python, not one uv downloads itself: through proto's per-minor
+# link (python-3.15), which proto re-points on each patch bump, so the tool
+# keeps working. A versioned path breaks once that version is removed, as
+# mise's did for four tools (found 2026-10-24).
+{{- $python := include "dot_proto/dot_prototools.tmpl" | regexFind "(?m)^python = \"[0-9]+\\.[0-9]+" | trimPrefix "python = \"" }}
+{{- if not $python }}{{ fail "install-cli-tools: no `python = \"X.Y...\"` pin in dot_proto/dot_prototools.tmpl" }}{{ end }}
+uv tool install --quiet --exclude-newer '7 days' --python "$HOME/.proto/bin/python-{{ $python }}" \
+  "urlscan=={{ .pins.urlscan }}" ||
   echo "warning: couldn't install urlscan {{ .pins.urlscan }}" >&2
 {{- if and (eq .chezmoi.os "linux") (ne .chezmoi.arch "amd64") }}
 
