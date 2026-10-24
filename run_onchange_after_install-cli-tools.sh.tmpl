@@ -77,12 +77,6 @@ if [ -n "$rust_bin" ] && [ -x "$HOME/.cargo/bin/rustup" ]; then
   "$HOME/.cargo/bin/rustup" default "$toolchain"
   "$HOME/.cargo/bin/rustup" component add --toolchain "$toolchain" rust-analyzer clippy rustfmt
 fi
-{{- if ne .chezmoi.os "darwin" }}
-
-# `rm` in .zshrc sends files to the trash; macOS has /usr/bin/trash built in,
-# elsewhere use trash-cli (as a uv tool, uv being proto-managed).
-command -v trash-put >/dev/null 2>&1 || uv tool install trash-cli
-{{- end }}
 
 # urlscan, for Oh my tmux's URL picker (prefix + U), at the [pins] version.
 # Its dependencies (urwid, ...) aren't pinned, so --exclude-newer keeps them

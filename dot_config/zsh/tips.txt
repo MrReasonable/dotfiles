@@ -30,7 +30,6 @@ In a git diff (delta), `n` / `N` jump to the next/previous file.
 `watchexec -e ts -- pnpm test` re-runs a command whenever matching files change.
 `jless file.json` (or `... | jless`) browses JSON/YAML: collapse with `Space`, search with `/`.
 `tspin app.log` or `kubectl logs pod | tspin` highlights dates, levels, IPs and UUIDs in logs.
-`rm` moves things to the Trash, so it's recoverable; `\rm` (or `command rm`) really deletes.
 `man` pages render through bat, with syntax colouring.
 `ll` is a long listing (eza), `la` shows everything, `lt` shows a tree.
 Global aliases work anywhere in a line: `cmd H` = `| head`, `G` = `| grep`, `NUL` = `> /dev/null 2>&1`.

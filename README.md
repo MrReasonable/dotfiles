@@ -168,8 +168,7 @@ names.
 
    Same prompts as on macOS. The install script then installs proto (from
    its official installer), every pinned tool (Neovim, lazygit and gh
-   included), the Rust toolchain, and
-   trash-cli (so `rm` goes to the trash).
+   included) and the Rust toolchain.
 
 6. **Font**: icons in the prompt, eza and Neovim need a Nerd Font in the
    terminal you connect *from* (e.g. FiraCode Nerd Font from
