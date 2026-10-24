@@ -15,7 +15,7 @@ git_absorb = "0.9.0"
 # renovate: datasource=github-releases depName=dandavison/delta
 delta = "0.20.1"
 # renovate: datasource=github-releases depName=twpayne/chezmoi
-chezmoi = "2.73.1"
+chezmoi = "2.73.2"
 # Oh my tmux's URL picker (prefix + U), a uv tool: not a proto tool, and
 # Homebrew's formula would float with brew upgrade.
 # renovate: datasource=pypi depName=urlscan
