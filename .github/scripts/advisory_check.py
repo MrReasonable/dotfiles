@@ -139,8 +139,10 @@ def advisories_for(ds, dep, version):
                 if in_range(version, rng):
                     found.append((adv["ghsa_id"], adv.get("html_url", ""), True))
                     break
-    elif ds in ("npm", "golang-version"):
-        pkg = {"name": dep, "ecosystem": "npm"} if ds == "npm" else {"name": "stdlib", "ecosystem": "Go"}
+    elif ds in ("npm", "pypi", "golang-version"):
+        pkg = ({"name": dep, "ecosystem": "npm"} if ds == "npm"
+               else {"name": dep, "ecosystem": "PyPI"} if ds == "pypi"
+               else {"name": "stdlib", "ecosystem": "Go"})
         found += [(v["id"], f"https://osv.dev/vulnerability/{v['id']}", True) for v in osv_all(pkg, version)]
     return found
 

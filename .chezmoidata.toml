@@ -16,6 +16,10 @@ git_absorb = "0.9.0"
 delta = "0.20.1"
 # renovate: datasource=github-releases depName=twpayne/chezmoi
 chezmoi = "2.73.1"
+# Oh my tmux's URL picker (prefix + U), a uv tool: not a proto tool, and
+# Homebrew's formula would float with brew upgrade.
+# renovate: datasource=pypi depName=urlscan
+urlscan = "1.2.0"
 
 # Git commits, for things that publish no releases: zi itself, zsh plugins,
 # Oh My Zsh's plugin files, Oh my tmux and the navi cheat-sheet repos.

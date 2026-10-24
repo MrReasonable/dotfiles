@@ -83,6 +83,14 @@ fi
 # elsewhere use trash-cli (as a uv tool, uv being proto-managed).
 command -v trash-put >/dev/null 2>&1 || uv tool install trash-cli
 {{- end }}
+
+# urlscan, for Oh my tmux's URL picker (prefix + U), at the [pins] version.
+# Its dependencies (urwid, ...) aren't pinned, so --exclude-newer keeps them
+# to releases 7+ days old, like everything else here. uv does nothing if
+# that version is already installed. A failure only warns: the picker is a
+# convenience, not worth stopping `chezmoi apply` / update-all.
+uv tool install --quiet --exclude-newer '7 days' "urlscan=={{ .pins.urlscan }}" ||
+  echo "warning: couldn't install urlscan {{ .pins.urlscan }}" >&2
 {{- if and (eq .chezmoi.os "linux") (ne .chezmoi.arch "amd64") }}
 
 # jless and git-absorb publish no ARM Linux builds, so they aren't proto pins
