@@ -410,6 +410,15 @@ tmux_conf_urlscan_options="--compact --dedupe"
 # increase history size
 set -g history-limit 99999
 
+# Extended keys "on", not Oh my tmux's "always" (its choice in iTerm2). With
+# always, tmux forces modified keys into CSI u sequences for every program,
+# including zsh, which doesn't read them: Shift-\ (| on a British keyboard)
+# arrived as ESC [ 124 ; 2 u, the ESC put zsh's line editor into vi command
+# mode, and the | vanished with the cursor jumping back (reproduced
+# 2026-10-24). With on, tmux still gets extended keys for its own bindings,
+# and programs that ask for them (Neovim, Claude Code) still get them.
+set -gF extended-keys '#{?#{==:#{extended-keys},always},on,#{extended-keys}}'
+
 # start with mouse mode enabled
 set-option -g mouse on
 set -g mouse on
