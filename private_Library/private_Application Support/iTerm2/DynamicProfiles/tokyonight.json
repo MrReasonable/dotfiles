@@ -341,6 +341,7 @@
       },
       "Minimum Contrast (Dark)": 0.0,
       "Minimum Contrast (Light)": 0.4,
+      "ASCII Ligatures": true,
       "Name": "TokyoNight",
       "Non Ascii Font": "FiraCodeNF-Reg 13",
       "Normal Font": "FiraCodeNF-Reg 13",
