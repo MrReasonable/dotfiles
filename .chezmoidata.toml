@@ -31,7 +31,7 @@ urlscan = "1.2.0"
 
 [git_pins."z-shell/zi"]
 branch = "main"
-commit = "990985b585b99c8483670b03dd2c5068b3fcbeed"
+commit = "926ba50fa8da5f75ba6d2edbcfa2e0439e83161c"
 
 [git_pins."romkatv/powerlevel10k"]
 branch = "master"
@@ -39,7 +39,7 @@ commit = "d05a1b00f9a61f9578bf9dc19b8451942dde8734"
 
 [git_pins."zsh-users/zsh-completions"]
 branch = "master"
-commit = "6661b4b68173784ba31ef10ce4b5cb1c9ecfdcac"
+commit = "989b23277ab33e8d5e82df6aed936e846db9d8b8"
 
 [git_pins."zsh-users/zsh-autosuggestions"]
 branch = "master"
@@ -47,7 +47,7 @@ commit = "85919cd1ffa7d2d5412f6d3fe437ebdbeeec4fc5"
 
 [git_pins."z-shell/F-Sy-H"]
 branch = "main"
-commit = "6bd1e63037501d9512a419dddec7e124c683a62a"
+commit = "1e36df594883b39177afa56f8b932688f3bce8ca"
 
 [git_pins."Aloxaf/fzf-tab"]
 branch = "master"
@@ -63,7 +63,7 @@ commit = "f5022035975a6f6822f1bfd6fb3a6300920ff9bc"
 
 [git_pins."wfxr/forgit"]
 branch = "main"
-commit = "af6c459f3f2b2a72372ea6c2044b91e45c893573"
+commit = "4a9c0f5576e31beaf7e54e1aa134ddcc1dc4ef08"
 
 [git_pins."paulirish/git-open"]
 branch = "master"
@@ -100,11 +100,11 @@ commit = "a6daea6359b1fc2b70873e7854eba5996e681e11"
 
 [git_pins."greymd/docker-zsh-completion"]
 branch = "master"
-commit = "129d9aff977f66209827c71c95cb8aad7b347f34"
+commit = "cafa0d65fd9a7f88738a62a78a709fb887fa48dd"
 
 [git_pins."z-shell/zsh-eza"]
 branch = "main"
-commit = "6b39f73ea60a130a640431f5e873093d52cce5c6"
+commit = "e172f4ac99592e8733894dce862c435a58387fae"
 
 [git_pins."laggardkernel/zsh-iterm2"]
 branch = "master"
@@ -112,7 +112,7 @@ commit = "6f9d8951b3330593ceb66972a71a067793b0981e"
 
 [git_pins."ohmyzsh/ohmyzsh"]
 branch = "master"
-commit = "083c339e0622bfc144b66ebf1a2e8dbe7d2ada0d"
+commit = "964ddf789b022b6958b27d02d7fa54f552de21e9"
 
 [git_pins."gpakosz/.tmux"]
 branch = "master"
