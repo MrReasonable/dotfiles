@@ -15,6 +15,9 @@ return {
       ensure_installed = {
         "lua",
         "vim",
+        -- only ever injected (never a buffer's own filetype), so auto_install
+        -- never fetches it; Snacks.picker uses it to highlight regex searches
+        "regex",
         -- add more arguments for adding more treesitter parsers
       },
     },
