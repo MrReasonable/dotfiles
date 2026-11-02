@@ -1,32 +1,14 @@
 {
  "greymd/docker-zsh-completion": [
   {
-   "commit": "35cc7035d79cd75838a1bf9d82b676477884f592",
-   "seen": "2026-10-26"
+   "commit": "ad78bbe0bd783fe55821df1c528c03c1f39b7f82",
+   "seen": "2026-11-02"
   }
  ],
  "ohmyzsh/ohmyzsh": [
   {
-   "commit": "d2b7f557cceaddb16ba89bbf8200d8a8df35c4d8",
-   "seen": "2026-10-26"
-  }
- ],
- "wfxr/forgit": [
-  {
-   "commit": "8b638f4765cabe41bf3e86196cfcce388daa9266",
-   "seen": "2026-10-26"
-  }
- ],
- "z-shell/F-Sy-H": [
-  {
-   "commit": "a4bfd52db3701820a5617683835c0ba4b23ed0f5",
-   "seen": "2026-10-26"
-  }
- ],
- "z-shell/zi": [
-  {
-   "commit": "5d095f60bb4541036b1ace6223409089d32724cd",
-   "seen": "2026-10-26"
+   "commit": "b509b1c6ed0c1ba37de12cbd37f30b2b2f61193a",
+   "seen": "2026-11-02"
   }
  ]
 }
