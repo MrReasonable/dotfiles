@@ -1,14 +1,20 @@
 {
  "greymd/docker-zsh-completion": [
   {
-   "commit": "ad78bbe0bd783fe55821df1c528c03c1f39b7f82",
-   "seen": "2026-11-02"
+   "commit": "d6fe4ef84a2bf4014bd755cfc2ce2366156c09d4",
+   "seen": "2026-11-09"
   }
  ],
  "ohmyzsh/ohmyzsh": [
   {
-   "commit": "b509b1c6ed0c1ba37de12cbd37f30b2b2f61193a",
-   "seen": "2026-11-02"
+   "commit": "6010fb6260f359e71d99ba25f05f9215809b3ed2",
+   "seen": "2026-11-09"
+  }
+ ],
+ "romkatv/powerlevel10k": [
+  {
+   "commit": "433bb250037d1baf479adf06ce78b3a338c574a4",
+   "seen": "2026-11-09"
   }
  ]
 }

@@ -100,7 +100,7 @@ commit = "a6daea6359b1fc2b70873e7854eba5996e681e11"
 
 [git_pins."greymd/docker-zsh-completion"]
 branch = "master"
-commit = "35cc7035d79cd75838a1bf9d82b676477884f592"
+commit = "ad78bbe0bd783fe55821df1c528c03c1f39b7f82"
 
 [git_pins."z-shell/zsh-eza"]
 branch = "main"
@@ -112,7 +112,7 @@ commit = "6f9d8951b3330593ceb66972a71a067793b0981e"
 
 [git_pins."ohmyzsh/ohmyzsh"]
 branch = "master"
-commit = "d2b7f557cceaddb16ba89bbf8200d8a8df35c4d8"
+commit = "b509b1c6ed0c1ba37de12cbd37f30b2b2f61193a"
 
 [git_pins."gpakosz/.tmux"]
 branch = "master"
