@@ -1,86 +1,32 @@
 {
  "claudecode.nvim": [
   {
-   "commit": "9c11940c1aabd94db580816b58d1784d1992df17",
-   "seen": "2026-11-02"
-  }
- ],
- "cmake-tools.nvim": [
-  {
-   "commit": "782a254c62a61af1d4febddd0d6dbc5ea414a027",
-   "seen": "2026-11-02"
-  }
- ],
- "friendly-snippets": [
-  {
-   "commit": "b4d01b0fdf3c9a549961c2f9ffe8dc09be166219",
-   "seen": "2026-11-02"
-  }
- ],
- "mason-lspconfig.nvim": [
-  {
-   "commit": "00b5473cca4db5b410ff4bae724e3b6e21f2687f",
-   "seen": "2026-11-02"
+   "commit": "af04fbf9c27c5c06b4d1ff022b551aa94e1df4aa",
+   "seen": "2026-11-09"
   }
  ],
  "mini.ai": [
   {
-   "commit": "a4f5648dedf435e6306205135d1babb563b55d28",
-   "seen": "2026-11-02"
-  }
- ],
- "none-ls.nvim": [
-  {
-   "commit": "c4b82bb63b13856ba4d6b971b7aad3bb38fc6fe2",
-   "seen": "2026-11-02"
-  }
- ],
- "nvim-autopairs": [
-  {
-   "commit": "3172f40c16563db871a58f20d205c710ad782311",
-   "seen": "2026-11-02"
-  }
- ],
- "nvim-dap": [
-  {
-   "commit": "cfa2d58f4537aca6ca83e2de1a0d9f1491121264",
-   "seen": "2026-11-02"
+   "commit": "98a5d73937930a2bb08129020601ab8d5016d706",
+   "seen": "2026-11-09"
   }
  ],
  "nvim-lsp-file-operations": [
   {
-   "commit": "a76cdd2c4f0ad3ce6219506aad1208c81d600e20",
-   "seen": "2026-11-02"
+   "commit": "a7ac3f9c828c12ec022551a757217759c0d7f97c",
+   "seen": "2026-11-09"
   }
  ],
- "nvim-treesitter": [
+ "render-markdown.nvim": [
   {
-   "commit": "ca581c3436fc2b236847f5b739ebc263739e5ca6",
-   "seen": "2026-11-02"
-  }
- ],
- "nvim-treesitter-textobjects": [
-  {
-   "commit": "5c7b0263797dfd1bd6202f2b219f3b53a80b2187",
-   "seen": "2026-11-02"
-  }
- ],
- "nvim-ts-autotag": [
-  {
-   "commit": "d7220b55e16ed3c04e88086256def5d282429493",
-   "seen": "2026-11-02"
-  }
- ],
- "rustaceanvim": [
-  {
-   "commit": "b7ca983c6ec88c94cf25e5deaad96df9a68b9a98",
-   "seen": "2026-11-02"
+   "commit": "9c235bedc4f96145e63fcad5b78cd78bce8822c4",
+   "seen": "2026-11-09"
   }
  ],
  "schemastore.nvim": [
   {
-   "commit": "cc6302a0957806dfc0f2687f1f35ee9652686101",
-   "seen": "2026-11-02"
+   "commit": "d3e2250efab001fba40d2226361c0060ccf18fd6",
+   "seen": "2026-11-09"
   }
  ],
  "smart-splits.nvim": [
