@@ -1,0 +1,17 @@
+# herdr configuration — deliberately minimal; everything not set here uses
+# herdr's defaults (`herdr --default-config` prints the full reference).
+# Apply edits to a running server with: herdr server reload-config
+
+[theme]
+# Match the rest of the stack (iTerm2, tmux, nvim all run TokyoNight with
+# light/dark following macOS appearance). auto_switch reads the host
+# terminal's appearance, so herdr flips alongside iTerm2 rather than needing
+# its own hook into ~/.local/bin/appearance.
+name = "tokyo-night"
+auto_switch = true
+dark_name = "tokyo-night"
+light_name = "tokyo-night-day"
+
+# [keys] intentionally left at defaults: prefix stays ctrl+b. tmux's prefix
+# is ctrl+a only (~/.tmux.conf.local unbinds C-b), so ctrl+b never collides
+# with tmux, even if herdr ends up running inside a tmux pane.
