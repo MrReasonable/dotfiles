@@ -1,32 +1,26 @@
 {
  "claudecode.nvim": [
   {
-   "commit": "af04fbf9c27c5c06b4d1ff022b551aa94e1df4aa",
-   "seen": "2026-11-09"
+   "commit": "6ad8e0fdbda84486f13f7f1fa4802942f4877f13",
+   "seen": "2026-11-16"
   }
  ],
  "mini.ai": [
   {
-   "commit": "98a5d73937930a2bb08129020601ab8d5016d706",
-   "seen": "2026-11-09"
-  }
- ],
- "nvim-lsp-file-operations": [
-  {
-   "commit": "a7ac3f9c828c12ec022551a757217759c0d7f97c",
-   "seen": "2026-11-09"
+   "commit": "c2e6e88a9de01b5aec5c3cffee1277b9ac8a6d69",
+   "seen": "2026-11-16"
   }
  ],
  "render-markdown.nvim": [
   {
-   "commit": "9c235bedc4f96145e63fcad5b78cd78bce8822c4",
-   "seen": "2026-11-09"
+   "commit": "8801162e041e34c64d0d1397cd1f353a14b01950",
+   "seen": "2026-11-16"
   }
  ],
  "schemastore.nvim": [
   {
-   "commit": "d3e2250efab001fba40d2226361c0060ccf18fd6",
-   "seen": "2026-11-09"
+   "commit": "e8c3d2225d6bf5e2cbe414952c247d7a3411849b",
+   "seen": "2026-11-16"
   }
  ],
  "smart-splits.nvim": [
