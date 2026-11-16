@@ -35,7 +35,7 @@ commit = "5d095f60bb4541036b1ace6223409089d32724cd"
 
 [git_pins."romkatv/powerlevel10k"]
 branch = "master"
-commit = "d05a1b00f9a61f9578bf9dc19b8451942dde8734"
+commit = "433bb250037d1baf479adf06ce78b3a338c574a4"
 
 [git_pins."zsh-users/zsh-completions"]
 branch = "master"
@@ -100,7 +100,7 @@ commit = "a6daea6359b1fc2b70873e7854eba5996e681e11"
 
 [git_pins."greymd/docker-zsh-completion"]
 branch = "master"
-commit = "ad78bbe0bd783fe55821df1c528c03c1f39b7f82"
+commit = "d6fe4ef84a2bf4014bd755cfc2ce2366156c09d4"
 
 [git_pins."z-shell/zsh-eza"]
 branch = "main"
@@ -112,7 +112,7 @@ commit = "6f9d8951b3330593ceb66972a71a067793b0981e"
 
 [git_pins."ohmyzsh/ohmyzsh"]
 branch = "master"
-commit = "b509b1c6ed0c1ba37de12cbd37f30b2b2f61193a"
+commit = "6010fb6260f359e71d99ba25f05f9215809b3ed2"
 
 [git_pins."gpakosz/.tmux"]
 branch = "master"
