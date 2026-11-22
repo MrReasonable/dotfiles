@@ -122,6 +122,22 @@
     "GHSA-3rgh-p3mg-rjqg",
     "GHSA-x96c-8w82-wf96"
    ]
+  },
+  "carapace-sh/carapace-bin": {
+   "reviewed": "2026-11-22",
+   "note": "Both low severity, fixed in v1.8.2 (pinned is newer). Need an attacker who can already write into your own ~/.config/carapace/specs.",
+   "ids": [
+    "GHSA-3w84-448q-whfh",
+    "GHSA-qrhq-7hrc-23hq"
+   ]
+  },
+  "junegunn/fzf": {
+   "reviewed": "2026-11-22",
+   "note": "Both fixed in 0.74.5 (pinned is newer). zsh-completion /tmp FIFO symlink race (needs another local user) and fzf-tmux -l/-u option injection.",
+   "ids": [
+    "GHSA-7rj6-7pqx-v7rm",
+    "GHSA-w6x2-f5m4-xw82"
+   ]
   }
  }
 }
