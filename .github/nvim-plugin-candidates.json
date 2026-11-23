@@ -1,26 +1,32 @@
 {
- "claudecode.nvim": [
-  {
-   "commit": "6ad8e0fdbda84486f13f7f1fa4802942f4877f13",
-   "seen": "2026-11-16"
-  }
- ],
  "mini.ai": [
   {
-   "commit": "c2e6e88a9de01b5aec5c3cffee1277b9ac8a6d69",
-   "seen": "2026-11-16"
+   "commit": "813d10a43d5d4eda4816e6a27eb6bf6250f75ea8",
+   "seen": "2026-11-23"
+  }
+ ],
+ "neotest-golang": [
+  {
+   "commit": "328186b65409afc85412295e7583537d75003ece",
+   "seen": "2026-11-23"
+  }
+ ],
+ "nvim-lspconfig": [
+  {
+   "commit": "4648fd8ba5c678d7e2db75ae44ffac269bb589d8",
+   "seen": "2026-11-23"
   }
  ],
  "render-markdown.nvim": [
   {
-   "commit": "8801162e041e34c64d0d1397cd1f353a14b01950",
-   "seen": "2026-11-16"
+   "commit": "a67f826164c38c836fc6060f32b275c4c43317a7",
+   "seen": "2026-11-23"
   }
  ],
  "schemastore.nvim": [
   {
-   "commit": "e8c3d2225d6bf5e2cbe414952c247d7a3411849b",
-   "seen": "2026-11-16"
+   "commit": "ffbe34a31de0cf696f688e7d9e226dc5b86b4323",
+   "seen": "2026-11-23"
   }
  ],
  "smart-splits.nvim": [
