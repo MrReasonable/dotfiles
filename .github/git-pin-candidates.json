@@ -1,20 +1,26 @@
 {
  "greymd/docker-zsh-completion": [
   {
-   "commit": "00e64ca9c6766aae8021ef312c36a1dbd75edc17",
-   "seen": "2026-11-16"
+   "commit": "f4f50491afc0b2cf03b12ab4f41245eb6a83f420",
+   "seen": "2026-11-23"
   }
  ],
  "ohmyzsh/ohmyzsh": [
   {
-   "commit": "c0140703a53eb0d22be44f7bac318d0baacc927c",
-   "seen": "2026-11-16"
+   "commit": "87aa1a9b892a3b150f93c53b577a2ec67e617f30",
+   "seen": "2026-11-23"
   }
  ],
  "romkatv/powerlevel10k": [
   {
-   "commit": "64df59615df306c7a8bb37d0a5a1ebc46337dfb1",
-   "seen": "2026-11-16"
+   "commit": "50a35cc8d9f1488d18fb8aea6cddcfc31189cc9f",
+   "seen": "2026-11-23"
+  }
+ ],
+ "wfxr/forgit": [
+  {
+   "commit": "b9cf76a218dae1867b81f61eb3cdb3212302dd5c",
+   "seen": "2026-11-23"
   }
  ]
 }
